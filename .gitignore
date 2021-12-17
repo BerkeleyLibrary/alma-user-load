@@ -1,0 +1,13 @@
+# We don't want our local DOTENV env file in gitland
+.env
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+
+# TODO - Remove these near end of dev!
+# Ignore some local test scripts
+xfrag.rb
+xnoko.rb
+xtest.rb
+user_uploads.xml

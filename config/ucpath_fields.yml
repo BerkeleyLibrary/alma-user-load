@@ -1,0 +1,247 @@
+Employee:
+  tablename: employees
+  fields:
+    - name: ucpath_employee_id
+      xpath: "//emp:employee/p:identifiers/r:identifier[r:type='hr-employee-id']/r:id"
+      status: REQUIRED
+      dbdef: "VARCHAR(16) NOT NULL PRIMARY KEY"
+
+    - name: legacy_employee_id
+      xpath: "//emp:employee/p:identifiers/r:identifier[r:type='legacy-hr-employee-id']/r:id"
+      dbdef: "VARCHAR(16)"
+      status: REQUIRED
+
+    - name: uid
+      xpath: "//emp:employee/p:identifiers/r:identifier[r:type='campus-uid']/r:id"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: first_name
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:givenName"
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:givenName"
+      dbdef: "VARCHAR(128)"
+      status: PREFERRED
+
+    - name: middle_name
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:middleName"
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:middleName"
+      dbdef: "VARCHAR(128)"
+      status: OPTIONAL
+
+    - name: last_name
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:familyName"
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:familyName"
+      dbdef: "VARCHAR(128)"
+      status: PREFERRED
+
+    - name: suffix_name
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:suffixName"
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:suffixName"
+      dbdef: "VARCHAR(128)"
+      status: OPTIONAL
+
+    - name: formatted_name
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:formattedName"
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:formattedName"
+      dbdef: "VARCHAR(128)"
+      status: OPTIONAL
+
+    - name: name_type
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:type/r:code"
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:type/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: email
+      xpath: "//emp:employee/p:emails/c:email[c:primary='true'][1]/c:emailAddress"
+      alt_xpath: "//emp:employee/p:emails/c:email[1]/c:emailAddress"
+      dbdef: "VARCHAR(128)"
+      status: OPTIONAL
+
+    - name: email_primary_code
+      xpath: "//emp:employee/p:emails/c:email[c:primary='true'][1]/c:primary"
+      alt_xpath: "//emp:employee/p:emails/c:email[1]/c:primary"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: email_type
+      xpath: "//emp:employee/p:emails/c:email[c:primary='true'][1]/c:type/r:code"
+      alt_xpath: "//emp:employee/p:emails/c:email[1]/c:type/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: phone_number
+      xpath: "//emp:employee/p:phones/c:phone[c:primary='true'][1]/c:number"
+      alt_xpath: "//emp:employee/p:phones/c:phone[1]/c:number"
+      dbdef: "VARCHAR(64)"
+      status: OPTIONAL
+
+    - name: phone_primary_code
+      xpath: "//emp:employee/p:phones/c:phone[c:primary='true'][1]/c:type/r:code"
+      alt_xpath: "//emp:employee/p:phones/c:phone[1]/c:type/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: phone_type
+      xpath: "//emp:employee/p:phones/c:phone[c:primary='true'][1]/c:primary"
+      alt_xpath: "//emp:employee/p:phones/c:phone[1]/c:primary"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: db_date_added
+      dbdef: "DATE"
+
+    - name: db_date_modified
+      dbdef: "DATE"
+
+Job:
+  tablename: jobs
+  fields:
+    - name: job_id
+      dbdef: "INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY"
+
+    - name: ucpath_employee_id
+      dbdef: "VARCHAR(16) NOT NULL"
+      xpath: ""
+      status: REQUIRED
+
+    - name: job_code
+      xpath: "./pos:position/jc:jobCode/jc:code/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: dept_code
+      xpath: "./emp:department/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: job_id
+      dbdef: "INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY"
+
+    - name: ucpath_employee_id
+      dbdef: "VARCHAR(16) NOT NULL"
+      xpath: ""
+      status: REQUIRED
+
+    - name: job_code
+      xpath: "./pos:position/jc:jobCode/jc:code/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: dept_code
+      xpath: "./emp:department/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: dept_desc
+      xpath: "./emp:department/r:description"
+      dbdef: "VARCHAR(64)"
+      status: OPTIONAL
+
+    - name: location_code
+      xpath: "./emp:location/r:code"
+      dbdef: "VARCHAR(32)"
+      status: OPTIONAL
+
+    - name: location_description
+      xpath: "./emp:location/r:description"
+      dbdef: "VARCHAR(128)"
+      status: OPTIONAL
+
+    - name: primary_code
+      xpath: "./emp:primary/r:code"
+      dbdef: "VARCHAR(8)"
+      status: OPTIONAL
+
+    - name: empl_type_code
+      xpath: "./emp:type/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: job_status_code
+      xpath: "./pos:position/jc:jobCode/jc:status/r:code"
+      dbdef: "VARCHAR(8)"
+      status: OPTIONAL
+
+    - name: position_status_code
+      xpath: "./pos:position/pos:status/r:code"
+      dbdef: "VARCHAR(8)"
+      status: OPTIONAL
+
+    - name: position_number
+      xpath: "./pos:position/pos:number"
+      dbdef: "VARCHAR(8)"
+      status: OPTIONAL
+
+    - name: hr_status_code
+      xpath: "./emp:status/emp:hrStatus/r:code"
+      dbdef: "VARCHAR(8)"
+      status: OPTIONAL
+
+    - name: emp_status_code
+      xpath: "./emp:status/emp:employmentStatus/r:code"
+      dbdef: "VARCHAR(8)"
+      status: OPTIONAL
+
+    - name: org_relationship_code
+      xpath: "./emp:organizationRelationship/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: last_action_code
+      xpath: "./emp:actions/r:lastAction/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: appointment_end_date
+      xpath: "./emp:actions/emp:assignmentEndDate"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: classification_indc
+      xpath: "./emp:classification/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: org_node_deptid
+      xpath: "./emp:department/r:code"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: expected_end_date
+      xpath: "./emp:actions/emp:expectedEndDate"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: intial_hire_date
+      xpath: "./emp:actions/emp:initialHireDate"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: initial_assignment_start_date
+      xpath: "./emp:actions/emp:initialAssignmentStartDate"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: job_assigned_date
+      xpath: "./emp:actions/emp:jobAssignedDate"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: dept_assigned_date
+      xpath: "./emp:actions/emp:departmentAssignedDate"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: expected_return_date
+      xpath: "./emp:actions/emp:expectedReturnDate"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+EmployeeIDs:
+  employee_rootnode: "//ar:response/emp:employees/emp:employee"
+  total_records_xpath: "//ar:offset/ar:total"
+  remaining_records_xpath: "//ar:offset/ar:remaining"
+  next_records_xpath: "//ar:offset/ar:next"
+  previous_records_xpath: "//ar:offset/ar:previous"
+  employee_id_xpath: "./p:identifiers/r:identifier[r:type/text()='hr-employee-id']/r:id"

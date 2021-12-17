@@ -1,0 +1,29 @@
+Attributes:
+  - berkeleyEduExpDate
+  - berkeleyEduHCMID
+  - berkeleyEduAffID
+  - berkeleyEduAffiliations
+  - berkeleyEduBirthDay
+  - berkeleyEduBirthMonth
+  - berkeleyEduBirthYear
+  - berkeleyEduAlternateID
+  - berkeleyEduCSID
+  - berkeleyEduEmpTitleCode
+  - berkeleyEduEmpDeptUnitTitleCode
+  - berkeleyEduKerberosPrincipalString
+  - berkeleyEduStuID
+  - employeeNumber
+  - employeeType
+  - uid
+  - berkeleyEduUnitHRDeptName
+  - givenName
+  - sn
+  - berkeleyEduOfficialEmail
+  - berkeleyEduPrimaryDeptUnit
+  - postalAddress
+  - postalCode
+  - telephoneNumber
+
+Student Affiliation:
+  - "STUDENT-TYPE-REGISTERED"
+  - "STUDENT-TYPE-NOT REGISTERED"
