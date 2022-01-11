@@ -1,19 +1,22 @@
 # TODO - 
-#  Move Keys/PWs to config and ENV vars
+#  DONE - Move Keys/PWs to config and ENV vars
 #  Setup DockerFile
 #  Setup options
-#  Setup LDAP fields
+#  DONE - Setup LDAP fields
 #  Setup user aggregation/merge
-#  REFACTOR the living shit out this
+#  STARTED - REFACTOR the living shit out this
 #  Setup RSPEC
 #  Get code coverage to 100%
 #  Rubocop it
 #  Setup logging
 #  Setup error handling!!!!
-#  Get this into Gitlab!!!
+#  DONE - Get this into Gitlab!!!
 #  Setup in pipeline
-#  Setup "Eligibility" logic!!!
-#  EVENTUALLY - Setup better XML builder/template writer
+#  DONE - Setup "Eligibility" logic!!!
+#  DONE - Setup better XML builder/template writer
+#  STARTED - Clean up your config setup - it's a bit unruly right now
+#  Eventually move to Gitlab/Lap
+#  DONE - switch to use JSON for all data collection (UCPath/SIS/Alma)
 
 # STEPS:
 #  1 - Get List of Users 
@@ -79,51 +82,43 @@ opts.each do |opt, arg|
 end
 
 if @type == 'ucpath'
-  puts "----->Processing UCPath..."
-
+  puts "Processing UCPath..."
+  
+  # FETCH THE CHANGE LOG
   change_log = UCPath::User.fetch_change_log
-
+  
   user_list = []
 
-  xml_root = Alma::XML.new("users")
 
   if change_log
     change_log.each do |id|
-      puts "Fetching ID: #{id}"
-      # UCPath::User.fetch_user(id)
+      puts "\tFetching ID: #{id}"
       u = UCPath::User.new(id)
       
-      
-      
-      #puts "\n\n---------------------------\n"
-      puts u.print
-      # u.print_obj
-      #user_list.push(u)
-      
-      
-      #user_xml = u.to_xml
-      #puts user_xml
-      #xml_root.append_element(user_xml)
-
-      exit
+      if u.is_eligible?
+        user_list.push(u)
+      else
+        # LOG THE FAILURE - who...why
+      end
     end
 
-    # Now go through each item in the user_list and XML'ify it!
+    # BUILD XML
+    builder = Alma::XMLBuilder.new user_list
 
-    # user_list[0].print_obj
+    puts "---------- alma_user_load | line# 107 ------------"
+    puts "builder : #{builder.doc.to_xml}"
+    puts "--------------------------------------"
+
+    # To Print XML File:
+    # f = File.open("user_uploads.xml", "w")
+    # f.write(builder.doc.to_xml)
+    # f.close
   else
     # Log this? Error? Should we ALWAYS expect some recs?
     puts "\n\nWARNING - No Records Found\n\n"
   end
 
-  # puts "---------- alma_user_load | line# 72 ------------"
-  # puts "xml_root.print : #{xml_root.xml}"
-  # puts "--------------------------------------"
   
-  # To Print XML File:
-  # f = File.open("user_uploads.xml", "w")
-  # f.write(xml_root.xml)
-  # f.close
 
 elsif @type == 'sis'
   # RUN SIS... well eventually, someday, when those SIS folks get off their butts and give access!

@@ -1,7 +1,6 @@
 require_relative 'alma/api'
 require_relative 'alma/user'
-require_relative 'alma/xml'
-require_relative 'alma/xml_fragment'
+require_relative 'alma/xml_builder'
 
 module Alma
   VERSION = '1.0'

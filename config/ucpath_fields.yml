@@ -3,96 +3,95 @@ Employee:
   fields:
     - name: ucpath_employee_id
       xpath: "//emp:employee/p:identifiers/r:identifier[r:type='hr-employee-id']/r:id"
+      jpath: '$..identifiers[?(@.type=="hr-employee-id")].id'
       status: REQUIRED
-      dbdef: "VARCHAR(16) NOT NULL PRIMARY KEY"
 
     - name: legacy_employee_id
       xpath: "//emp:employee/p:identifiers/r:identifier[r:type='legacy-hr-employee-id']/r:id"
-      dbdef: "VARCHAR(16)"
+      jpath: '$..identifiers[?(@.type=="legacy-hr-employee-id")].id'
       status: REQUIRED
 
     - name: uid
       xpath: "//emp:employee/p:identifiers/r:identifier[r:type='campus-uid']/r:id"
-      dbdef: "VARCHAR(16)"
+      jpath: '$..identifiers[?(@.type=="campus-uid")].id'
       status: OPTIONAL
 
     - name: first_name
       xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:givenName"
+      jpath: '$..names[?(@.type.code=="PRI")].givenName'
       alt_xpath: "//emp:employee/p:names/p:name[1]/p:givenName"
-      dbdef: "VARCHAR(128)"
       status: PREFERRED
 
     - name: middle_name
       xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:middleName"
+      jpath: '$..names[?(@.type.code=="PRI")].middleName'
       alt_xpath: "//emp:employee/p:names/p:name[1]/p:middleName"
-      dbdef: "VARCHAR(128)"
       status: OPTIONAL
 
     - name: last_name
       xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:familyName"
+      jpath: '$..names[?(@.type.code=="PRI")].familyName'
       alt_xpath: "//emp:employee/p:names/p:name[1]/p:familyName"
-      dbdef: "VARCHAR(128)"
       status: PREFERRED
 
     - name: suffix_name
       xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:suffixName"
+      jpath: '$..names[?(@.type.code=="PRI")].suffixName'
       alt_xpath: "//emp:employee/p:names/p:name[1]/p:suffixName"
-      dbdef: "VARCHAR(128)"
       status: OPTIONAL
 
     - name: formatted_name
       xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:formattedName"
+      jpath: '$..names[?(@.type.code=="PRI")].formattedName'
       alt_xpath: "//emp:employee/p:names/p:name[1]/p:formattedName"
-      dbdef: "VARCHAR(128)"
       status: OPTIONAL
 
     - name: name_type
       xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRI'][1]/p:type/r:code"
+      jpath: '$..names[?(@.type.code=="PRI")].type.code'
       alt_xpath: "//emp:employee/p:names/p:name[1]/p:type/r:code"
-      dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: email
       xpath: "//emp:employee/p:emails/c:email[c:primary='true'][1]/c:emailAddress"
+      jpath: "$..emails[?(@.primary==true)].emailAddress"
       alt_xpath: "//emp:employee/p:emails/c:email[1]/c:emailAddress"
-      dbdef: "VARCHAR(128)"
       status: OPTIONAL
 
     - name: email_primary_code
       xpath: "//emp:employee/p:emails/c:email[c:primary='true'][1]/c:primary"
+      jpath: "$..emails[?(@.primary==true)].primary"
       alt_xpath: "//emp:employee/p:emails/c:email[1]/c:primary"
-      dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: email_type
       xpath: "//emp:employee/p:emails/c:email[c:primary='true'][1]/c:type/r:code"
+      jpath: "$..emails[?(@.primary==true)].type.code"
       alt_xpath: "//emp:employee/p:emails/c:email[1]/c:type/r:code"
-      dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: phone_number
       xpath: "//emp:employee/p:phones/c:phone[c:primary='true'][1]/c:number"
+      jpath: "$..phones[?(@.primary==true)].number"
       alt_xpath: "//emp:employee/p:phones/c:phone[1]/c:number"
-      dbdef: "VARCHAR(64)"
       status: OPTIONAL
 
     - name: phone_primary_code
       xpath: "//emp:employee/p:phones/c:phone[c:primary='true'][1]/c:type/r:code"
+      jpath: "$..phones[?(@.primary==true)].primary"
       alt_xpath: "//emp:employee/p:phones/c:phone[1]/c:type/r:code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: phone_type
       xpath: "//emp:employee/p:phones/c:phone[c:primary='true'][1]/c:primary"
+      jpath: "$..phones[?(@.primary==true)].type.code"
       alt_xpath: "//emp:employee/p:phones/c:phone[1]/c:primary"
-      dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: db_date_added
-      dbdef: "DATE"
 
     - name: db_date_modified
-      dbdef: "DATE"
 
 Job:
   tablename: jobs
@@ -107,11 +106,13 @@ Job:
 
     - name: job_code
       xpath: "./pos:position/jc:jobCode/jc:code/r:code"
+      jpath: "$.position.jobCode.code.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: dept_code
       xpath: "./emp:department/r:code"
+      jpath: "$.department.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
@@ -125,116 +126,139 @@ Job:
 
     - name: job_code
       xpath: "./pos:position/jc:jobCode/jc:code/r:code"
+      jpath: "$.position.jobCode.code.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: dept_code
       xpath: "./emp:department/r:code"
+      jpath: "$.department.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: dept_desc
       xpath: "./emp:department/r:description"
+      jpath: "$.department.description"
       dbdef: "VARCHAR(64)"
       status: OPTIONAL
 
     - name: location_code
       xpath: "./emp:location/r:code"
+      jpath: "$.location.code"
       dbdef: "VARCHAR(32)"
       status: OPTIONAL
 
     - name: location_description
       xpath: "./emp:location/r:description"
+      jpath: "$.location.description"
       dbdef: "VARCHAR(128)"
       status: OPTIONAL
 
     - name: primary_code
       xpath: "./emp:primary/r:code"
+      jpath: "$.primary.code"
       dbdef: "VARCHAR(8)"
       status: OPTIONAL
 
     - name: empl_type_code
       xpath: "./emp:type/r:code"
+      jpath: "$.type.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: job_status_code
       xpath: "./pos:position/jc:jobCode/jc:status/r:code"
+      jpath: "$.position.jobCode.status.code"
       dbdef: "VARCHAR(8)"
       status: OPTIONAL
 
     - name: position_status_code
       xpath: "./pos:position/pos:status/r:code"
+      jpath: "$.position.status.code"
       dbdef: "VARCHAR(8)"
       status: OPTIONAL
 
     - name: position_number
       xpath: "./pos:position/pos:number"
+      jpath: "$.position.number"
       dbdef: "VARCHAR(8)"
       status: OPTIONAL
 
     - name: hr_status_code
       xpath: "./emp:status/emp:hrStatus/r:code"
+      jpath: "$.status.hrStatus.code"
       dbdef: "VARCHAR(8)"
       status: OPTIONAL
 
     - name: emp_status_code
       xpath: "./emp:status/emp:employmentStatus/r:code"
+      jpath: "$.status.employmentStatus.code"
       dbdef: "VARCHAR(8)"
       status: OPTIONAL
 
     - name: org_relationship_code
       xpath: "./emp:organizationRelationship/r:code"
+      jpath: "$.organizationRelationship.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: last_action_code
       xpath: "./emp:actions/r:lastAction/r:code"
+      jpath: "$.actions.lastAction.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: appointment_end_date
       xpath: "./emp:actions/emp:assignmentEndDate"
+      jpath: "$.actions.assignmentEndDate"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: classification_indc
       xpath: "./emp:classification/r:code"
+      jpath: "$.classification.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: org_node_deptid
       xpath: "./emp:department/r:code"
+      jpath: "$.department.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: expected_end_date
       xpath: "./emp:actions/emp:expectedEndDate"
+      jpath: "$.actions.expectedEndDate"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: intial_hire_date
       xpath: "./emp:actions/emp:initialHireDate"
+      jpath: "$.actions.initialHireDate"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: initial_assignment_start_date
       xpath: "./emp:actions/emp:initialAssignmentStartDate"
+      jpath: "$.actions.initialAssignmentStartDate"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: job_assigned_date
       xpath: "./emp:actions/emp:jobAssignedDate"
+      jpath: "$.actions.jobAssignedDate"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: dept_assigned_date
       xpath: "./emp:actions/emp:departmentAssignedDate"
+      jpath: "$.actions.departmentAssignedDate"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
     - name: expected_return_date
       xpath: "./emp:actions/emp:expectedReturnDate"
+      jpath: "$.actions.expectedReturnDate"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 

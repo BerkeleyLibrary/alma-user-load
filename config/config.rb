@@ -18,9 +18,14 @@ class Config
   ldap_contents = File.open('config/ldap_fields.yml').read
   @ldap_fields = YAML.load( ERB.new(ldap_contents).result )
 
+  ucpath_codes = File.open('config/ucpath_codes.yml').read
+  @ucpath_codes = YAML.load( ERB.new(ucpath_codes).result )
+
 
   # TODO - Add a check to make sure all necessary config settings are set!
   #        warn if we don't have an .env with necessary settings!
+  #        Maybe if missing needed .env locally I can offer a command line option
+  #        to create a skeleton .env file.
 
 
 
@@ -44,6 +49,14 @@ class Config
 
   def self.ldap_fields
     @ldap_fields
+  end
+
+  def self.ucpath_codes(type)
+    @ucpath_codes[type]
+  end
+
+  def self.check_ucpath_code(type, value)
+    @ucpath_codes[type].include? value
   end
 
 

@@ -1,2 +1,3 @@
 Settings:
   setting_one: "one"
+  change_log_days: 14

@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.4.4)
+    dotenv (2.7.6)
     faraday (1.8.0)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
@@ -21,7 +22,10 @@ GEM
     faraday-net_http_persistent (1.2.0)
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
+    jsonpath (0.5.8)
+      multi_json
     mini_portile2 (2.6.1)
+    multi_json (1.15.0)
     multipart-post (2.1.1)
     net-ldap (0.17.0)
     nokogiri (1.12.5)
@@ -50,7 +54,9 @@ PLATFORMS
   x86_64-darwin-19
 
 DEPENDENCIES
+  dotenv (~> 2.7, >= 2.7.6)
   faraday (~> 1.8)
+  jsonpath (~> 0.5.8)
   net-ldap (~> 0.17.0)
   nokogiri (~> 1.12, >= 1.12.5)
   rspec (~> 3.10)

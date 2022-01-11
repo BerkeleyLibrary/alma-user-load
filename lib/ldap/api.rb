@@ -1,3 +1,4 @@
+require 'ostruct'
 require 'net/ldap'
 
 module LDAP
@@ -14,8 +15,8 @@ module LDAP
     end
 
     def fetch_ldap_rec(id)
+      ldap_rec = OpenStruct.new
 
-      puts "----->Fetching LDAP ID: #{id}"
       filter = Net::LDAP::Filter.eq('uid', id)
 
       ldap = Net::LDAP.new :host => host,
@@ -26,22 +27,22 @@ module LDAP
           :password => pass
         }
       
-        # TODO - extract required fields and bundle into object!
+        # Extract required fields and bundle into open struct
         if ldap.bind
           ldap.search(:base => base, :filter => filter) do |entry|
-            puts "---------->DN: #{entry.dn}"
             entry.each do |attribute, values|
-              puts "--------------->#{attribute}"
-              values.each do |value|
-                puts "-------------------->#{value}"
-              end
+              ldap_rec[attribute] = values
+              # values.each do |value|
+              # end
             end
           end
       
         else
           # TODO - Handle error!
-          puts "----->fuccck..."
+          puts "\n********************\nLDAP ERROR\n**************************\n"
         end
+        
+        return ldap_rec
     end
     
     private
