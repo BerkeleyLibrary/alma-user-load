@@ -9,7 +9,7 @@ Employee:
     - name: legacy_employee_id
       xpath: "//emp:employee/p:identifiers/r:identifier[r:type='legacy-hr-employee-id']/r:id"
       jpath: '$..identifiers[?(@.type=="legacy-hr-employee-id")].id'
-      status: REQUIRED
+      status: OPTIONAL
 
     - name: uid
       xpath: "//emp:employee/p:identifiers/r:identifier[r:type='campus-uid']/r:id"

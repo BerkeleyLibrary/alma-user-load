@@ -12,6 +12,11 @@ module UCPath
     attr_accessor :rec
     attr_accessor :user
     attr_accessor :jobs
+
+    # NOT SURE I META IS NEEDED...NEED A WAY OF TRACKING THINGS LIKE
+    # ERRORS AND WARNINGS FOR A RECORD
+    attr_accessor :meta
+    
     attr_accessor :ldap
     attr_accessor :eligible
     attr_accessor :ucpath_rec
@@ -25,6 +30,8 @@ module UCPath
     def initialize(id)
       @id = id
       
+      @meta = {}
+
       # We'll assume this user is ineligible until we know otherwise
       @eligible = false
 
@@ -69,7 +76,8 @@ module UCPath
     #----------------------------------------------------------------#
     # CREATE A FINAL RECORD THAT CAN BE USED FOR GENERATING XML
     def create_user_record
-      rec.primary_id = ucpath_rec.uid  # TODO - VERIFY!!!
+      rec.primary_id = ucpath_rec.ucpath_employee_id
+
 
       #----------------------------------------------------------------#
       # NAMES:
@@ -95,23 +103,31 @@ module UCPath
         job_eligible = true
 
         # 1. hrStatus/code = A
-        job_eligible = false unless j.hr_status_code == 'A'
+        unless j.hr_status_code == 'A'
+          job_eligible = false 
+          puts "INELIGIBLE : #{rec.primary_id} - ineligible HR status code: '#{j.hr_status_code}' - must be 'A'"
+          
+          # meta['ineligible_reasons'] = ''
+        end
         
         # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
         unless j.expected_end_date.blank?
           job_eligible = false if Date.iso8601(j.expected_end_date) <= Date.today
+          puts "INELIGIBLE : #{rec.primary_id} - expected_end_date in the past"
         end
         
         # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within 
         #    the Visiting Scholar category.
         unless j.org_relationship_code.blank?
           if j.org_relationship_code == 'CWR'
+            puts "INELIGIBLE : #{rec.primary_id} - org code CWR has non visiting scholar job code"
             job_eligible = false unless Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
           end
         end
         
-
+        
         if job_eligible
+          puts "ELIGIBLE : #{rec.primary_id} - Found eligible job!"
           
           # USER_GROUP
           if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.department_code) || 
@@ -132,6 +148,13 @@ module UCPath
           else
             rec.user_group = 'NONACAD'
           end
+
+          # TODO - REMOVE:
+          puts "---------- user | line# 131 ------------"
+          puts "rec.user_group        : #{rec.user_group}"
+          puts "j.classification_code : #{j.classification_code}"
+          puts "j.job_code            : #{j.job_code}"
+          puts "--------------------------------------"
 
           # EXPIRTY_DATE
           if j.expected_end_date.blank?
@@ -175,18 +198,24 @@ module UCPath
 
     def create_identifiers
       identifiers = []
-      identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id)) if ucpath_rec.ucpath_employee_id
-      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) if ucpath_rec.legacy_employee_id
-      identifiers.push(create_identifier(ucpath_rec.uid)) if ucpath_rec.uid
+
+      # hr-employee-id : Note add 'E' prefix
+      identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id, 'E')) unless ucpath_rec.ucpath_employee_id.blank?
+      
+      # legacy-hr-employee-id
+      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) unless ucpath_rec.legacy_employee_id.blank?
+      
+      # campus-uid
+      identifiers.push(create_identifier(ucpath_rec.uid)) unless ucpath_rec.uid.blank?
 
       identifiers
     end
 
-    def create_identifier(identifier)
+    def create_identifier(identifier, prefix=nil)
       i = Identifier.new
       i.segment_type = 'Internal'
       i.id_type = 'BARCODE'
-      i.value = identifier
+      i.value = "#{prefix || ''}#{identifier}"
       i.status = 'ACTIVE'
 
       i
@@ -241,6 +270,13 @@ module UCPath
       # TODO - CONFIRM LOGIC FOR START DATE
       a.start_date = Date.iso8601(rec.expiry_date).next_year.to_s
       a.end_date = Date.iso8601(rec.expiry_date).next_year.to_s
+
+      puts "---------- user | line# 274 ------------"
+      puts "rec.expiry_date     : #{rec.expiry_date}"
+      puts "a.start_date        : #{a.start_date}"
+      puts "a.end_date          : #{a.end_date}"
+      puts "j.expected_end_date : #{job.expected_end_date}"
+      puts "--------------------------------------"
       
       # CONFIRM THIS IS HARDCODED TO 'SCHOOL'
       a.address_types = 'school'
@@ -250,6 +286,8 @@ module UCPath
     end
 
     def create_email
+      return nil if ucpath_rec.email.blank?
+
       e = Email.new
       e.preferred = ucpath_rec.email_primary_code
       e.email_address = ucpath_rec.email
@@ -259,6 +297,8 @@ module UCPath
     end
 
     def create_phone
+      return nil if ucpath_rec.phone_primary_code.blank?
+
       p = Phone.new
       p.preferred = ucpath_rec.phone_primary_code
       p.preferred_sms = nil
@@ -374,10 +414,15 @@ module UCPath
     def self.fetch_change_log
       
       # TODO - make these dynamic (but also commandline over-ridable)
-      start_date = '2021-11-05'
-      end_date   = '2021-11-05'
+      start_date = '2021-08-12'
+      end_date   = '2021-08-26'
 
-      log = User.change_log(start_date, end_date) || nil
+      puts "---------- TESTING ------------"
+      puts "start_date : #{start_date}"
+      puts "end_date : #{end_date}"
+      puts "-------------------------------"
+
+      # log = User.change_log(start_date, end_date) || nil
     end
 
 

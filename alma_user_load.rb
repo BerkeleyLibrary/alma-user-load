@@ -3,7 +3,7 @@
 #  Setup DockerFile
 #  Setup options
 #  DONE - Setup LDAP fields
-#  Setup user aggregation/merge
+#  DONE - Setup user aggregation/merge
 #  STARTED - REFACTOR the living shit out this
 #  Setup RSPEC
 #  Get code coverage to 100%
@@ -17,41 +17,45 @@
 #  STARTED - Clean up your config setup - it's a bit unruly right now
 #  Eventually move to Gitlab/Lap
 #  DONE - switch to use JSON for all data collection (UCPath/SIS/Alma)
+#  Setup full user base (if we want that...sounds scary)
+#  Setup to zip the xml file
+#  Setup transfer of zip file to Ex Libris
+#  DONE - Add 'E' prefix for hr-employee-id (aka ucpath_employee_id) identifier
+#  Workout the address start/end dates - it's unclear what they should be
+
 
 # STEPS:
-#  1 - Get List of Users 
-#      (either Change Log or full list if doing a full Sync)
-#  2 - Go through list:
 #    COLLECT DATA:
-#    A - Get UCPath Record
-#    B - Get LDAP Record
-#    C - Get ALMA Record
+#    01 - Generate list of users : change log or ad-hoc (specific IDs or daterange)
+#    02 - Get UCPath Record
+#    03 - Get LDAP Record
+#    04 - Get ALMA Record
 #    AGGREGATE:
-#    D - Create an Alma User Object
-#    E - If Alma rec exists check for differences and merge
+#    05 - Create an Alma User Object
+#    06 - If Alma rec exists check for differences and merge
 #    MUNGE:
-#    F - Set roles, handle purges, etc...
-#    G - Generate XML Fragment (for individual user record)
-#    H - Add fragment to XML Doc (for collection)
-#  3 - Save XML file
-#  4 - Zip file
-#  5 - Send XML file to ??? (where Ex Libris collects files for sync/update)
-#      FTP to: upload.lib.berkeley.edu/alma/
-#                                           patron_employees
-#                                           patron_students
+#    07 - Set roles, handle purges, etc...
+#    08 - Generate XML Fragment (for individual user record)
+#    09 - Add fragment to XML Doc (for collection)
+#    EXPORT:
+#    10 - Save XML file
+#    11 - Zip file
+#    12 - Send XML file to ??? (where Ex Libris collects files for sync/update)
+#         FTP to: upload.lib.berkeley.edu/alma/
+#                                              patron_employees
+#                                              patron_students
 #
-#   Allow add-hoc runs (Specific date ranges? Specific user IDs?)
-
 
 require 'getoptlong'
 
+# Load library
 require_relative 'config/config'
 require_relative 'lib/alma'
 require_relative 'lib/ldap'
 require_relative 'lib/sis'
 require_relative 'lib/ucpath'
 
-# Include your modules
+# Include modules
 include Alma
 include LDAP
 include UCPath
@@ -61,58 +65,124 @@ include UCPath
 opts = GetoptLong.new(
   [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
   [ '--type', '-t', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--changelog', GetoptLong::NO_ARGUMENT ],
+  [ '--startdate', '-s', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--enddate', '-e', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--numdays', '-n', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--users', '-u', GetoptLong::REQUIRED_ARGUMENT ],
+  [ '--verbose', '-v', GetoptLong::NO_ARGUMENT ],
+  [ '--noupload', GetoptLong::NO_ARGUMENT ]
 )
+
+# TODO - move to config:
+@num_days = 14
+
+# TODO - move help to config....maybe?
 
 opts.each do |opt, arg|
   case opt
     when '--help'
-      puts "\n\nruby alma_user_load.rb -t <sis|ucpath>"
+      # TODO - Iron this out:
+      # http://docopt.org/
+      puts 'Alma User Load'
+      puts "\nUsage:"
+      puts "\truby alma_user_load.rb -t <ucpath|sis>"
+      puts "\truby alma_user_load.rb --help | -h"
+      puts "\nOptions:"
+      puts "\t-h --help       Show this help screen"
+      puts "\t-t --type       Declare type (must be ucpath | sis)"
+      puts "\t-s --startdate  Declare start date [yyyy-mm-dd]"
+      puts "\t-e --enddate    Declare end date [yyyy-mm-dd]"
       exit
     when '--type'
       @type = arg
-    when '--outfile'
-      @outfile = arg
-    when '--checklinks'
-      @checklinks = true
-    when '--nofft'
-      # global since this is checked in ohc_to_xml.rb module
-      $nofft = true
+    when '--startdate'
+      @start_date = arg
+    when '--enddate'
+      @end_date = arg
+    when '--numdays'
+      @num_days = arg.to_i
+    when '--users'
+      @users = arg.split(/\s*,\s*/)
+    when '--noupload'
+      @do_not_upload = true
+    when '--verbose'
+      $verbose = true
   end
 end
 
+
+if @users
+  puts "Running for specific users"
+  process_list = @users
+else
+
+  if @start_date || @end_date
+    @num_days = @num_days - 1
+
+    # If either start or end date are blank, then use num_days
+    # to define the blank date.
+    if @start_date.blank?
+      @start_date = Date.iso8601(@end_date).next_day(-@num_days).to_s
+    elsif @end_date.blank?
+      @end_date = Date.iso8601(@start_date).next_day(+@num_days).to_s
+    end
+
+  else
+    # By default we want to run an end date of yesterday:
+    @end_date = Date.today - 1
+
+    # Starting num_days (default 14) before yesterday
+    @start_date = @end_date - (@num_days)
+
+  end
+
+  puts "---------- RUNNING CHANGE LOG ------------"
+  puts "@start_date   : #{@start_date}"
+  puts "@end_date     : #{@end_date}"
+  puts "@num_days     : #{@num_days}"
+  puts "--------------------------------------"
+
+end
+
+
 if @type == 'ucpath'
-  puts "Processing UCPath..."
-  
-  # FETCH THE CHANGE LOG
-  change_log = UCPath::User.fetch_change_log
-  
   user_list = []
 
-
-  if change_log
-    change_log.each do |id|
-      puts "\tFetching ID: #{id}"
+  # Fetch the change log if we didn't specify users at the command line!
+  process_list = UCPath::User.fetch_change_log(@start_date, @end_date) unless process_list
+  
+  if process_list
+    process_list.each do |id|
+      puts "\tFetching ID: #{id}" if $verbose
       u = UCPath::User.new(id)
-      
+
       if u.is_eligible?
         user_list.push(u)
       else
         # LOG THE FAILURE - who...why
+        puts "WARN : User ineligible..." if $verbose
       end
     end
 
     # BUILD XML
     builder = Alma::XMLBuilder.new user_list
 
-    puts "---------- alma_user_load | line# 107 ------------"
-    puts "builder : #{builder.doc.to_xml}"
-    puts "--------------------------------------"
+    if $verbose
+      puts "\n--------------------\n"
+      puts "#{builder.doc.to_xml}"
+      puts "\n--------------------\n"
+    end
 
-    # To Print XML File:
-    # f = File.open("user_uploads.xml", "w")
-    # f.write(builder.doc.to_xml)
-    # f.close
+    # WRITE XML TO FILE
+    f = File.open("test_user_uploads.xml", "w")
+    f.write(builder.doc.to_xml)
+    f.close
+
+    # UPLOAD XML FILE???
+    unless @do_not_upload
+      # UPLOAD FILE TO....?
+    end
+
   else
     # Log this? Error? Should we ALWAYS expect some recs?
     puts "\n\nWARNING - No Records Found\n\n"
@@ -125,6 +195,8 @@ elsif @type == 'sis'
   puts "----->SIS"
   puts "one big todo list at this point!\n\n"
 elsif @type == 'alma'
+  # DEVELOPMENT ONLY....
+  
   # Quick and dirty ALMA API Testing
   puts "----->ALMA"
   alma_user = Alma::API.fetch_alma_user('10335026')
@@ -132,6 +204,8 @@ elsif @type == 'alma'
   puts "user.inspect : #{alma_user.inspect}"
   puts "--------------------------------------"
 elsif @type == 'ldap'
+  # DEVELOPMENT ONLY....
+
   # Quick and dirty test of LDAP
   puts "\n\n----->TESTING LDAP"
   LDAP::API.fetch_ldap_rec('1707532')
@@ -139,9 +213,3 @@ else
   puts "\nERROR: type is required and must be 'sis' or 'ucpath'\n"
   exit
 end
-
-if @changelog
-  puts "---------->fetching change log..."
-
-end
-

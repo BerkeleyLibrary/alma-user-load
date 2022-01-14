@@ -23,6 +23,7 @@ module Alma
               xml.first_name    r.first_name
               xml.middle_name   r.middle_name if r.middle_name
               xml.last_name     r.last_name
+              xml.full_name
               xml.user_group    r.user_group
               xml.campus_code   'UCB Campus'
               xml.expiry_date   r.expiry_date
@@ -70,6 +71,8 @@ module Alma
                           }
                         }
                       }
+                    else
+                      xml.emails
                     end
 
                     # BUILD CONTACT>PHONES
@@ -85,6 +88,8 @@ module Alma
                           }
                         }
                       }
+                    else
+                      xml.phones
                     end
                 }
               end
