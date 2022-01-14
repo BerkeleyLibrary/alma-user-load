@@ -13,7 +13,7 @@ module UCPath
     attr_accessor :user
     attr_accessor :jobs
 
-    # NOT SURE I META IS NEEDED...NEED A WAY OF TRACKING THINGS LIKE
+    # NOT SURE IF META IS NEEDED...NEED A WAY OF TRACKING THINGS LIKE
     # ERRORS AND WARNINGS FOR A RECORD
     attr_accessor :meta
     
@@ -75,6 +75,9 @@ module UCPath
 
     #----------------------------------------------------------------#
     # CREATE A FINAL RECORD THAT CAN BE USED FOR GENERATING XML
+    # TODO - probably want to move this into a separate class
+    #        "AlmaUser" or something like that, then I can reuse
+    #        most of the code when I setup SIS.
     def create_user_record
       rec.primary_id = ucpath_rec.ucpath_employee_id
 
@@ -204,6 +207,7 @@ module UCPath
       
       # legacy-hr-employee-id
       identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) unless ucpath_rec.legacy_employee_id.blank?
+      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id.chars.last(7).join, 'A')) unless ucpath_rec.legacy_employee_id.blank?
       
       # campus-uid
       identifiers.push(create_identifier(ucpath_rec.uid)) unless ucpath_rec.uid.blank?
@@ -254,18 +258,6 @@ module UCPath
       a.state_province = 'CA'
       a.postal_code = '94720'
 
-      # Example file had all empty country fields... leave blanK?
-      # a.country = 'England'
-
-      #----------------------------------------------------------------#
-      # ADDRESS_NOTE:
-      # Take first the berkeleyEduPrimaryDeptUnit from LDAP if it 
-      # exists, otherwise use department/code
-      if ldap.berkeleyEduPrimaryDeptUnit
-        a.address_note = ldap.berkeleyEduPrimaryDeptUnit.first
-      else
-        a.address_note = job.dept_code || nil
-      end
 
       # TODO - CONFIRM LOGIC FOR START DATE
       a.start_date = Date.iso8601(rec.expiry_date).next_year.to_s
