@@ -8,7 +8,7 @@
 #  Setup RSPEC
 #  Get code coverage to 100%
 #  Rubocop it
-#  Setup logging
+#  Setup logging (guess do a csv file per run... )
 #  Setup error handling!!!!
 #  DONE - Get this into Gitlab!!!
 #  Setup in pipeline
@@ -21,7 +21,10 @@
 #  Setup to zip the xml file
 #  Setup transfer of zip file to Ex Libris
 #  DONE - Add 'E' prefix for hr-employee-id (aka ucpath_employee_id) identifier
-#  Workout the address start/end dates - it's unclear what they should be
+#  Workout the address start/end dates - it's unclear what they should be (Becky is working on this)
+#  DONE - Format phone number
+#  Make file naming convention dynamic? (add date, type, etc...)
+#  Write up README
 
 
 # STEPS:
@@ -73,25 +76,14 @@ opts = GetoptLong.new(
   [ '--noupload', GetoptLong::NO_ARGUMENT ]
 )
 
-# TODO - move to config:
-@num_days = 14
 
-# TODO - move help to config....maybe?
+@num_days = Config.setting('change_log_days')
+
 
 opts.each do |opt, arg|
   case opt
     when '--help'
-      # TODO - Iron this out:
-      # http://docopt.org/
-      puts 'Alma User Load'
-      puts "\nUsage:"
-      puts "\truby alma_user_load.rb -t <ucpath|sis>"
-      puts "\truby alma_user_load.rb --help | -h"
-      puts "\nOptions:"
-      puts "\t-h --help       Show this help screen"
-      puts "\t-t --type       Declare type (must be ucpath | sis)"
-      puts "\t-s --startdate  Declare start date [yyyy-mm-dd]"
-      puts "\t-e --enddate    Declare end date [yyyy-mm-dd]"
+      puts Config.help
       exit
     when '--type'
       @type = arg
@@ -177,6 +169,9 @@ if @type == 'ucpath'
     f = File.open("test_user_uploads.xml", "w")
     f.write(builder.doc.to_xml)
     f.close
+
+    # ZIP XML FILE
+    # TODO....
 
     # UPLOAD XML FILE???
     unless @do_not_upload

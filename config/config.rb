@@ -59,5 +59,13 @@ class Config
     @ucpath_codes[type].include? value
   end
 
+  def self.setting(field)
+    @settings.Settings[field] || nil
+  end
+
+  def self.help
+    @settings.Help
+  end
+
 
 end

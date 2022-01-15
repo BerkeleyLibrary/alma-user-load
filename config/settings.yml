@@ -1,3 +1,16 @@
 Settings:
   setting_one: "one"
   change_log_days: 14
+
+# TODO - flesh this out
+# http://docopt.org/
+Help: >
+  Alma User Load
+  Usage:
+      ruby alma_user_load.rb -t <ucpath|sis>
+      ruby alma_user_load.rb --help | -h
+  Options:
+      -h --help       Show this help screen
+      -t --type       Declare type (must be ucpath | sis)
+      -s --startdate  Declare start date [yyyy-mm-dd]
+      -e --enddate    Declare end date [yyyy-mm-dd]
