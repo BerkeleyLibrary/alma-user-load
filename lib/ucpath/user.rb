@@ -291,10 +291,46 @@ module UCPath
     def create_phone
       return nil if ucpath_rec.phone_primary_code.blank?
 
+      telephone = ucpath_rec.phone_number
+
+      #----------------------------------------------------------------#
+      # Apparently Alvin's run into some severely mutilated phone numbers
+      # Following series of REGEXs were cribbed and translated 
+      # from 20111130_Current_Procedures document on bdrive
+      telephone = telephone.sub(/^\+1\s+/, '')
+      telephone = telephone.sub(/^1-/, '')
+      telephone = telephone.sub(/^1\s+/, '')
+      telephone = telephone.sub(/\s+\([^\(\)]+\)$/, '')
+      telephone = telephone.gsub('.', '-')
+      telephone = telephone.sub(/-x\d+$/, '')
+      telephone = telephone.gsub('/', '-')
+      telephone = telephone.gsub('(', '')
+      telephone = telephone.gsub(')', '')
+      telephone = telephone.sub(/^\s+/, '')
+      telephone = telephone.sub(/\s+$/, '')
+      
+      # Let's see if we managed to torture the number into submission...
+      if telephone =~ /^\d{3}-\d{3}-\d{4}$/
+        # YES!  111-222-3333
+        telephone = telephone
+      elsif telephone =~ /^(\d{3})(\d{3})(\d{4})$/
+        # Okay I guess:  1112223333
+        telephone = "#{$1}-#{$2}-#{$3}"
+      elsif telephone =~ /^(\d{3})[ -]?(\d{4})$/
+        # Lazy...no area code:  111-2222
+        telephone = "510-#{$1}-#{$2}"
+      elsif telephone =~ /^(\d)[ -]?(\d{4})$/
+        # WTF!?!  1 2222
+        telephone = "510-64#{$1}-#{$2}"
+      else
+        # Apparently we have not...
+        return nil
+      end
+      
       p = Phone.new
       p.preferred = ucpath_rec.phone_primary_code
       p.preferred_sms = nil
-      p.phone_number = ucpath_rec.phone_number || nil
+      p.phone_number = telephone || nil
       p.phone_types = ucpath_rec.phone_type || nil
 
       p
