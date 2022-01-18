@@ -18,7 +18,7 @@
 #  Eventually move to Gitlab/Lap
 #  DONE - switch to use JSON for all data collection (UCPath/SIS/Alma)
 #  Setup full user base (if we want that...sounds scary)
-#  Setup to zip the xml file
+#  DONE - Setup to zip the xml file
 #  Setup transfer of zip file to Ex Libris
 #  DONE - Add 'E' prefix for hr-employee-id (aka ucpath_employee_id) identifier
 #  Workout the address start/end dates - it's unclear what they should be (Becky is working on this)
@@ -50,6 +50,8 @@
 #
 
 require 'getoptlong'
+
+require 'zipruby'
 
 # Load library
 require_relative 'config/config'
@@ -170,8 +172,11 @@ if @type == 'ucpath'
     f.write(builder.doc.to_xml)
     f.close
 
-    # ZIP XML FILE
-    # TODO....
+    # CREATE ZIP FILE AND ADD XML FILE TO IT
+    Zip::Archive.open('tmp/testzip.zip', Zip::CREATE) do |arc|
+      arc.add_file('test_user_uploads.xml')
+    end
+
 
     # UPLOAD XML FILE???
     unless @do_not_upload
