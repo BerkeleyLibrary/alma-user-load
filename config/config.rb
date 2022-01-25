@@ -1,8 +1,10 @@
 require 'erb'
 require 'yaml'
 require 'json'
+require 'logger'
 require 'ostruct'
 require 'dotenv/load'
+
 
 class Config
   
@@ -50,6 +52,11 @@ class Config
   def self.ldap_fields
     @ldap_fields
   end
+
+  def self.student_affiated?(affiliation)
+    @ldap_fields['Student Affiliation'].include? affiliation
+  end
+
 
   def self.ucpath_codes(type)
     @ucpath_codes[type]
