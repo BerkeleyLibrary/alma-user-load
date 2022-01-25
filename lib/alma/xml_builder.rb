@@ -9,7 +9,7 @@ module Alma
     end
 
     def build(recs)
-      return Nokogiri::XML::Builder.new do |xml|
+      return Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
         xml.users {
           
           # GENERATE USER ELEMENTS
@@ -81,7 +81,7 @@ module Alma
                       phone = r.contact_info.phones
 
                       xml.phones {
-                        xml.phone(:preferred => "#{phone.preferred}", :segment_type => "External") {
+                        xml.phone(:preferred => "#{phone.preferred}", :preferred_sms => "#{phone.preferred_sms}", :segment_type => "External") {
                           xml.phone_number  phone.phone_number
                           xml.phone_types {
                             xml.phone_type  phone.phone_types
