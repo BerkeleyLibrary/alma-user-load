@@ -70,6 +70,15 @@ UC Extension Faculty:
   - "EXADM"
   - "HYACD"
 
+User Groups:
+  LIBSTAFF: "Library Staff"
+  UCB POST: "UCB Post-doc"
+  UCBVISSCHOL: "UC Visiting Scholar/Post-doc"
+  UCEXT: "UC Extension Faculty"
+  FACULTY: "Faculty/Academic Staff"
+  EXECUTIVE: "Executive/Management"
+  NONACAD: "Non-Academic Staff"
+
 EmployeeIDs Overlap With Active StudentIDs:
   - "10292578"
   - "10253436"
