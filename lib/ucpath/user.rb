@@ -1,4 +1,5 @@
 require 'date'
+require 'json'
 require 'ostruct'
 require 'jsonpath'
 require 'nokogiri'
@@ -29,6 +30,7 @@ module UCPath
 
     def initialize(id)
       @id = id
+      $logger.info "#{id} - Begin processing record"
       
       @meta = {}
 
@@ -44,28 +46,35 @@ module UCPath
       
       #----------------------------------------------------------------#
       # FETCH & PARSE UCPATH DATA
+      $logger.info "#{id} - Fetching ucpath record"
       @user = fetch_user
       parse_user
 
+      $logger.info "#{id} - Fetching ucpath jobs data"
       @jobs = fetch_jobs
       parse_jobs
       
       
       #----------------------------------------------------------------#
       # FETCH LDAP
+      # TODO - only hit LDAP if you have a valid job!
+      $logger.info "#{id} - Fetching LDAP record: #{@ucpath_rec.uid}"
       @ldap = LDAP::API.fetch_ldap_rec(@ucpath_rec.uid)
       
-
+      
       #----------------------------------------------------------------#
       # FETCH ALMA RECORD (NOT SURE IF I'LL NEED THIS OR NOT....)
       # @alma_rec = Alma::User.new
       # @alma_rec.load_user(id)
       # puts "Last Name: #{@alma_rec.user.last_name}"
-    
-
+      
+      
       #----------------------------------------------------------------#
       # CREATE THE USER RECORD (@rec) FROM THE ABOVE DATA SOURCES
+      $logger.info "#{id} - Creating user record"
       create_user_record
+
+      $logger.info "#{id} - Eligible: #{self.is_eligible?}"
     end
 
     def is_eligible?
@@ -81,6 +90,16 @@ module UCPath
     def create_user_record
       rec.primary_id = ucpath_rec.ucpath_employee_id
 
+      #----------------------------------------------------------------#
+      # STUDENT CHECK - berkeleyeduaffiliations in Student Affiliation (ldap_fields.yml)
+      if ldap && ldap.berkeleyeduaffiliations
+        ldap.berkeleyeduaffiliations.each do |affiliation|
+          if Config.student_affiated? affiliation
+            $logger.info "#{id} - Ineligible - ldap student affiliation: #{affiliation}"
+            return nil
+          end
+        end
+      end
 
       #----------------------------------------------------------------#
       # NAMES:
@@ -100,6 +119,8 @@ module UCPath
       # Probably spin this off to a separate function!
       rec.user_group = nil
 
+      ineligible_reasons = []
+
       ucpath_rec.jobs.each do |j|
 
         # Assume this job is eligible - this is based on the 3 criteria below
@@ -107,57 +128,49 @@ module UCPath
 
         # 1. hrStatus/code = A
         unless j.hr_status_code == 'A'
+          ineligible_reasons.push("#{rec.primary_id} - Ineligible: HR status code: '#{j.hr_status_code}' - must be 'A'")
           job_eligible = false 
-          puts "INELIGIBLE : #{rec.primary_id} - ineligible HR status code: '#{j.hr_status_code}' - must be 'A'"
-          
-          # meta['ineligible_reasons'] = ''
         end
         
         # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
         unless j.expected_end_date.blank?
+          ineligible_reasons.push("#{rec.primary_id} - Ineligible: expected_end_date not in the future")
           job_eligible = false if Date.iso8601(j.expected_end_date) <= Date.today
-          puts "INELIGIBLE : #{rec.primary_id} - expected_end_date in the past"
         end
         
         # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within 
         #    the Visiting Scholar category.
         unless j.org_relationship_code.blank?
           if j.org_relationship_code == 'CWR'
-            puts "INELIGIBLE : #{rec.primary_id} - org code CWR has non visiting scholar job code"
+            ineligible_reasons.push("#{rec.primary_id} - Ineligible: org code CWR has non visiting scholar job code")
             job_eligible = false unless Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
           end
         end
         
         
         if job_eligible
-          puts "ELIGIBLE : #{rec.primary_id} - Found eligible job!"
+          # Found eligible job - clear out any previous ineligible reasons
+          ineligible_reasons = nil
           
           # USER_GROUP
-          if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.department_code) || 
+          if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.dept_code) || 
             Config.check_ucpath_code('Library Staff Job Code', j.job_code)
             rec.user_group = 'LIBSTAFF'
           elsif Config.check_ucpath_code('Postdoc Job Code', j.job_code)
             rec.user_group = 'UCB POST'
           elsif Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
             rec.user_group = 'UCBVISSCHOL'
-          elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_code) &&
-              Config.check_ucpath_code('UC Extension Faculty', j.department_code)
+          elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) &&
+              Config.check_ucpath_code('UC Extension Faculty', j.dept_code)
             rec.user_group = 'UCEXT'
-          elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_code) ||
+          elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) ||
               Config.check_ucpath_code('Emeritus Job Code', j.job_code)
             rec.user_group = 'FACULTY'
-          elsif Config.check_ucpath_code('Executive Classification Indic', j.classification_code)
+          elsif Config.check_ucpath_code('Executive Classification Indic', j.classification_indc)
             rec.user_group = 'EXECUTIVE'
           else
             rec.user_group = 'NONACAD'
           end
-
-          # TODO - REMOVE:
-          puts "---------- user | line# 131 ------------"
-          puts "rec.user_group        : #{rec.user_group}"
-          puts "j.classification_code : #{j.classification_code}"
-          puts "j.job_code            : #{j.job_code}"
-          puts "--------------------------------------"
 
           # EXPIRTY_DATE
           if j.expected_end_date.blank?
@@ -197,6 +210,13 @@ module UCPath
           break
         end
       end
+
+      if ineligible_reasons
+        ineligible_reasons.each do |r|
+          $logger.info r
+        end
+      end
+
     end
 
     def create_identifiers
@@ -251,24 +271,23 @@ module UCPath
     def create_address(job)
       a = Address.new
 
-      a.preferred = 'yes'
+      a.preferred = 'true'
       a.line1 = job.dept_desc if job.dept_desc
       a.line2 = job.location_description if job.location_description
       a.city = 'Berkeley'
       a.state_province = 'CA'
       a.postal_code = '94720'
 
+      #----------------------------------------------------------------#
+      # Dates: address_start_date/address_end_date, etc...             #
+      # Per Dave Rez:                                                  #
+      # I would say that setting any start date equal to the load date #
+      # and the end date equal to the expiration date would be fine.   #
+      # The purge date can be set for a year past the expiration date. #
+      #----------------------------------------------------------------#
+      a.start_date = Date.today
+      a.end_date = Date.iso8601(rec.expiry_date)
 
-      # TODO - CONFIRM LOGIC FOR START DATE
-      a.start_date = Date.iso8601(rec.expiry_date).next_year.to_s
-      a.end_date = Date.iso8601(rec.expiry_date).next_year.to_s
-
-      puts "---------- user | line# 274 ------------"
-      puts "rec.expiry_date     : #{rec.expiry_date}"
-      puts "a.start_date        : #{a.start_date}"
-      puts "a.end_date          : #{a.end_date}"
-      puts "j.expected_end_date : #{job.expected_end_date}"
-      puts "--------------------------------------"
       
       # CONFIRM THIS IS HARDCODED TO 'SCHOOL'
       a.address_types = 'school'
@@ -277,26 +296,73 @@ module UCPath
       a
     end
 
-    def create_email
-      return nil if ucpath_rec.email.blank?
+    
+    # TODO - Email addresses must be checked for structural validity.
 
-      e = Email.new
-      e.preferred = ucpath_rec.email_primary_code
-      e.email_address = ucpath_rec.email
-      e.email_types = ucpath_rec.email_type
+    #----------------------------------------------------------------#
+    # Email                                                          #
+    # Take first from the LDAP berkeleyEduOfficialEmail field,       #
+    # then if not found use the primary email address from the       #
+    # Employee record if it exists, otherwise use any other email    #
+    # address from the record.                                       #
+    #----------------------------------------------------------------#
+    def create_email
+
+      unless !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first.blank?
+        e = Email.new
+        e.preferred = 'true'
+        e.email_address = ldap.berkeleyeduofficialemail.first
+        e.email_types = 'school'        
+      else
+        return nil if ucpath_rec.email.blank?
+
+        e = Email.new
+        e.preferred = ucpath_rec.email_primary_code
+        e.email_address = ucpath_rec.email
+        e.email_types = ucpath_rec.email_type
+      end
 
       e
     end
 
+
+    #----------------------------------------------------------------#
+    # Phone Number                                                   #
+    # Take first from the LDAP telephoneNumber field, then if not    #
+    # found use the primary number from the Employee record if it    #
+    # exists, otherwise use any other phone number from the record.  #
+    #----------------------------------------------------------------#
     def create_phone
-      return nil if ucpath_rec.phone_primary_code.blank?
 
-      telephone = ucpath_rec.phone_number
+      unless !ldap.telephonenumber || ldap.telephonenumber.first.blank?
+        telephone = format_phone ldap.telephonenumber.first
+        
+        p = Phone.new
+        p.preferred = 'true'
+        p.preferred_sms = 'false'
+        p.phone_number = telephone || nil
+        p.phone_types = 'office'
+      else
+        return nil if ucpath_rec.phone_primary_code.blank?
+        telephone = format_phone ucpath_rec.phone_number
+        
+        p = Phone.new
+        p.preferred = ucpath_rec.phone_primary_code
+        p.preferred_sms = 'false'
+        p.phone_number = telephone || nil
+        p.phone_types = ucpath_rec.phone_type || nil
+      end
 
-      #----------------------------------------------------------------#
-      # Apparently Alvin's run into some severely mutilated phone numbers
-      # Following series of REGEXs were cribbed and translated 
-      # from 20111130_Current_Procedures document on bdrive
+      p      
+    end
+
+    #----------------------------------------------------------------#
+    # Regular Expression Jujitsu:                                    #
+    # Apparently Alvin's run into some severely mutilated phone      #
+    # numbers - the Following series of REGEXs were cribbed and      #
+    # translated from 20111130_Current_Procedures document on bdrive #
+    #----------------------------------------------------------------#
+    def format_phone(telephone)
       telephone = telephone.sub(/^\+1\s+/, '')
       telephone = telephone.sub(/^1-/, '')
       telephone = telephone.sub(/^1\s+/, '')
@@ -308,11 +374,14 @@ module UCPath
       telephone = telephone.gsub(')', '')
       telephone = telephone.sub(/^\s+/, '')
       telephone = telephone.sub(/\s+$/, '')
-      
+
       # Let's see if we managed to torture the number into submission...
       if telephone =~ /^\d{3}-\d{3}-\d{4}$/
         # YES!  111-222-3333
         telephone = telephone
+      elsif telephone =~ /^(\d{3})[- ](\d{3})-(\d{4})$/
+        # A little wishy washy:  111 222-3333
+        telephone = "#{$1}-#{$2}-#{$3}"
       elsif telephone =~ /^(\d{3})(\d{3})(\d{4})$/
         # Okay I guess:  1112223333
         telephone = "#{$1}-#{$2}-#{$3}"
@@ -324,17 +393,17 @@ module UCPath
         telephone = "510-64#{$1}-#{$2}"
       else
         # Apparently we have not...
+        # TODO - log these somewhere to adapt to the insanity...
         return nil
       end
-      
-      p = Phone.new
-      p.preferred = ucpath_rec.phone_primary_code
-      p.preferred_sms = nil
-      p.phone_number = telephone || nil
-      p.phone_types = ucpath_rec.phone_type || nil
 
-      p
+      telephone
     end
+
+
+
+
+    
 
     #----------------------------------------------------------------#
     # Per Alvin:                                                     #
@@ -361,8 +430,8 @@ module UCPath
       
     end
 
+    # First load all UCPath Employee Data into obj
     def parse_user
-      # First load all UCPath Employee Data into obj
       
       Config.ucpath_employee_fields.each do |f|
         name = f['name']
@@ -374,8 +443,7 @@ module UCPath
         value = JsonPath.on(@user, jpath).first || ''
 
         if status == 'REQUIRED' && value.blank?
-          # TODO - LOG ERROR : id - MISSING REQUIRED FIELD: name
-          puts "\n****** ERROR - Missing required field: #{name} ******\n"
+          $logger.error "#{id} - Missing required field: #{name}"
         end
 
         ucpath_rec[name] = value if value
@@ -385,17 +453,24 @@ module UCPath
 
     # TODO - I may need to set this up to always have the primary job
     #        as the first element in the array
+    # We'll throw all the jobs into an array of open structs:
     def parse_jobs
-      # We'll throw all the jobs into an array of open structs:
       ucpath_rec['jobs'] = []
+      
+      # Query @jobs for the actual jobs
+      job_data = JsonPath.on(@jobs, '$..response[*].jobs')
 
-      # Then load jobs into obj
-      JsonPath.on(@jobs, '$..response[*].jobs').each do |j|
+      return nil unless job_data.count > 0
+
+      job_data.first.each_with_index do |job, idx|
+        # JsonPath.on returns a hash - convert that back to JSON so our jsonpath path's work!
+        # TODO - see if there's a better way..., this feels hacky.
+        j = job.to_json
+        
         # WORKS:
         # puts "JOBCODE  :  -->#{JsonPath.on(j.first, '$.position.jobCode.code.code')}<--"
         # Also works:
         # puts "JOBCODE  :  -->#{JsonPath.on(j, '$[*].position.jobCode.code.code')}<--"
-
 
         job = OpenStruct.new
 
@@ -407,10 +482,10 @@ module UCPath
           next unless jpath
   
           # value = user.xpath(xpath).text || ''
-          value = JsonPath.on(j.first, jpath).first || ''
+          value = JsonPath.on(j, jpath).first || ''
   
           if status == 'REQUIRED' && value.blank?
-            # TODO - LOG ERROR : id - MISSING REQUIRED FIELD: name
+            $logger.error "#{id} - Job Missing Required Field: #{name}"
           end
   
           job[name] = value if value
@@ -439,20 +514,9 @@ module UCPath
 
 
     # Class function to fetch the UCPath User Change Log
-    def self.fetch_change_log
-      
-      # TODO - make these dynamic (but also commandline over-ridable)
-      start_date = '2021-08-12'
-      end_date   = '2021-08-26'
-
-      puts "---------- TESTING ------------"
-      puts "start_date : #{start_date}"
-      puts "end_date : #{end_date}"
-      puts "-------------------------------"
-
-      # log = User.change_log(start_date, end_date) || nil
+    def self.fetch_change_log(start_date, end_date)
+      log = User.change_log(start_date, end_date) || nil
     end
-
 
     def fetch_user
       User.fetch_ucpath_rec(id)
