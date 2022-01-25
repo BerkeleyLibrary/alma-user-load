@@ -9,7 +9,12 @@ module UCPath
       res = fetch(req, 'json')
 
       # TODO - handle errors!
-      return nil unless res.status == 200
+      unless res.status == 200
+        $logger.error "#{id} - Failed to fetch UCPath record"
+        return nil
+      end
+      
+      $logger.info "#{id} - Successfully fetched UCPath record"
 
       response = res.body
     end
@@ -28,9 +33,11 @@ module UCPath
     def change_log(change_from, change_to)
       # where we'll stash our IDs:
       user_ids = []
+      $logger.info "Fetching Change Log..."
 
       # Define the number of records to fetch per request:
-      page_size = "&page-size=5"
+      # TODO - move this to config
+      page_size = "&page-size=200"
 
       # Define a variable to track our current page:
       current_page = 0
@@ -40,12 +47,10 @@ module UCPath
         # Add 1 to our current page:
         current_page += 1
 
+        $logger.info "Change Log page: #{current_page}"
         # Create our query parameter:
         page_number = "&page-number=#{current_page}"
 
-        # Tell me what the fuck we're doing!
-        # puts "Fetching Page --> #{current_page}"
-        
         # Generate our request:
         req = url_root + "employees?change-from=#{change_from}&change-to=#{change_to}"
         
