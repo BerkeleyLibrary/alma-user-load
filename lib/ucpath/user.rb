@@ -60,8 +60,8 @@ module UCPath
       # TODO - only hit LDAP if you have a valid job!
       $logger.info "#{id} - Fetching LDAP record: #{@ucpath_rec.uid}"
       @ldap = LDAP::API.fetch_ldap_rec(@ucpath_rec.uid)
-      
-      
+
+
       #----------------------------------------------------------------#
       # FETCH ALMA RECORD (NOT SURE IF I'LL NEED THIS OR NOT....)
       # @alma_rec = Alma::User.new
@@ -343,11 +343,15 @@ module UCPath
         p.phone_number = telephone || nil
         p.phone_types = 'office'
       else
-        return nil if ucpath_rec.phone_primary_code.blank?
+        return nil if ucpath_rec.phone_number.blank?
         telephone = format_phone ucpath_rec.phone_number
         
         p = Phone.new
-        p.preferred = ucpath_rec.phone_primary_code
+        if ucpath_rec.phone_number.blank?
+          p.preferred = ucpath_rec.phone_primary_code
+        else
+          p.preferred = 'true'
+        end
         p.preferred_sms = 'false'
         p.phone_number = telephone || nil
         p.phone_types = ucpath_rec.phone_type || nil
@@ -363,6 +367,7 @@ module UCPath
     # translated from 20111130_Current_Procedures document on bdrive #
     #----------------------------------------------------------------#
     def format_phone(telephone)
+      preserved_number = telephone
       telephone = telephone.sub(/^\+1\s+/, '')
       telephone = telephone.sub(/^1-/, '')
       telephone = telephone.sub(/^1\s+/, '')
@@ -392,8 +397,8 @@ module UCPath
         # WTF!?!  1 2222
         telephone = "510-64#{$1}-#{$2}"
       else
-        # Apparently we have not...
-        # TODO - log these somewhere to adapt to the insanity...
+        # Apparently we have not... Log it
+        $logger.info "#{id} - Failed to process phone number: #{preserved_number}"
         return nil
       end
 
@@ -436,11 +441,17 @@ module UCPath
       Config.ucpath_employee_fields.each do |f|
         name = f['name']
         jpath = f['jpath']
+        alt_jpath = f['alt_jpath']
         status = f['status'] || 'OPTIONAL'
 
         next unless jpath
 
         value = JsonPath.on(@user, jpath).first || ''
+
+        # If field has an alternatate path (E.G., non primary phone)
+        if value.blank? && alt_jpath
+          value = JsonPath.on(@user, alt_jpath).first || ''
+        end
 
         if status == 'REQUIRED' && value.blank?
           $logger.error "#{id} - Missing required field: #{name}"

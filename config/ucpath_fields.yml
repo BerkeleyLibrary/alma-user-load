@@ -74,6 +74,7 @@ Employee:
       xpath: "//emp:employee/p:phones/c:phone[c:primary='true'][1]/c:number"
       jpath: "$..phones[?(@.primary==true)].number"
       alt_xpath: "//emp:employee/p:phones/c:phone[1]/c:number"
+      alt_jpath: "$..phones[0].number"
       status: OPTIONAL
 
     - name: phone_primary_code
