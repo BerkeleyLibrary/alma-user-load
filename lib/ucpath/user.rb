@@ -30,7 +30,7 @@ module UCPath
 
     def initialize(id)
       @id = id
-      $logger.info "#{id} - Begin processing record"
+      logger.info "#{id} - Begin processing record"
       
       @meta = {}
 
@@ -46,11 +46,11 @@ module UCPath
       
       #----------------------------------------------------------------#
       # FETCH & PARSE UCPATH DATA
-      $logger.info "#{id} - Fetching ucpath record"
+      logger.info "#{id} - Fetching ucpath record"
       @user = fetch_user
       parse_user
 
-      $logger.info "#{id} - Fetching ucpath jobs data"
+      logger.info "#{id} - Fetching ucpath jobs data"
       @jobs = fetch_jobs
       parse_jobs
       
@@ -58,7 +58,7 @@ module UCPath
       #----------------------------------------------------------------#
       # FETCH LDAP
       # TODO - only hit LDAP if you have a valid job!
-      $logger.info "#{id} - Fetching LDAP record: #{@ucpath_rec.uid}"
+      logger.info "#{id} - Fetching LDAP record: #{@ucpath_rec.uid}"
       @ldap = LDAP::API.fetch_ldap_rec(@ucpath_rec.uid)
 
 
@@ -71,10 +71,10 @@ module UCPath
       
       #----------------------------------------------------------------#
       # CREATE THE USER RECORD (@rec) FROM THE ABOVE DATA SOURCES
-      $logger.info "#{id} - Creating user record"
+      logger.info "#{id} - Creating user record"
       create_user_record
 
-      $logger.info "#{id} - Eligible: #{self.is_eligible?}"
+      logger.info "#{id} - Eligible: #{self.is_eligible?}"
     end
 
     def is_eligible?
@@ -95,7 +95,7 @@ module UCPath
       if ldap && ldap.berkeleyeduaffiliations
         ldap.berkeleyeduaffiliations.each do |affiliation|
           if Config.student_affiated? affiliation
-            $logger.info "#{id} - Ineligible - ldap student affiliation: #{affiliation}"
+            logger.info "#{id} - Ineligible - ldap student affiliation: #{affiliation}"
             return nil
           end
         end
@@ -213,7 +213,7 @@ module UCPath
 
       if ineligible_reasons
         ineligible_reasons.each do |r|
-          $logger.info r
+          logger.info r
         end
       end
 
@@ -398,7 +398,7 @@ module UCPath
         telephone = "510-64#{$1}-#{$2}"
       else
         # Apparently we have not... Log it
-        $logger.info "#{id} - Failed to process phone number: #{preserved_number}"
+        logger.info "#{id} - Failed to process phone number: #{preserved_number}"
         return nil
       end
 
@@ -454,7 +454,7 @@ module UCPath
         end
 
         if status == 'REQUIRED' && value.blank?
-          $logger.error "#{id} - Missing required field: #{name}"
+          logger.error "#{id} - Missing required field: #{name}"
         end
 
         ucpath_rec[name] = value if value
@@ -496,7 +496,7 @@ module UCPath
           value = JsonPath.on(j, jpath).first || ''
   
           if status == 'REQUIRED' && value.blank?
-            $logger.error "#{id} - Job Missing Required Field: #{name}"
+            logger.error "#{id} - Job Missing Required Field: #{name}"
           end
   
           job[name] = value if value

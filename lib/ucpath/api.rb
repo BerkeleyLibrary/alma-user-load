@@ -10,11 +10,11 @@ module UCPath
 
       # TODO - handle errors!
       unless res.status == 200
-        $logger.error "#{id} - Failed to fetch UCPath record"
+        logger.error "#{id} - Failed to fetch UCPath record"
         return nil
       end
       
-      $logger.info "#{id} - Successfully fetched UCPath record"
+      logger.info "#{id} - Successfully fetched UCPath record"
 
       response = res.body
     end
@@ -33,7 +33,7 @@ module UCPath
     def change_log(change_from, change_to)
       # where we'll stash our IDs:
       user_ids = []
-      $logger.info "Fetching Change Log..."
+      logger.info "Fetching Change Log..."
 
       # Define the number of records to fetch per request:
       # TODO - move this to config
@@ -47,7 +47,7 @@ module UCPath
         # Add 1 to our current page:
         current_page += 1
 
-        $logger.info "Change Log page: #{current_page}"
+        logger.info "Change Log page: #{current_page}"
         # Create our query parameter:
         page_number = "&page-number=#{current_page}"
 

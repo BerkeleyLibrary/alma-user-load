@@ -5,8 +5,9 @@
 #  STARTED - Setup logging (guess do a csv file per run... )
 #  STARTED - Clean up your config setup - it's a bit unruly right now
 #  Setup error handling!!!!
+#  Fix address start date
 #  Setup RSPEC
-#  Get code coverage to 100%
+#  Setup RCOV and get code coverage to 100%
 #  Rubocop it (ugh... dred!)
 #  Move to Gitlab/Lap
 #  Setup DockerFile
@@ -14,6 +15,8 @@
 #  Setup transfer of zip file to Ex Libris
 #  Setup full user base (if we want that...sounds scary)
 #  Write up README
+#  Save the change log to a temp file and go through (and track your progress)
+#  Only do a LDAP lookup if you have an eligible job!!!
 #  Go through the million "TODOs" littered through all this code!
 #  Eventually build out custom logger (CSV of each record touched, each event and outcome)
 #  DONE - Workout the address start/end dates - it's unclear what they should be (Becky is working on this)
@@ -48,13 +51,13 @@ require_relative 'lib/alma'
 require_relative 'lib/ldap'
 require_relative 'lib/sis'
 require_relative 'lib/ucpath'
+require_relative 'lib/logging'
 
 # Include modules
 include Alma
 include LDAP
 include UCPath
-
-$logger = Logger.new( 'log/log.txt', 'daily' )
+include Logging
 
 # TODO - Set up options, build help menu!
 opts = GetoptLong.new(
@@ -96,13 +99,13 @@ end
 # type_adhoc||daterange.xmlfilename_type = @type
 filename_range = ''
 
-$logger.info "Type: #{@type}"
+logger.info "Type: #{@type}"
 
 
 if @users
   filename_range = 'adhoc'
-  $logger.info "Running for specific users"
-  $logger.info "User List: #{@users}"
+  logger.info "Running for specific users"
+  logger.info "User List: #{@users}"
   
   process_list = @users
 else
@@ -150,10 +153,10 @@ if @type == 'ucpath'
     end
   end
 
-  # $logger.info process_list
+  logger.info process_list
   
   # LET'S DO THIS!!!!
-  $logger.info "About to process #{process_list.count} records..."
+  logger.info "About to process #{process_list.count} records..."
   if process_list
     process_list.each do |id|
       puts "\tFetching ID: #{id}" if $verbose
@@ -181,19 +184,19 @@ if @type == 'ucpath'
     f.write(builder.doc.to_xml)
     f.close
 
-    $logger.info "Records writing to #{@type}_#{filename_range}.xml"
+    logger.info "Records writing to #{@type}_#{filename_range}.xml"
     
     # CREATE ZIP FILE AND ADD XML FILE TO IT
     # Zip::Archive.open('tmp/testzip.zip', Zip::CREATE) do |arc|
     #   arc.add_file('test_user_uploads.xml')
-    #   $logger.info "File Zipped"
+    #   logger.info "File Zipped"
     # end
     
     
     # UPLOAD XML FILE???
     unless @do_not_upload
       # UPLOAD FILE TO....?
-      # $logger.info "File Uploaded"
+      logger.info "File Uploaded"
     end
 
   else
