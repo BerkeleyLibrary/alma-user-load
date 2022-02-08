@@ -71,7 +71,7 @@ describe UCPath::User do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
 
-    stub_ucpath_jobs_test(ucpath_id, 
+    override_jobs_stub(ucpath_id, 
       {
         "job_code" => "000118"
       }
@@ -86,7 +86,7 @@ describe UCPath::User do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
 
-    stub_ucpath_jobs_test(ucpath_id, 
+    override_jobs_stub(ucpath_id, 
       {
         "job_code" => "CWR003"
       }
@@ -101,7 +101,7 @@ describe UCPath::User do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
 
-    stub_ucpath_jobs_test(ucpath_id, 
+    override_jobs_stub(ucpath_id, 
       {
         "job_code" => 'dummycode',
         "dept_code" => "EXADM",
@@ -117,7 +117,7 @@ describe UCPath::User do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
     
-    stub_ucpath_jobs_test(ucpath_id, 
+    override_jobs_stub(ucpath_id, 
       {
         "job_code" => '001132'
       }
@@ -131,7 +131,7 @@ describe UCPath::User do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
     
-    stub_ucpath_jobs_test(ucpath_id, 
+    override_jobs_stub(ucpath_id, 
       {
         "job_code" => 'dummycode',
         'dept_code' => 'dummycode',
@@ -147,7 +147,7 @@ describe UCPath::User do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
     
-    stub_ucpath_jobs_test(ucpath_id, 
+    override_jobs_stub(ucpath_id, 
       {
         "job_code" => 'dummycode',
         'dept_code' => 'dummycode',
