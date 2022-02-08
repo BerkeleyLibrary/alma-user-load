@@ -1,0 +1,48 @@
+{
+  "response": [
+    {
+      "identifiers": [
+        {
+          "type": "hr-employee-id",
+          "id": "10527060"
+        }
+      ],
+      "jobs": [
+        {
+          "classification": {
+            "code": "A",
+            "description": "Academic"
+          },
+          "position": {
+            "department": {
+              "code": "SMTOC",
+              "description": "Simons Institute TOC"
+            },
+            "jobCode": {
+              "code": {
+                "code": "003252",
+                "description": "POSTDOC-EMPLOYEE"
+              },
+              "status": {
+                "code": "A",
+                "description": "Active"
+              }
+            },
+            "fromDate": "2021-10-01"
+          },
+          "department": {
+            "code": "SMTOC",
+            "description": "Simons Institute TOC"
+          },
+          "status": {
+            "hrStatus": {
+              "code": "A",
+              "description": "Active"
+            }
+          },
+          "fromDate": "2021-11-29"
+        }
+      ]
+    }
+  ]
+}

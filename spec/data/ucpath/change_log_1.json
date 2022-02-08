@@ -1,0 +1,69 @@
+{
+  "source": "UCB-HR-REALTIME-CHANGELOG",
+  "correlationId": "43bfdf66-e326-4415-b55c-ff5c4028edf2",
+  "timeStamp": "2022-02-07",
+  "httpStatus": {
+    "code": "200",
+    "description": "OK"
+  },
+  "offset": {
+    "total": 2,
+    "remaining": 0,
+    "previous": 0,
+    "next": 0
+  },
+  "response": [
+    {
+      "identifiers": [
+        {
+          "type": "hr-employee-id",
+          "id": "10000003"
+        },
+        {
+          "type": "campus-uid",
+          "id": "856785"
+        },
+        {
+          "type": "calnet-id",
+          "id": "marcgoldwein"
+        },
+        {
+          "type": "campus-solutions-id",
+          "id": "3032542943"
+        },
+        {
+          "type": "legacy-hr-employee-id",
+          "id": "012201191"
+        }
+      ]
+    },
+    {
+      "identifiers": [
+        {
+          "type": "hr-employee-id",
+          "id": "10000004"
+        },
+        {
+          "type": "campus-uid",
+          "id": "163660"
+        },
+        {
+          "type": "calnet-id",
+          "id": "erin.conlisk"
+        },
+        {
+          "type": "campus-solutions-id",
+          "id": "13055396"
+        },
+        {
+          "type": "legacy-hr-employee-id",
+          "id": "011378817"
+        },
+        {
+          "type": "student-id",
+          "id": "13055396"
+        }
+      ]
+    }
+  ]
+}
