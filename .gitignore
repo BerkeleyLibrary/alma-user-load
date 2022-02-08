@@ -4,6 +4,7 @@
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
+/coverage/*
 
 # TODO - Remove these near end of dev!
 # Ignore some local test scripts
@@ -11,3 +12,4 @@ xfrag.rb
 xnoko.rb
 xtest.rb
 user_uploads.xml
+*.xml

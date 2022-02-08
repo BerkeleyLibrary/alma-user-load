@@ -2,12 +2,9 @@
 #  Verify I have all "required" fields for eligibility
 #  STARTED - Setup options
 #  STARTED - REFACTOR the living shit out this
-#  STARTED - Setup logging (guess do a csv file per run... )
 #  STARTED - Clean up your config setup - it's a bit unruly right now
 #  Setup error handling!!!!
-#  Fix address start date
-#  Setup RSPEC
-#  Setup RCOV and get code coverage to 100%
+#  Get code coverage to 100%
 #  Rubocop it (ugh... dred!)
 #  Move to Gitlab/Lap
 #  Setup DockerFile
@@ -19,6 +16,10 @@
 #  Only do a LDAP lookup if you have an eligible job!!!
 #  Go through the million "TODOs" littered through all this code!
 #  Eventually build out custom logger (CSV of each record touched, each event and outcome)
+#  DONE - Setup logging (guess do a csv file per run... )
+#  DONE - Fix address start date
+#  DONE - Setup RSPEC
+#  DONE - Setup RCOV 
 #  DONE - Workout the address start/end dates - it's unclear what they should be (Becky is working on this)
 #  DONE - Make file naming convention dynamic? (add date, type, etc...)
 #  DONE - Move Keys/PWs to config and ENV vars
@@ -144,9 +145,11 @@ if @type == 'ucpath'
   user_list = []
 
   # Fetch the change log if we didn't specify users at the command line!
-  process_list = UCPath::User.fetch_change_log(@start_date, @end_date) unless process_list
+  # process_list = UCPath::User.fetch_change_log(@start_date, @end_date) unless process_list
+  process_list = UCPath::API.change_log(@start_date, @end_date) unless process_list
 
   # Stash the Change Log while developing...
+  # TODO - move this someplace....
   File.open("tmp/sfcl_#{filename_range}.txt", 'w') do |file|
     process_list.each do |id|
       file.write("#{id}\n")
@@ -157,16 +160,16 @@ if @type == 'ucpath'
   
   # LET'S DO THIS!!!!
   logger.info "About to process #{process_list.count} records..."
+  
   if process_list
+
+    # Fetch and Process each ID from process_list
     process_list.each do |id|
       puts "\tFetching ID: #{id}" if $verbose
       u = UCPath::User.new(id)
 
       if u.is_eligible?
         user_list.push(u)
-      else
-        # LOG THE FAILURE - who...why
-        puts "WARN : User ineligible..." if $verbose
       end
     end
 
