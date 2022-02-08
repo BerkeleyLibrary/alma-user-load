@@ -12,9 +12,13 @@ module Logging
       @logger ||= Logger.new('log/log.txt', 'daily')
     end
 
-    def logger=(logger)
-      @logger = logger
-    end
+    # Example cribbed from stackoverflow referenced above had the following
+    # 3 lines of code. RSPEC says that they're not being hit... so wondering
+    # if they're not needed... Commenting out for now but leaving here until
+    # I'm sure they're not needed.
+    # def logger=(logger)
+    #   @logger = logger
+    # end
   end
 
   def self.included(base)

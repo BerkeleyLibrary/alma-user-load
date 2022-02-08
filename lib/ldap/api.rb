@@ -4,15 +4,11 @@ require 'net/ldap'
 module LDAP
   module API
 
-    # TODO - delete after dev complete
-    def list_fields
-      puts "---------->Heyy!"
-      # Config.ucpath_employee_fields.each do |f|
-
-      puts "---------- API | line# 8 ------------"
-      puts "Config.ldap_fields.inspect : #{Config.ldap_fields.inspect}"
-      puts "--------------------------------------"
-    end
+    # def list_fields
+    #   puts "---------- LDAP::API list_fields ------------"
+    #   puts "Config.ldap_fields.inspect : #{Config.ldap_fields.inspect}"
+    #   puts "--------------------------------------"
+    # end
 
     def fetch_ldap_rec(id)
       ldap_rec = OpenStruct.new
@@ -36,10 +32,6 @@ module LDAP
               # end
             end
           end
-      
-        else
-          # TODO - Handle error!
-          puts "\n********************\nLDAP ERROR\n**************************\n"
         end
         
         return ldap_rec

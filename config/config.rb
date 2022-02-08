@@ -37,9 +37,9 @@ class Config
   end
 
   # Returns ostruct of settings yaml file
-  def self.settings
-    @settings
-  end
+  # def self.settings
+  #   @settings
+  # end
 
   def self.ucpath_employee_fields
     @ucpath_fields['Employee']['fields']
@@ -49,26 +49,26 @@ class Config
     @ucpath_fields['Job']['fields']
   end
 
-  def self.ldap_fields
-    @ldap_fields
-  end
+  # def self.ldap_fields
+  #   @ldap_fields
+  # end
 
   def self.student_affiated?(affiliation)
     @ldap_fields['Student Affiliation'].include? affiliation
   end
 
 
-  def self.ucpath_codes(type)
-    @ucpath_codes[type]
-  end
+  # def self.ucpath_codes(type)
+  #   @ucpath_codes[type]
+  # end
 
   def self.check_ucpath_code(type, value)
     @ucpath_codes[type].include? value
   end
 
-  def self.setting(field)
-    @settings.Settings[field] || nil
-  end
+  # def self.setting(field)
+  #   @settings.Settings[field] || nil
+  # end
 
   def self.help
     @settings.Help

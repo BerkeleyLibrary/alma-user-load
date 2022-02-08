@@ -8,11 +8,7 @@ module UCPath
 
       res = fetch(req, 'json')
 
-      # TODO - handle errors!
-      unless res.status == 200
-        logger.error "#{id} - Failed to fetch UCPath record"
-        return nil
-      end
+      return nil unless res.status == 200
       
       logger.info "#{id} - Successfully fetched UCPath record"
 
@@ -69,7 +65,7 @@ module UCPath
         # No error... let's parse our response and continue:
         response = JSON.parse(res.body)
         
-        return nil if response.blank?
+        return nil if !response || response == ''
         
         # Put the offset into a var for easy peasy access:
         offset = response['offset']

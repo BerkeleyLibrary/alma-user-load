@@ -60,9 +60,9 @@ module Alma
                     end
                   
                     # BUILD CONTACT>EMAILS
-                    if r.contact_info.emails
+                    if r.contact_info.emails.email_address && r.contact_info.emails.email_address != ''
                       email = r.contact_info.emails
-
+                      
                       xml.emails {
                         xml.email(:preferred => "#{email.preferred}", :segment_type => "Internal") {
                           xml.email_address email.email_address
@@ -76,10 +76,9 @@ module Alma
                     end
 
                     # BUILD CONTACT>PHONES
-                    # TODO - see if this is correct...or if I shouldn't have block if no phone found!
-                    if r.contact_info.phones
+                    if r.contact_info.phones.phone_number
                       phone = r.contact_info.phones
-
+                      
                       xml.phones {
                         xml.phone(:preferred => "#{phone.preferred}", :preferred_sms => "#{phone.preferred_sms}", :segment_type => "External") {
                           xml.phone_number  phone.phone_number
@@ -106,6 +105,19 @@ module Alma
                   end
                 }
               end
+
+              # USER_STATISTICS - COMING SOON!
+              # if r.statistics
+              #   xml.user_statistics {
+              #     r.statistics.each do |stat|
+              #       # <user_statistic segment_type="External">
+              #       #   <statistic_category>UCB</statistic_category>
+              #       #   <category_type></category_type>
+              #       #   <statistic_note>FYUHS</statistic_note>
+              #       # </user_statistic>
+              #     end
+              #   }
+              # end
             }
           end
         }
@@ -113,3 +125,18 @@ module Alma
     end
   end
 end
+
+__END__
+
+<user_statistics>
+<user_statistic segment_type="External">
+  <statistic_category>UCB</statistic_category>
+  <category_type></category_type>
+  <statistic_note>FYUHS</statistic_note>
+</user_statistic>
+<user_statistic segment_type="External">
+  <statistic_category>UCB</statistic_category>
+  <category_type></category_type>
+  <statistic_note>Non-Academic Staff</statistic_note>
+</user_statistic>
+</user_statistics>

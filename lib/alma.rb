@@ -8,14 +8,4 @@ module Alma
 
   # Because api.rb is a module you need to include it...
   include Alma::API
-  
-  # TODO - remove this...probably
-  def test
-    puts "---------->ALMA TEST..."
-
-    # u = Alma::API.fetch_user('10335026')
-    # puts "---------- alma | line# 12 ------------"
-    # puts "u.inspect : #{u.inspect}"
-    # puts "--------------------------------------"
-  end
 end
