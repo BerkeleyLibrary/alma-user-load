@@ -1,13 +1,12 @@
-
 require 'json'
 require 'active_support/core_ext/hash' # from_xml
-#require_relative 'api'
+# require_relative 'api'
 
 module SIS
   # Alma User object in all it's naked glory...
-  
+
   class User
-    #include Alma::API
+    # include Alma::API
     attr_accessor :user
 
     def initialize

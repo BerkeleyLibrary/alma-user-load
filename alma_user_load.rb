@@ -1,4 +1,4 @@
-# TODO - 
+# TODO: -
 #  Verify I have all "required" fields for eligibility
 #  STARTED - Setup options
 #  STARTED - REFACTOR the living shit out this
@@ -19,7 +19,7 @@
 #  DONE - Setup logging (guess do a csv file per run... )
 #  DONE - Fix address start date
 #  DONE - Setup RSPEC
-#  DONE - Setup RCOV 
+#  DONE - Setup RCOV
 #  DONE - Workout the address start/end dates - it's unclear what they should be (Becky is working on this)
 #  DONE - Make file naming convention dynamic? (add date, type, etc...)
 #  DONE - Move Keys/PWs to config and ENV vars
@@ -41,7 +41,7 @@
 #            phone - should be 510-643-6532/office/preferred = true I had none... DONE
 # 10144264 - user_group "LIBSTAFF" not NONACAD
 #          - purge date '2023', not '2024'
-#          
+#
 
 require 'getoptlong'
 require 'zipruby'
@@ -60,39 +60,37 @@ include LDAP
 include UCPath
 include Logging
 
-# TODO - Set up options, build help menu!
+# TODO: - Set up options, build help menu!
 opts = GetoptLong.new(
-  [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
-  [ '--type', '-t', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--startdate', '-s', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--enddate', '-e', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--numdays', '-n', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--users', '-u', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--verbose', '-v', GetoptLong::NO_ARGUMENT ],
-  [ '--noupload', GetoptLong::NO_ARGUMENT ]
+  ['--help', '-h', GetoptLong::NO_ARGUMENT],
+  ['--type', '-t', GetoptLong::REQUIRED_ARGUMENT],
+  ['--startdate', '-s', GetoptLong::REQUIRED_ARGUMENT],
+  ['--enddate', '-e', GetoptLong::REQUIRED_ARGUMENT],
+  ['--numdays', '-n', GetoptLong::REQUIRED_ARGUMENT],
+  ['--users', '-u', GetoptLong::REQUIRED_ARGUMENT],
+  ['--verbose', '-v', GetoptLong::NO_ARGUMENT],
+  ['--noupload', GetoptLong::NO_ARGUMENT]
 )
 
 @num_days = Config.setting('change_log_days')
 
 opts.each do |opt, arg|
   case opt
-    when '--help'
-      puts Config.help
-      exit
-    when '--type'
-      @type = arg
-    when '--startdate'
-      @start_date = arg
-    when '--enddate'
-      @end_date = arg
-    when '--numdays'
-      @num_days = arg.to_i
-    when '--users'
-      @users = arg.split(/\s*,\s*/)
-    when '--noupload'
-      @do_not_upload = true
-    when '--verbose'
-      $verbose = true
+  when '--help'
+    puts Config.help
+    exit
+  when '--type'
+    @type = arg
+  when '--startdate'
+    @start_date = arg
+  when '--enddate'
+    @end_date = arg
+  when '--numdays'
+    @num_days = arg.to_i
+  when '--users'
+    @users = arg.split(/\s*,\s*/)
+  when '--noupload'
+    @do_not_upload = true
   end
 end
 
@@ -102,17 +100,16 @@ filename_range = ''
 
 logger.info "Type: #{@type}"
 
-
 if @users
   filename_range = 'adhoc'
-  logger.info "Running for specific users"
+  logger.info 'Running for specific users'
   logger.info "User List: #{@users}"
-  
+
   process_list = @users
 else
 
   if @start_date || @end_date
-    @num_days = @num_days - 1
+    @num_days -= 1
 
     # If either start or end date are blank, then use num_days
     # to define the blank date.
@@ -127,26 +124,25 @@ else
     @end_date = Date.today - 1
 
     # Starting num_days (default 14) before yesterday
-    @start_date = @end_date - (@num_days)
+    @start_date = @end_date - @num_days
 
   end
 
-  puts "---------- RUNNING CHANGE LOG ------------"
+  puts '---------- RUNNING CHANGE LOG ------------'
   puts "@start_date   : #{@start_date}"
   puts "@end_date     : #{@end_date}"
   puts "@num_days     : #{@num_days}"
-  puts "--------------------------------------"
+  puts '--------------------------------------'
   filename_range = "#{@start_date}_#{@end_date}"
 
 end
-
 
 if @type == 'ucpath'
   user_list = []
 
   # Fetch the change log if we didn't specify users at the command line!
   # process_list = UCPath::User.fetch_change_log(@start_date, @end_date) unless process_list
-  process_list = UCPath::API.change_log(@start_date, @end_date) unless process_list
+  process_list ||= UCPath::API.change_log(@start_date, @end_date)
 
   # Stash the Change Log while developing...
   # TODO - move this someplace....
@@ -157,72 +153,60 @@ if @type == 'ucpath'
   end
 
   logger.info process_list
-  
+
   # LET'S DO THIS!!!!
   logger.info "About to process #{process_list.count} records..."
-  
+
   if process_list
 
     # Fetch and Process each ID from process_list
     process_list.each do |id|
-      puts "\tFetching ID: #{id}" if $verbose
       u = UCPath::User.new(id)
 
-      if u.is_eligible?
-        user_list.push(u)
-      end
+      user_list.push(u) if u.eligible?
     end
 
     # BUILD XML
     builder = Alma::XMLBuilder.new user_list
 
-    if $verbose
-      puts "\n--------------------\n"
-      puts "#{builder.doc.to_xml}"
-      puts "\n--------------------\n"
-    end
-
     # WRITE XML TO FILE
-    f = File.open("#{@type}_#{filename_range}.xml", "w")
+    f = File.open("#{@type}_#{filename_range}.xml", 'w')
     f.write(builder.doc.to_xml)
     f.close
 
     logger.info "Records writing to #{@type}_#{filename_range}.xml"
-    
+
     # CREATE ZIP FILE AND ADD XML FILE TO IT
     # Zip::Archive.open('tmp/testzip.zip', Zip::CREATE) do |arc|
     #   arc.add_file('test_user_uploads.xml')
     #   logger.info "File Zipped"
     # end
-    
-    
+
     # UPLOAD XML FILE???
     unless @do_not_upload
       # UPLOAD FILE TO....?
-      logger.info "File Uploaded"
+      logger.info 'File Uploaded'
     end
 
   else
     # Log this? Error? Should we ALWAYS expect some recs?
     puts "\n\nWARNING - No Records Found\n\n"
-    
-  end
 
-  
+  end
 
 elsif @type == 'sis'
   # RUN SIS... well eventually, someday, when those SIS folks get off their butts and give access!
-  puts "----->SIS"
+  puts '----->SIS'
   puts "one big todo list at this point!\n\n"
 elsif @type == 'alma'
   # DEVELOPMENT ONLY....
-  
+
   # Quick and dirty ALMA API Testing
-  puts "----->ALMA"
+  puts '----->ALMA'
   alma_user = Alma::API.fetch_alma_user('10335026')
-  puts "---------- alma_user_load | line# 140 ------------"
+  puts '---------- alma_user_load | line# 140 ------------'
   puts "user.inspect : #{alma_user.inspect}"
-  puts "--------------------------------------"
+  puts '--------------------------------------'
 elsif @type == 'ldap'
   # DEVELOPMENT ONLY....
 
@@ -235,8 +219,6 @@ else
   puts "\nERROR: type is required and must be 'sis' or 'ucpath'\n"
   exit
 end
-
-
 
 # STEPS:
 #    COLLECT DATA:

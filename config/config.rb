@@ -5,35 +5,30 @@ require 'logger'
 require 'ostruct'
 require 'dotenv/load'
 
-
 class Config
-  
   # Secrets (passwords, api keys, etc...): Uses ERB for ENV variables
-  @secrets = JSON.parse(YAML.load(ERB.new(File.read("config/secrets.yml")).result).to_json, object_class: OpenStruct)
-  
+  @secrets = JSON.parse(YAML.load(ERB.new(File.read('config/secrets.yml')).result).to_json, object_class: OpenStruct)
+
   # General Settings: Uses ERB for ENV variables
-  @settings = JSON.parse(YAML.load(ERB.new(File.read("config/settings.yml")).result).to_json, object_class: OpenStruct)
+  @settings = JSON.parse(YAML.load(ERB.new(File.read('config/settings.yml')).result).to_json, object_class: OpenStruct)
 
   ucpath_contents = File.open('config/ucpath_fields.yml').read
-  @ucpath_fields = YAML.load( ERB.new(ucpath_contents).result )
+  @ucpath_fields = YAML.load(ERB.new(ucpath_contents).result)
 
   ldap_contents = File.open('config/ldap_fields.yml').read
-  @ldap_fields = YAML.load( ERB.new(ldap_contents).result )
+  @ldap_fields = YAML.load(ERB.new(ldap_contents).result)
 
   ucpath_codes = File.open('config/ucpath_codes.yml').read
-  @ucpath_codes = YAML.load( ERB.new(ucpath_codes).result )
+  @ucpath_codes = YAML.load(ERB.new(ucpath_codes).result)
 
-
-  # TODO - Add a check to make sure all necessary config settings are set!
+  # TODO:  Add a check to make sure all necessary config settings are set!
   #        warn if we don't have an .env with necessary settings!
   #        Maybe if missing needed .env locally I can offer a command line option
   #        to create a skeleton .env file.
 
-
-
   # Returns ostruct of the secrets yaml file
-  def self.secrets
-    @secrets
+  class << self
+    attr_reader :secrets
   end
 
   # Returns ostruct of settings yaml file
@@ -57,7 +52,6 @@ class Config
     @ldap_fields['Student Affiliation'].include? affiliation
   end
 
-
   # def self.ucpath_codes(type)
   #   @ucpath_codes[type]
   # end
@@ -73,6 +67,4 @@ class Config
   def self.help
     @settings.Help
   end
-
-
 end

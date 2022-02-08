@@ -22,7 +22,6 @@ describe Alma::XMLBuilder do
     allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
     user2 = UCPath::User.new(ucpath_id)
 
-
     xml = Alma::XMLBuilder.new [user1, user2]
     expect(xml).to be_kind_of(Alma::XMLBuilder)
   end

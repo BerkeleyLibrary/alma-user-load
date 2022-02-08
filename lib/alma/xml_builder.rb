@@ -9,15 +9,13 @@ module Alma
     end
 
     def build(recs)
-      return Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
-        xml.users {
-          
+      Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
+        xml.users do
           # GENERATE USER ELEMENTS
-          recs.each_with_index do |rec, idx|
+          recs.each_with_index do |rec, _idx|
             r = rec.rec
 
-            xml.user {
-              
+            xml.user do
               xml.record_type   'PUBLIC'
               xml.primary_id    r.primary_id
               xml.first_name    r.first_name
@@ -34,76 +32,76 @@ module Alma
               # CONTACT INFO CONTAINS ADDRESSES, EMAILS, PHONES
               if r.contact_info
 
-                xml.contact_info {
-                  
-                    if r.contact_info.addresses
-                      address = r.contact_info.addresses
+                xml.contact_info do
+                  if r.contact_info.addresses
+                    address = r.contact_info.addresses
 
-                      # BUILD CONTACT>ADDRESSES
-                      xml.addresses {
-                        xml.address(:preferred => "#{address.preferred}", :segment_type => "Internal") {
-                          xml.line1           address.line1
-                          xml.line2           address.line2
-                          xml.city            address.city
-                          xml.state_province  address.state_province
-                          xml.postal_code     address.postal_code
-                          xml.country         address.country
-                          xml.address_note    address.address_note
-                          xml.start_date      address.start_date
-                          xml.end_date        address.end_date
-                          xml.address_types {
-                            xml.address_type  address.address_types
-                          }
-                        }
-                      }
-
-                    end
-                  
-                    # BUILD CONTACT>EMAILS
-                    if r.contact_info.emails.email_address && r.contact_info.emails.email_address != ''
-                      email = r.contact_info.emails
-                      
-                      xml.emails {
-                        xml.email(:preferred => "#{email.preferred}", :segment_type => "Internal") {
-                          xml.email_address email.email_address
-                          xml.email_types {
-                            xml.email_type  email.email_types
-                          }
-                        }
-                      }
-                    else
-                      xml.emails
+                    # BUILD CONTACT>ADDRESSES
+                    xml.addresses do
+                      xml.address(preferred: address.preferred.to_s, segment_type: 'Internal') do
+                        xml.line1           address.line1
+                        xml.line2           address.line2
+                        xml.city            address.city
+                        xml.state_province  address.state_province
+                        xml.postal_code     address.postal_code
+                        xml.country         address.country
+                        xml.address_note    address.address_note
+                        xml.start_date      address.start_date
+                        xml.end_date        address.end_date
+                        xml.address_types do
+                          xml.address_type  address.address_types
+                        end
+                      end
                     end
 
-                    # BUILD CONTACT>PHONES
-                    if r.contact_info.phones.phone_number
-                      phone = r.contact_info.phones
-                      
-                      xml.phones {
-                        xml.phone(:preferred => "#{phone.preferred}", :preferred_sms => "#{phone.preferred_sms}", :segment_type => "External") {
-                          xml.phone_number  phone.phone_number
-                          xml.phone_types {
-                            xml.phone_type  phone.phone_types
-                          }
-                        }
-                      }
-                    else
-                      xml.phones
+                  end
+
+                  # BUILD CONTACT>EMAILS
+                  if r.contact_info.emails.email_address && r.contact_info.emails.email_address != ''
+                    email = r.contact_info.emails
+
+                    xml.emails do
+                      xml.email(preferred: email.preferred.to_s, segment_type: 'Internal') do
+                        xml.email_address email.email_address
+                        xml.email_types do
+                          xml.email_type  email.email_types
+                        end
+                      end
                     end
-                }
+                  else
+                    xml.emails
+                  end
+
+                  # BUILD CONTACT>PHONES
+                  if r.contact_info.phones.phone_number
+                    phone = r.contact_info.phones
+
+                    xml.phones do
+                      xml.phone(preferred: phone.preferred.to_s, preferred_sms: phone.preferred_sms.to_s,
+                                segment_type: 'External') do
+                        xml.phone_number phone.phone_number
+                        xml.phone_types do
+                          xml.phone_type  phone.phone_types
+                        end
+                      end
+                    end
+                  else
+                    xml.phones
+                  end
+                end
               end
 
               # BUILD USER_IDENTIFIERS FROM ARRAY OF IDENTIFIERS
               if r.identifiers
-                xml.user_identifiers {
+                xml.user_identifiers do
                   r.identifiers.each do |identifier|
-                    xml.user_identifier(:segment_type => "#{identifier.segment_type}") {
+                    xml.user_identifier(segment_type: identifier.segment_type.to_s) do
                       xml.id_type   identifier.id_type
                       xml.value     identifier.value
                       xml.status    identifier.status
-                    }
+                    end
                   end
-                }
+                end
               end
 
               # USER_STATISTICS - COMING SOON!
@@ -118,9 +116,9 @@ module Alma
               #     end
               #   }
               # end
-            }
+            end
           end
-        }
+        end
       end
     end
   end

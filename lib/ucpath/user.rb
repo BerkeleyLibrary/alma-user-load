@@ -1,3 +1,5 @@
+# frozen_string_literal: false
+
 require 'date'
 require 'json'
 require 'ostruct'
@@ -6,8 +8,7 @@ require 'nokogiri'
 require_relative 'user'
 require_relative '../alma'
 
-
-# TODO - Decomposition
+# TODO: - Decomposition
 # Break this into a bunch of smaller objects
 # raw_ucpath
 # ldap
@@ -20,43 +21,36 @@ require_relative '../alma'
 #  -> phones
 #  -> addresses
 
-
 module UCPath
+  # UCPath::User
+  # TODO: break this down into much a smaller number of classes.
+  # rubocop:disable Metrics/ClassLength
   class User
-
-    attr_accessor :id
-    attr_accessor :rec
-    attr_accessor :user
-    attr_accessor :jobs
-    attr_accessor :errors
-
-    attr_accessor :ldap
-    attr_accessor :eligible
-    attr_accessor :ucpath_rec
+    attr_accessor :id, :rec, :user, :jobs, :errors, :ldap, :eligible, :ucpath_rec
 
     Statistic = Struct.new(:segment_type, :category, :type, :note)
     Identifier = Struct.new(:segment_type, :id_type, :value, :status)
     ContactInfo = Struct.new(:addresses, :emails, :phones)
-    Address = Struct.new(:preferred, :line1, :line2, :city, :state_province, :postal_code, :country, :address_note, :start_date, :end_date, :address_types)
+    Address = Struct.new(:preferred, :line1, :line2, :city, :state_province, :postal_code, :country, :address_note,
+                         :start_date, :end_date, :address_types)
     Email = Struct.new(:preferred, :email_address, :email_types)
     Phone = Struct.new(:preferred, :preferred_sms, :phone_number, :phone_types)
 
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def initialize(id)
       @id = id
       logger.info "#{id} - Begin processing record"
 
       @errors = []
-      
+
       # We'll assume this user is ineligible until we know otherwise
       @eligible = false
-
 
       #----------------------------------------------------------------#
       # THESE RECORDS ARE A BIT MORE FLEXIBLE AND THUS USING OPENSTRUCTS
       @rec = OpenStruct.new
       @ucpath_rec = OpenStruct.new
 
-      
       #----------------------------------------------------------------#
       # FETCH & PARSE UCPATH DATA
       logger.info "#{id} - Fetching ucpath record"
@@ -68,46 +62,44 @@ module UCPath
       logger.info "#{id} - Fetching ucpath jobs data"
       @jobs = fetch_jobs
       parse_jobs
-      
-      
+
       #----------------------------------------------------------------#
       # FETCH LDAP
       # TODO - only hit LDAP if you have a valid job!
       logger.info "#{id} - Fetching LDAP record: #{@ucpath_rec.uid}"
       @ldap = LDAP::API.fetch_ldap_rec(@ucpath_rec.uid)
 
-
       #----------------------------------------------------------------#
       # FETCH ALMA RECORD (NOT SURE IF I'LL NEED THIS OR NOT....)
       # @alma_rec = Alma::User.new
       # @alma_rec.load_user(id)
       # puts "Last Name: #{@alma_rec.user.last_name}"
-      
-      
+
       #----------------------------------------------------------------#
       # CREATE THE USER RECORD (@rec) FROM THE ABOVE DATA SOURCES
       logger.info "#{id} - Creating user record"
       create_user_record
 
-      logger.info "#{id} - Eligible: #{self.is_eligible?}"
+      logger.info "#{id} - Eligible: #{eligible?}"
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-    def is_eligible?
+    def eligible?
       eligible
     end
-
 
     #----------------------------------------------------------------#
     # CREATE A FINAL RECORD THAT CAN BE USED FOR GENERATING XML
     # TODO - probably want to move this into a separate class
     #        "AlmaUser" or something like that, then I can reuse
     #        most of the code when I setup SIS.
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def create_user_record
       rec.primary_id = ucpath_rec.ucpath_employee_id
 
       #----------------------------------------------------------------#
       # STUDENT CHECK - berkeleyeduaffiliations in Student Affiliation (ldap_fields.yml)
-      if ldap && ldap.berkeleyeduaffiliations
+      if ldap&.berkeleyeduaffiliations
         ldap.berkeleyeduaffiliations.each do |affiliation|
           if Config.student_affiated? affiliation
             logger.info "#{id} - Ineligible - ldap student affiliation: #{affiliation}"
@@ -123,7 +115,7 @@ module UCPath
       if ucpath_rec.first_name != '' && ucpath_rec.last_name != ''
         rec.first_name = ucpath_rec.first_name
         rec.last_name = ucpath_rec.last_name
-        rec.middle_name = ucpath_rec.middle_name if (ucpath_rec.middle_name)
+        rec.middle_name = ucpath_rec.middle_name if ucpath_rec.middle_name
       else
         rec.first_name = ldap.givenname.first
         rec.last_name = ldap.sn.first
@@ -136,140 +128,138 @@ module UCPath
 
       ineligible_reasons = []
 
+      # rubocop:disable Metrics/BlockLength
       ucpath_rec.jobs.each do |j|
-
         # Assume this job is eligible - this is based on the 3 criteria below
         job_eligible = true
 
         # 1. hrStatus/code = A
         unless j.hr_status_code == 'A'
           ineligible_reasons.push("#{rec.primary_id} - Ineligible: HR status code: '#{j.hr_status_code}' - must be 'A'")
-          job_eligible = false 
+          job_eligible = false
         end
-        
+
         # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
         # unless j.expected_end_date.blank?
-        unless (!j.expected_end_date || j.expected_end_date == '')
+        unless !j.expected_end_date || j.expected_end_date == ''
           ineligible_reasons.push("#{rec.primary_id} - Ineligible: expected_end_date not in the future")
           job_eligible = false if Date.iso8601(j.expected_end_date) <= Date.today
         end
-        
-        # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within 
+
+        # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
         #    the Visiting Scholar category.
         # unless j.org_relationship_code.blank?
-        unless (!j.org_relationship_code || j.org_relationship_code == '')
-          if j.org_relationship_code == 'CWR'
-            ineligible_reasons.push("#{rec.primary_id} - Ineligible: org code CWR has non visiting scholar job code")
-            job_eligible = false unless Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
-          end
+        if !(!j.org_relationship_code || j.org_relationship_code == '') && (j.org_relationship_code == 'CWR')
+          ineligible_reasons.push("#{rec.primary_id} - Ineligible: org code CWR has non visiting scholar job code")
+          job_eligible = false unless Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
         end
-        
-        if job_eligible  
-          # Found eligible job - clear out any previous ineligible reasons
-          ineligible_reasons = nil
 
-          # USER_GROUP
-          if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.dept_code) || 
-            Config.check_ucpath_code('Library Staff Job Code', j.job_code)
-            rec.user_group = 'LIBSTAFF'
-          elsif Config.check_ucpath_code('Postdoc Job Code', j.job_code)
-            rec.user_group = 'UCB POST'
-          elsif Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
-            rec.user_group = 'UCBVISSCHOL'
-          elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) &&
-              Config.check_ucpath_code('UC Extension Faculty', j.dept_code)
-            rec.user_group = 'UCEXT'
-          elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) ||
-              Config.check_ucpath_code('Emeritus Job Code', j.job_code)
-            rec.user_group = 'FACULTY'
-          elsif Config.check_ucpath_code('Executive Classification Indic', j.classification_indc)
-            rec.user_group = 'EXECUTIVE'
-          else
-            rec.user_group = 'NONACAD'
-          end
+        next unless job_eligible
 
-          # EXPIRTY_DATE
-          # if j.expected_end_date.blank?
-          if (!j.expected_end_date || j.expected_end_date == '')
-            rec.expiry_date = create_expected_end_date
-          else 
-            rec.expiry_date = j.expected_end_date
-          end
+        # Found eligible job - clear out any previous ineligible reasons
+        ineligible_reasons = nil
 
-          # PURGE_DATE (expiry date plus one year)
-          rec.purge_date = Date.iso8601(rec.expiry_date).next_year.to_s
+        # USER_GROUP
+        rec.user_group = if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.dept_code) ||
+                            Config.check_ucpath_code('Library Staff Job Code', j.job_code)
+                           'LIBSTAFF'
+                         elsif Config.check_ucpath_code('Postdoc Job Code', j.job_code)
+                           'UCB POST'
+                         elsif Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
+                           'UCBVISSCHOL'
+                         elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) &&
+                               Config.check_ucpath_code('UC Extension Faculty', j.dept_code)
+                           'UCEXT'
+                         elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) ||
+                               Config.check_ucpath_code('Emeritus Job Code', j.job_code)
+                           'FACULTY'
+                         elsif Config.check_ucpath_code('Executive Classification Indic', j.classification_indc)
+                           'EXECUTIVE'
+                         else
+                           'NONACAD'
+                         end
 
-          # Oddly, addresses, emails and phones are taken from this one and only job...weird!
-          rec.contact_info = create_contact_info(j)
+        # EXPIRTY_DATE
+        # if j.expected_end_date.blank?
+        rec.expiry_date = if !j.expected_end_date || j.expected_end_date == ''
+                            create_expected_end_date
+                          else
+                            j.expected_end_date
+                          end
 
-          # CAMPUS_CODE
-          # TODO - Confirm this is hardcoded? (I doubt it)
-          rec.campus_code = 'UCB Campus'
-    
-          # ACCOUNT_TYPE
-          rec.account_type = 'EXTERNAL'
-          
-          # STATUS - SAFE TO ASSUME ACTIVE???
-          # rec.status = 'ACTIVE' if j.job_status_code == 'A'
-          rec.status = 'ACTIVE'
-    
-          # USER_IDENTIFIERS
-          rec.identifiers = create_identifiers
-    
-          # USER_ROLES - DROP (according to D.Rez, Alma should assign)
-          
-          # USER_STATISTICS - TBD (addording to J.Gosselar these have yet to be determined)
-          rec.statistics = create_statistics
+        # PURGE_DATE (expiry date plus one year)
+        rec.purge_date = Date.iso8601(rec.expiry_date).next_year.to_s
 
-          
-          # SET USER ELIGIBILITY
-          self.eligible = job_eligible
+        # Oddly, addresses, emails and phones are taken from this one and only job...weird!
+        rec.contact_info = create_contact_info(j)
 
-          # We've found an job_eligible job... we set the user group, no need to go through more jobs
-          break
-        end
+        # CAMPUS_CODE
+        # TODO - Confirm this is hardcoded? (I doubt it)
+        rec.campus_code = 'UCB Campus'
+
+        # ACCOUNT_TYPE
+        rec.account_type = 'EXTERNAL'
+
+        # STATUS - SAFE TO ASSUME ACTIVE???
+        # rec.status = 'ACTIVE' if j.job_status_code == 'A'
+        rec.status = 'ACTIVE'
+
+        # USER_IDENTIFIERS
+        rec.identifiers = create_identifiers
+
+        # USER_ROLES - DROP (according to D.Rez, Alma should assign)
+
+        # USER_STATISTICS - TBD (addording to J.Gosselar these have yet to be determined)
+        rec.statistics = create_statistics
+
+        # SET USER ELIGIBILITY
+        self.eligible = job_eligible
+
+        # We've found an job_eligible job... we set the user group, no need to go through more jobs
+        break
       end
+      # rubocop:enable Metrics/BlockLength
 
-      if ineligible_reasons
-        ineligible_reasons.each do |r|
-          logger.info r
-        end
+      ineligible_reasons&.each do |r|
+        logger.info r
       end
-
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
     def create_statistics
-      # Returns an array of statistic 
+      # Returns an array of statistic
       stats = []
       # Stats are made up of:
       #   a category (are these hardcoded to UCB?)
       #   a category type (always empty?)
       #   a note
-    
+
       # s = Statistic.new
     end
-    
+
+    # rubocop:disable Metrics/AbcSize
     def create_identifiers
       identifiers = []
 
       # hr-employee-id : Note add 'E' prefix
-      # identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id, 'E')) unless ucpath_rec.ucpath_employee_id.blank?
-      identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id, 'E')) unless !ucpath_rec.ucpath_employee_id
-      
+      identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id, 'E')) if ucpath_rec.ucpath_employee_id
+
       # legacy-hr-employee-id
-      # identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) unless ucpath_rec.legacy_employee_id.blank?
-      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) unless !ucpath_rec.legacy_employee_id
-      # identifiers.push(create_identifier(ucpath_rec.legacy_employee_id.chars.last(7).join, 'A')) unless ucpath_rec.legacy_employee_id.blank?
-      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id.chars.last(7).join, 'A')) unless !ucpath_rec.legacy_employee_id
-      
+      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) if ucpath_rec.legacy_employee_id
+
+      if ucpath_rec.legacy_employee_id
+        identifiers.push(create_identifier(ucpath_rec.legacy_employee_id.chars.last(7).join,
+                                           'A'))
+      end
+
       # campus-uid
-      # identifiers.push(create_identifier(ucpath_rec.uid)) unless ucpath_rec.uid.blank?
-      identifiers.push(create_identifier(ucpath_rec.uid)) unless !ucpath_rec.uid
+      identifiers.push(create_identifier(ucpath_rec.uid)) if ucpath_rec.uid
 
       identifiers
     end
+    # rubocop:enable Metrics/AbcSize
 
-    def create_identifier(identifier, prefix=nil)
+    def create_identifier(identifier, prefix = nil)
       i = Identifier.new
       i.segment_type = 'Internal'
       i.id_type = 'BARCODE'
@@ -284,16 +274,16 @@ module UCPath
       c.addresses = create_addresses job
       c.emails = create_emails
       c.phones = create_phones
-      
+
       c
     end
-    
+
     private
 
     def create_addresses(job)
       create_address(job)
     end
-    
+
     def create_emails
       create_email
     end
@@ -302,6 +292,7 @@ module UCPath
       create_phone
     end
 
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def create_address(job)
       a = Address.new
 
@@ -322,16 +313,15 @@ module UCPath
       a.start_date = Date.today
       a.end_date = Date.iso8601(rec.expiry_date)
 
-      
       # CONFIRM THIS IS HARDCODED TO 'SCHOOL'
       a.address_types = 'school'
 
       # RETURN our address struct
       a
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-    
-    # TODO - Email addresses must be checked for structural validity.
+    # TODO: - Email addresses must be checked for structural validity.
 
     #----------------------------------------------------------------#
     # Email                                                          #
@@ -340,27 +330,27 @@ module UCPath
     # Employee record if it exists, otherwise use any other email    #
     # address from the record.                                       #
     #----------------------------------------------------------------#
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def create_email
-
       # unless !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first.blank?
-      unless !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first == ''
-        e = Email.new
-        e.preferred = 'true'
-        e.email_address = ldap.berkeleyeduofficialemail.first
-        e.email_types = 'school'        
-      else
+      if !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first == ''
         # return nil if ucpath_rec.email.blank?
-        return nil if !ucpath_rec.email
+        return nil unless ucpath_rec.email
 
         e = Email.new
         e.preferred = ucpath_rec.email_primary_code
         e.email_address = ucpath_rec.email
         e.email_types = ucpath_rec.email_type
+      else
+        e = Email.new
+        e.preferred = 'true'
+        e.email_address = ldap.berkeleyeduofficialemail.first
+        e.email_types = 'school'
       end
 
       e
     end
-
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     #----------------------------------------------------------------#
     # Phone Number                                                   #
@@ -368,35 +358,36 @@ module UCPath
     # found use the primary number from the Employee record if it    #
     # exists, otherwise use any other phone number from the record.  #
     #----------------------------------------------------------------#
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def create_phone
-      
-      unless !ldap.telephonenumber || ldap.telephonenumber == ''
+      if !ldap.telephonenumber || ldap.telephonenumber == ''
+        return nil unless ucpath_rec.phone_number
+
+        telephone = format_phone ucpath_rec.phone_number
+
+        p = Phone.new
+        p.preferred = if !ucpath_rec.phone_primary_code || ucpath_rec.phone_primary_code == ''
+                        'false'
+                      else
+                        'true'
+                      end
+
+        p.preferred_sms = 'false'
+        p.phone_number = telephone || nil
+        p.phone_types = ucpath_rec.phone_type || nil
+      else
         telephone = format_phone ldap.telephonenumber.first
-        
+
         p = Phone.new
         p.preferred = 'true'
         p.preferred_sms = 'false'
         p.phone_number = telephone || nil
         p.phone_types = 'office'
-      else
-        # return nil if ucpath_rec.phone_number.blank?
-        return nil if !ucpath_rec.phone_number
-        telephone = format_phone ucpath_rec.phone_number
-        
-        p = Phone.new
-        if !ucpath_rec.phone_primary_code || ucpath_rec.phone_primary_code == ''
-          p.preferred = 'false'
-        else
-          p.preferred = 'true'
-        end
-
-        p.preferred_sms = 'false'
-        p.phone_number = telephone || nil
-        p.phone_types = ucpath_rec.phone_type || nil
       end
 
-      p      
+      p
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
     #----------------------------------------------------------------#
     # Regular Expression Jujitsu:                                    #
@@ -404,12 +395,13 @@ module UCPath
     # numbers - the Following series of REGEXs were cribbed and      #
     # translated from 20111130_Current_Procedures document on bdrive #
     #----------------------------------------------------------------#
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def format_phone(telephone)
       preserved_number = telephone
       telephone = telephone.sub(/^\+1\s+/, '')
       telephone = telephone.sub(/^1-/, '')
       telephone = telephone.sub(/^1\s+/, '')
-      telephone = telephone.sub(/\s+\([^\(\)]+\)$/, '')
+      telephone = telephone.sub(/\s+\([^()]+\)$/, '')
       telephone = telephone.gsub('.', '-')
       telephone = telephone.sub(/-x\d+$/, '')
       telephone = telephone.gsub('/', '-')
@@ -418,22 +410,21 @@ module UCPath
       telephone = telephone.sub(/^\s+/, '')
       telephone = telephone.sub(/\s+$/, '')
 
-      # Let's see if we managed to torture the number into submission...
-      if telephone =~ /^\d{3}-\d{3}-\d{4}$/
-        # YES!  111-222-3333
-        telephone = telephone
-      elsif telephone =~ /^(\d{3})[- ](\d{3})-(\d{4})$/
+      case telephone
+      when /^\d{3}-\d{3}-\d{4}$/
+        # Correct format, hooray!
+      when /^(\d{3})[- ](\d{3})-(\d{4})$/
         # A little wishy washy:  111 222-3333
-        telephone = "#{$1}-#{$2}-#{$3}"
-      elsif telephone =~ /^(\d{3})(\d{3})(\d{4})$/
+        telephone = "#{Regexp.last_match(1)}-#{Regexp.last_match(2)}-#{Regexp.last_match(3)}"
+      when /^(\d{3})(\d{3})(\d{4})$/
         # Okay I guess:  1112223333
-        telephone = "#{$1}-#{$2}-#{$3}"
-      elsif telephone =~ /^(\d{3})[ -]?(\d{4})$/
+        telephone = "#{Regexp.last_match(1)}-#{Regexp.last_match(2)}-#{Regexp.last_match(3)}"
+      when /^(\d{3})[ -]?(\d{4})$/
         # Lazy...no area code:  111-2222
-        telephone = "510-#{$1}-#{$2}"
-      elsif telephone =~ /^(\d)[ -]?(\d{4})$/
+        telephone = "510-#{Regexp.last_match(1)}-#{Regexp.last_match(2)}"
+      when /^(\d)[ -]?(\d{4})$/
         # WTF!?!  1 2222
-        telephone = "510-64#{$1}-#{$2}"
+        telephone = "510-64#{Regexp.last_match(1)}-#{Regexp.last_match(2)}"
       else
         # Apparently we have not... Log it
         logger.info "#{id} - Failed to process phone number: #{preserved_number}"
@@ -442,6 +433,7 @@ module UCPath
 
       telephone
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     #----------------------------------------------------------------#
     # Per Alvin:                                                     #
@@ -458,19 +450,18 @@ module UCPath
 
       d = Date.today
 
-      if d.month < change_month
-        expiration_year = d.year + expiration_year_interval - 1
-      else
-        expiration_year = d.year + expiration_year_interval
-      end
+      expiration_year = if d.month < change_month
+                          d.year + expiration_year_interval - 1
+                        else
+                          d.year + expiration_year_interval
+                        end
 
-      expiration_date = "#{expiration_year.to_s}-#{expiration_month_day}"
-
+      "#{expiration_year}-#{expiration_month_day}"
     end
 
     # First load all UCPath Employee Data into obj
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     def parse_user
-
       Config.ucpath_employee_fields.each do |f|
         name = f['name']
         jpath = f['jpath']
@@ -480,15 +471,11 @@ module UCPath
         next unless jpath
 
         value = JsonPath.on(@user, jpath).first || ''
-        
+
         # If field has an alternatate path (E.G., non primary phone)
         # Hmmm.... put this through the ringer, had .blank?
-        if (!value || value == '') && alt_jpath
-          value = JsonPath.on(@user, alt_jpath).first || ''
-        end
+        value = JsonPath.on(@user, alt_jpath).first || '' if (!value || value == '') && alt_jpath
 
-        # if status == 'REQUIRED' && value.blank?
-        # if status == 'REQUIRED' && !value
         if status == 'REQUIRED' && (!value || value == '')
           errors.push("#{id} - Missing required field: #{name}")
           logger.error "#{id} - Missing required field: #{name}"
@@ -496,25 +483,26 @@ module UCPath
 
         ucpath_rec[name] = value if value
       end
-
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
-    # TODO - I may need to set this up to always have the primary job
+    # TODO: - I may need to set this up to always have the primary job
     #        as the first element in the array
     # We'll throw all the jobs into an array of open structs:
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def parse_jobs
       ucpath_rec['jobs'] = []
-      
+
       # Query @jobs for the actual jobs
       job_data = JsonPath.on(@jobs, '$..response[*].jobs')
 
-      return nil unless job_data.count > 0
+      return nil unless job_data.count.positive?
 
-      job_data.first.each_with_index do |job, idx|
+      job_data.first.each_with_index do |job, _idx|
         # JsonPath.on returns a hash - convert that back to JSON so our jsonpath path's work!
         # TODO - see if there's a better way..., this feels hacky.
         j = job.to_json
-        
+
         # WORKS:
         # puts "JOBCODE  :  -->#{JsonPath.on(j.first, '$.position.jobCode.code.code')}<--"
         # Also works:
@@ -525,26 +513,24 @@ module UCPath
         Config.ucpath_job_fields.each do |f|
           name = f['name']
           jpath = f['jpath']
-          status = f['status'] || 'OPTIONAL'
-  
+          # status = f['status'] || 'OPTIONAL'
+
           next unless jpath
-  
+
           value = JsonPath.on(j, jpath).first || ''
-  
-          # TODO - verifty if there are any required job fields, I don't think there are
+
+          # TODO: - verifty if there are any required job fields, I don't think there are
           # if status == 'REQUIRED' && value == ''
           #   logger.error "#{id} - Job Missing Required Field: #{name}"
           # end
-  
+
           job[name] = value if value
         end
 
         ucpath_rec['jobs'].push(job)
       end
-
     end
-
-    
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     # Need to get list of users (change log or full list)
     # Need to process each user:
@@ -559,11 +545,9 @@ module UCPath
     #  5 - add user xml record to the XML file
     #  6 - move XML file to processing location
 
-
-
     # Class function to fetch the UCPath User Change Log
 
-    # TODO - Remove this from here... I think at least...
+    # TODO: - Remove this from here... I think at least...
     # def self.fetch_change_log(start_date, end_date)
     #   log = User.change_log(start_date, end_date) || nil
     # end
@@ -575,6 +559,6 @@ module UCPath
     def fetch_jobs
       User.fetch_ucpath_jobs(id)
     end
-
   end
+  # rubocop:enable Metrics/ClassLength
 end

@@ -1,6 +1,6 @@
 require 'logger'
 
-# TODO - understand how this works!!!
+# TODO: - understand how this works!!!
 # Found and cribbed from:
 # https://stackoverflow.com/questions/917566/ruby-share-logger-instance-among-module-classes
 
