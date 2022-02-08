@@ -6,6 +6,21 @@ require 'nokogiri'
 require_relative 'user'
 require_relative '../alma'
 
+
+# TODO - Decomposition
+# Break this into a bunch of smaller objects
+# raw_ucpath
+# ldap
+# user_record
+# statistics
+# user_group
+# identifiers
+# contact_info
+#  -> emails
+#  -> phones
+#  -> addresses
+
+
 module UCPath
   class User
 
@@ -13,15 +28,13 @@ module UCPath
     attr_accessor :rec
     attr_accessor :user
     attr_accessor :jobs
+    attr_accessor :errors
 
-    # NOT SURE IF META IS NEEDED...NEED A WAY OF TRACKING THINGS LIKE
-    # ERRORS AND WARNINGS FOR A RECORD
-    attr_accessor :meta
-    
     attr_accessor :ldap
     attr_accessor :eligible
     attr_accessor :ucpath_rec
 
+    Statistic = Struct.new(:segment_type, :category, :type, :note)
     Identifier = Struct.new(:segment_type, :id_type, :value, :status)
     ContactInfo = Struct.new(:addresses, :emails, :phones)
     Address = Struct.new(:preferred, :line1, :line2, :city, :state_province, :postal_code, :country, :address_note, :start_date, :end_date, :address_types)
@@ -31,9 +44,9 @@ module UCPath
     def initialize(id)
       @id = id
       logger.info "#{id} - Begin processing record"
-      
-      @meta = {}
 
+      @errors = []
+      
       # We'll assume this user is ineligible until we know otherwise
       @eligible = false
 
@@ -48,6 +61,8 @@ module UCPath
       # FETCH & PARSE UCPATH DATA
       logger.info "#{id} - Fetching ucpath record"
       @user = fetch_user
+      logger.error "#{id} - Failed to fetch UCPath record" if @user.nil?
+
       parse_user
 
       logger.info "#{id} - Fetching ucpath jobs data"
@@ -105,13 +120,13 @@ module UCPath
       # NAMES:
       # Get first_name, middle_name, last_name from the primary UCPath Employee record
       # If the UCPath lacks first_name and last_name, use LDAP record
-      if ucpath_rec.first_name && ucpath_rec.last_name
+      if ucpath_rec.first_name != '' && ucpath_rec.last_name != ''
         rec.first_name = ucpath_rec.first_name
         rec.last_name = ucpath_rec.last_name
         rec.middle_name = ucpath_rec.middle_name if (ucpath_rec.middle_name)
       else
-        rec.first_name = ldap.givenName.first
-        rec.first_name = ldap.sn.first
+        rec.first_name = ldap.givenname.first
+        rec.last_name = ldap.sn.first
       end
 
       #----------------------------------------------------------------#
@@ -133,25 +148,26 @@ module UCPath
         end
         
         # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
-        unless j.expected_end_date.blank?
+        # unless j.expected_end_date.blank?
+        unless (!j.expected_end_date || j.expected_end_date == '')
           ineligible_reasons.push("#{rec.primary_id} - Ineligible: expected_end_date not in the future")
           job_eligible = false if Date.iso8601(j.expected_end_date) <= Date.today
         end
         
         # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within 
         #    the Visiting Scholar category.
-        unless j.org_relationship_code.blank?
+        # unless j.org_relationship_code.blank?
+        unless (!j.org_relationship_code || j.org_relationship_code == '')
           if j.org_relationship_code == 'CWR'
             ineligible_reasons.push("#{rec.primary_id} - Ineligible: org code CWR has non visiting scholar job code")
             job_eligible = false unless Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
           end
         end
         
-        
-        if job_eligible
+        if job_eligible  
           # Found eligible job - clear out any previous ineligible reasons
           ineligible_reasons = nil
-          
+
           # USER_GROUP
           if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.dept_code) || 
             Config.check_ucpath_code('Library Staff Job Code', j.job_code)
@@ -173,7 +189,8 @@ module UCPath
           end
 
           # EXPIRTY_DATE
-          if j.expected_end_date.blank?
+          # if j.expected_end_date.blank?
+          if (!j.expected_end_date || j.expected_end_date == '')
             rec.expiry_date = create_expected_end_date
           else 
             rec.expiry_date = j.expected_end_date
@@ -200,7 +217,9 @@ module UCPath
           rec.identifiers = create_identifiers
     
           # USER_ROLES - DROP (according to D.Rez, Alma should assign)
+          
           # USER_STATISTICS - TBD (addording to J.Gosselar these have yet to be determined)
+          rec.statistics = create_statistics
 
           
           # SET USER ELIGIBILITY
@@ -219,18 +238,33 @@ module UCPath
 
     end
 
+    def create_statistics
+      # Returns an array of statistic 
+      stats = []
+      # Stats are made up of:
+      #   a category (are these hardcoded to UCB?)
+      #   a category type (always empty?)
+      #   a note
+    
+      # s = Statistic.new
+    end
+    
     def create_identifiers
       identifiers = []
 
       # hr-employee-id : Note add 'E' prefix
-      identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id, 'E')) unless ucpath_rec.ucpath_employee_id.blank?
+      # identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id, 'E')) unless ucpath_rec.ucpath_employee_id.blank?
+      identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id, 'E')) unless !ucpath_rec.ucpath_employee_id
       
       # legacy-hr-employee-id
-      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) unless ucpath_rec.legacy_employee_id.blank?
-      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id.chars.last(7).join, 'A')) unless ucpath_rec.legacy_employee_id.blank?
+      # identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) unless ucpath_rec.legacy_employee_id.blank?
+      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) unless !ucpath_rec.legacy_employee_id
+      # identifiers.push(create_identifier(ucpath_rec.legacy_employee_id.chars.last(7).join, 'A')) unless ucpath_rec.legacy_employee_id.blank?
+      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id.chars.last(7).join, 'A')) unless !ucpath_rec.legacy_employee_id
       
       # campus-uid
-      identifiers.push(create_identifier(ucpath_rec.uid)) unless ucpath_rec.uid.blank?
+      # identifiers.push(create_identifier(ucpath_rec.uid)) unless ucpath_rec.uid.blank?
+      identifiers.push(create_identifier(ucpath_rec.uid)) unless !ucpath_rec.uid
 
       identifiers
     end
@@ -308,13 +342,15 @@ module UCPath
     #----------------------------------------------------------------#
     def create_email
 
-      unless !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first.blank?
+      # unless !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first.blank?
+      unless !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first == ''
         e = Email.new
         e.preferred = 'true'
         e.email_address = ldap.berkeleyeduofficialemail.first
         e.email_types = 'school'        
       else
-        return nil if ucpath_rec.email.blank?
+        # return nil if ucpath_rec.email.blank?
+        return nil if !ucpath_rec.email
 
         e = Email.new
         e.preferred = ucpath_rec.email_primary_code
@@ -333,8 +369,8 @@ module UCPath
     # exists, otherwise use any other phone number from the record.  #
     #----------------------------------------------------------------#
     def create_phone
-
-      unless !ldap.telephonenumber || ldap.telephonenumber.first.blank?
+      
+      unless !ldap.telephonenumber || ldap.telephonenumber == ''
         telephone = format_phone ldap.telephonenumber.first
         
         p = Phone.new
@@ -343,15 +379,17 @@ module UCPath
         p.phone_number = telephone || nil
         p.phone_types = 'office'
       else
-        return nil if ucpath_rec.phone_number.blank?
+        # return nil if ucpath_rec.phone_number.blank?
+        return nil if !ucpath_rec.phone_number
         telephone = format_phone ucpath_rec.phone_number
         
         p = Phone.new
-        if ucpath_rec.phone_number.blank?
-          p.preferred = ucpath_rec.phone_primary_code
+        if !ucpath_rec.phone_primary_code || ucpath_rec.phone_primary_code == ''
+          p.preferred = 'false'
         else
           p.preferred = 'true'
         end
+
         p.preferred_sms = 'false'
         p.phone_number = telephone || nil
         p.phone_types = ucpath_rec.phone_type || nil
@@ -405,11 +443,6 @@ module UCPath
       telephone
     end
 
-
-
-
-    
-
     #----------------------------------------------------------------#
     # Per Alvin:                                                     #
     # Date advances forward expiration_year_interval years on the    #
@@ -432,12 +465,12 @@ module UCPath
       end
 
       expiration_date = "#{expiration_year.to_s}-#{expiration_month_day}"
-      
+
     end
 
     # First load all UCPath Employee Data into obj
     def parse_user
-      
+
       Config.ucpath_employee_fields.each do |f|
         name = f['name']
         jpath = f['jpath']
@@ -447,13 +480,17 @@ module UCPath
         next unless jpath
 
         value = JsonPath.on(@user, jpath).first || ''
-
+        
         # If field has an alternatate path (E.G., non primary phone)
-        if value.blank? && alt_jpath
+        # Hmmm.... put this through the ringer, had .blank?
+        if (!value || value == '') && alt_jpath
           value = JsonPath.on(@user, alt_jpath).first || ''
         end
 
-        if status == 'REQUIRED' && value.blank?
+        # if status == 'REQUIRED' && value.blank?
+        # if status == 'REQUIRED' && !value
+        if status == 'REQUIRED' && (!value || value == '')
+          errors.push("#{id} - Missing required field: #{name}")
           logger.error "#{id} - Missing required field: #{name}"
         end
 
@@ -492,12 +529,12 @@ module UCPath
   
           next unless jpath
   
-          # value = user.xpath(xpath).text || ''
           value = JsonPath.on(j, jpath).first || ''
   
-          if status == 'REQUIRED' && value.blank?
-            logger.error "#{id} - Job Missing Required Field: #{name}"
-          end
+          # TODO - verifty if there are any required job fields, I don't think there are
+          # if status == 'REQUIRED' && value == ''
+          #   logger.error "#{id} - Job Missing Required Field: #{name}"
+          # end
   
           job[name] = value if value
         end
@@ -525,9 +562,11 @@ module UCPath
 
 
     # Class function to fetch the UCPath User Change Log
-    def self.fetch_change_log(start_date, end_date)
-      log = User.change_log(start_date, end_date) || nil
-    end
+
+    # TODO - Remove this from here... I think at least...
+    # def self.fetch_change_log(start_date, end_date)
+    #   log = User.change_log(start_date, end_date) || nil
+    # end
 
     def fetch_user
       User.fetch_ucpath_rec(id)
