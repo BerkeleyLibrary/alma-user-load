@@ -1,5 +1,5 @@
-require_relative 'alma/api'
-require_relative 'alma/user'
+# require_relative 'alma/api'
+# require_relative 'alma/user'
 require_relative 'alma/xml_builder'
 
 module Alma
@@ -7,5 +7,5 @@ module Alma
   ROOT = File.dirname __dir__
 
   # Because api.rb is a module you need to include it...
-  include Alma::API
+  # include Alma::API
 end
