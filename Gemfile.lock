@@ -6,6 +6,7 @@ GEM
     crack (0.4.5)
       rexml
     diff-lcs (1.4.4)
+    digest (3.1.0)
     docile (1.4.0)
     dotenv (2.7.6)
     faraday (1.8.0)
@@ -75,6 +76,7 @@ PLATFORMS
   x86_64-darwin-19
 
 DEPENDENCIES
+  digest (~> 3.1)
   dotenv (~> 2.7, >= 2.7.6)
   faraday (~> 1.8)
   jsonpath (~> 0.5.8)

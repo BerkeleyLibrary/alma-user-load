@@ -2,6 +2,7 @@
 
 source 'https://rubygems.org'
 
+gem 'digest', '~> 3.1'
 gem 'faraday', '~> 1.8'
 gem 'jsonpath', '~> 0.5.8'
 gem 'net-ldap', '~> 0.17.0'
