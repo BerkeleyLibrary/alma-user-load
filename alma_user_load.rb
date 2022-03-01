@@ -1,21 +1,35 @@
+# frozen_string_literal: true
+
 # TODO: -
+#  SEGREGATE THE UCPATH AND SIS PROCESSES BELOW TO MODULES
 #  Verify I have all "required" fields for eligibility
+#  STARTED - Setup SIS process
 #  STARTED - Setup options
 #  STARTED - REFACTOR the living shit out this
 #  STARTED - Clean up your config setup - it's a bit unruly right now
+#  SIS - Check on Identifiers logic (student-id particularly)
+#  SIS - User Roles
+#  SIS - User Statistics
+#  SIS - Add logging!!!
 #  Setup error handling!!!!
-#  Get code coverage to 100%
-#  Rubocop it (ugh... dred!)
+#  STARTED - Rubocop it!
+#  Write test to check that we make expected job date in past ineligible!
 #  Move to Gitlab/Lap
 #  Setup DockerFile
 #  Setup in pipeline
 #  Setup transfer of zip file to Ex Libris
 #  Setup full user base (if we want that...sounds scary)
 #  Write up README
+#  DRY things up (UCPath vs. SIS --> phone, email, address, names, etc...)
 #  Save the change log to a temp file and go through (and track your progress)
 #  Only do a LDAP lookup if you have an eligible job!!!
 #  Go through the million "TODOs" littered through all this code!
 #  Eventually build out custom logger (CSV of each record touched, each event and outcome)
+#  DONE - See if I can do an SIS change log using as-of-date (YES - and done!)
+#  DONE - SIS - Set Expiry and Purge Dates
+#  DONE - SIS - add inc-regs and grab the withcncl code value!!!
+#  DONE - SIS - Add Unit Testing
+#  DONE - Get code coverage to 100%
 #  DONE - Setup logging (guess do a csv file per run... )
 #  DONE - Fix address start date
 #  DONE - Setup RSPEC
@@ -33,18 +47,10 @@
 #  DONE - Add 'E' prefix for hr-employee-id (aka ucpath_employee_id) identifier
 #  DONE - Format phone number
 
-# encoding = "UTF-8"
-# 10000050 - address "preferred" should be "true||false" DONE
-#            address start_date : 2021-07-27  (not 2024-10-31)
-#            address start_date : 2023-10-31  (not 2023-10-31)
-#            email_type "school" not "BUSN" DONE
-#            phone - should be 510-643-6532/office/preferred = true I had none... DONE
-# 10144264 - user_group "LIBSTAFF" not NONACAD
-#          - purge date '2023', not '2024'
-#
-
-require 'getoptlong'
+require 'date'
 require 'zipruby'
+require 'getoptlong'
+require 'digest/md5'
 
 # Load library
 require_relative 'config/config'
@@ -55,10 +61,13 @@ require_relative 'lib/ucpath'
 require_relative 'lib/logging'
 
 # Include modules
+# rubocop:disable Style/MixinUsage
+include SIS
 include Alma
 include LDAP
 include UCPath
 include Logging
+# rubocop:enable Style/MixinUsage
 
 # TODO: - Set up options, build help menu!
 opts = GetoptLong.new(
@@ -68,7 +77,7 @@ opts = GetoptLong.new(
   ['--enddate', '-e', GetoptLong::REQUIRED_ARGUMENT],
   ['--numdays', '-n', GetoptLong::REQUIRED_ARGUMENT],
   ['--users', '-u', GetoptLong::REQUIRED_ARGUMENT],
-  ['--verbose', '-v', GetoptLong::NO_ARGUMENT],
+  ['--term', GetoptLong::REQUIRED_ARGUMENT],
   ['--noupload', GetoptLong::NO_ARGUMENT]
 )
 
@@ -89,6 +98,8 @@ opts.each do |opt, arg|
     @num_days = arg.to_i
   when '--users'
     @users = arg.split(/\s*,\s*/)
+  when '--term'
+    @term_id = arg
   when '--noupload'
     @do_not_upload = true
   end
@@ -113,9 +124,9 @@ else
 
     # If either start or end date are blank, then use num_days
     # to define the blank date.
-    if @start_date.blank?
+    if !@start_date || @start_date == ''
       @start_date = Date.iso8601(@end_date).next_day(-@num_days).to_s
-    elsif @end_date.blank?
+    elsif !@end_date || @end_date == ''
       @end_date = Date.iso8601(@start_date).next_day(+@num_days).to_s
     end
 
@@ -128,24 +139,20 @@ else
 
   end
 
-  puts '---------- RUNNING CHANGE LOG ------------'
-  puts "@start_date   : #{@start_date}"
-  puts "@end_date     : #{@end_date}"
-  puts "@num_days     : #{@num_days}"
-  puts '--------------------------------------'
   filename_range = "#{@start_date}_#{@end_date}"
-
 end
 
-if @type == 'ucpath'
+# TODO: This should really be extracted to a separate module
+case @type
+when 'ucpath'
   user_list = []
 
   # Fetch the change log if we didn't specify users at the command line!
   # process_list = UCPath::User.fetch_change_log(@start_date, @end_date) unless process_list
   process_list ||= UCPath::API.change_log(@start_date, @end_date)
 
+  # TODO: move this someplace....
   # Stash the Change Log while developing...
-  # TODO - move this someplace....
   File.open("tmp/sfcl_#{filename_range}.txt", 'w') do |file|
     process_list.each do |id|
       file.write("#{id}\n")
@@ -185,59 +192,98 @@ if @type == 'ucpath'
     # UPLOAD XML FILE???
     unless @do_not_upload
       # UPLOAD FILE TO....?
-      logger.info 'File Uploaded'
+      # logger.info 'File Uploaded'
     end
 
   else
     # Log this? Error? Should we ALWAYS expect some recs?
     puts "\n\nWARNING - No Records Found\n\n"
-
   end
 
-elsif @type == 'sis'
-  # RUN SIS... well eventually, someday, when those SIS folks get off their butts and give access!
-  puts '----->SIS'
-  puts "one big todo list at this point!\n\n"
-elsif @type == 'alma'
-  # DEVELOPMENT ONLY....
+when 'sis'
 
-  # Quick and dirty ALMA API Testing
-  puts '----->ALMA'
-  alma_user = Alma::API.fetch_alma_user('10335026')
-  puts '---------- alma_user_load | line# 140 ------------'
-  puts "user.inspect : #{alma_user.inspect}"
-  puts '--------------------------------------'
-elsif @type == 'ldap'
-  # DEVELOPMENT ONLY....
+  # We'll populate our list of eligible users into this array
+  user_list = []
 
-  # Quick and dirty test of LDAP
-  puts "\n\n----->TESTING LDAP"
-  # LDAP::API.fetch_ldap_rec('1707532')
-  puts "Student Affiliated? #{Config.student_affiated? 'STUDENT-TYPE-REGISTERED'}"
-  puts "Student Affiliated? #{Config.student_affiated? 'STUDENT-TYPE-NOT REGISTERED'}"
+  # BY TERM:
+  @term_id ||= SIS::API.current_term
+
+  # Because SIS does NOT have a change log, I need to do this in two
+  # passes. First query using an 'as-of-date' set to a week ago, this
+  # will give me a "snapshot" of their data at that time.
+  # Convert each user record into a checksum and load it into
+  # a hash (past_data_hash) with the ID as the key and MD5 the value.
+  # Then query the current data (same API call but without the as-of-date)
+  # and go through each user and check the past_data_hash to see if the
+  # ID exists there - if it does, and the checksums don't equate, then
+  # that record has been updated - add it to the user list, if the ID
+  # does not exist, it's a new record, add it to the user list.
+  # The user list is then sent to the Alma XML builder and wa-la!
+  # out comes a delicious XML document... it's just that easy!
+
+  today = Date.today
+  lookback_date = (today - Config.setting('sis_look_back')).to_s
+
+  logger.info 'Processing SIS'
+  logger.info "Term: #{@term_id}"
+  logger.info "Going Back to: #{lookback_date}"
+
+  #----------------------------------------------------------------#
+  # First fetch the term for the as-of-date == lookback_date
+
+  # This will hold the snap shot of what the data looked like a week ago
+  past_data_hash = {}
+
+  past_data = SIS::API.fetch_by_term(@term_id, lookback_date)
+  past_data.each_with_index do |user, _idx|
+    student = SIS::Student.new(user)
+    id = student.rec.primary_id
+    md5 = Digest::MD5.hexdigest(student.rec.to_s)
+    past_data_hash[id] = md5
+  end
+
+  #----------------------------------------------------------------#
+  # Now fetch the term for the as-of-date == current date
+  counter = 0
+  raw_users = SIS::API.fetch_by_term(@term_id)
+  raw_users.each_with_index do |user, _idx|
+    student = SIS::Student.new(user)
+
+    id = student.rec.primary_id
+    md5 = Digest::MD5.hexdigest(student.rec.to_s)
+
+    if past_data_hash.key?(id)
+      if !past_data_hash[id] == md5 && student.eligible?
+        counter += 1
+        user_list.push(student)
+      end
+    else
+      # New Record, add it to the user list
+      counter += 1
+      user_list.push(student) if student.eligible?
+    end
+  end
+
+  logger.info "Total new and changed records: #{counter}"
+
+  # BUILD XML
+  builder = Alma::XMLBuilder.new user_list
+
+  # WRITE XML TO FILE
+  filename_prefix = "#{@type}_#{lookback_date}-#{today}"
+  f = File.open("#{filename_prefix}.xml", 'w')
+  f.write(builder.doc.to_xml)
+  f.close
+
+  # CREATE ZIP FILE AND ADD XML FILE TO IT
+  Zip::Archive.open("#{filename_prefix}.zip", Zip::CREATE) do |arc|
+    arc.add_file("#{filename_prefix}.xml")
+    logger.info 'File Zipped'
+  end
+
+  # TODO: setup FTP
+
 else
   puts "\nERROR: type is required and must be 'sis' or 'ucpath'\n"
   exit
 end
-
-# STEPS:
-#    COLLECT DATA:
-#    01 - Generate list of users : change log or ad-hoc (specific IDs or daterange)
-#    02 - Get UCPath Record
-#    03 - Get LDAP Record
-#    04 - Get ALMA Record
-#    AGGREGATE:
-#    05 - Create an Alma User Object
-#    06 - If Alma rec exists check for differences and merge
-#    MUNGE:
-#    07 - Set roles, handle purges, etc...
-#    08 - Generate XML Fragment (for individual user record)
-#    09 - Add fragment to XML Doc (for collection)
-#    EXPORT:
-#    10 - Save XML file
-#    11 - Zip file
-#    12 - Send XML file to ??? (where Ex Libris collects files for sync/update)
-#         FTP to: upload.lib.berkeley.edu/alma/
-#                                              patron_employees
-#                                              patron_students
-#
