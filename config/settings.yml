@@ -1,6 +1,6 @@
 Settings:
-  setting_one: "one"
   change_log_days: 14
+  sis_look_back: 7
 
 # TODO - flesh this out
 # http://docopt.org/

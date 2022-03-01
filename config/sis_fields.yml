@@ -1,0 +1,108 @@
+SIS:
+  fields:
+    - name: student_id
+      jpath: '$..identifiers[?(@.type=="student-id")].id'
+      status: REQUIRED
+
+    - name: term_id
+      jpath: "$.registrations[0].term.id"
+      status: OPTIONAL
+
+    - name: registered
+      jpath: "$.registrations[0].registered"
+      status: OPTIONAL
+
+    - name: eligibletoregister
+      jpath: "$.registrations[0].eligibleToRegister"
+      status: PREFERRED
+
+    - name: withcncl
+      jpath: "$.registrations[0].withdrawalCancel.type.code"
+      status: OPTIONAL
+
+    - name: acadcareer_code
+      jpath: "$.registrations[0].academicCareer.code"
+      status: PREFERRED
+
+    - name: acadplan_descr
+      jpath_old: "$.registrations[0].academicCareer.description"
+      jpath: "$.academicStatuses[0].studentPlans[0].academicPlan.plan.description"
+      status: OPTIONAL
+
+    - name: prim_name_familyname
+      jpath: "$.names[?(@.type.code=='PRI')].familyName"
+      status: OPTIONAL
+
+    - name: prim_name_givenname
+      jpath: "$.names[?(@.type.code=='PRI')].givenName"
+      status: OPTIONAL
+
+    - name: prim_name_middlename
+      jpath: "$.names[?(@.type.code=='PRI')].middleName"
+      status: OPTIONAL
+
+    - name: locl_address_address1
+      jpath: "$.addresses[?(@.type.code=='LOCL')].address1"
+      status: OPTIONAL
+
+    - name: locl_address_address2
+      jpath: "$..emails[?(@.primary==true)].type.code"
+      status: OPTIONAL
+
+    - name: locl_address_city
+      jpath: "$.addresses[?(@.type.code=='LOCL')].city"
+      alt_jpath: "$..phones[0].number"
+      status: OPTIONAL
+
+    - name: locl_address_statecode
+      jpath: "$.addresses[?(@.type.code=='LOCL')].stateCode"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
+    - name: locl_address_postalcode
+      jpath: "$.addresses[?(@.type.code=='LOCL')].postalCode"
+      status: OPTIONAL
+
+    - name: home_address_address1
+      jpath: "$.addresses[?(@.type.code=='HOME')].address1"
+      status: OPTIONAL
+
+    - name: home_address_address2
+      jpath: "$.addresses[?(@.type.code=='HOME')].address1"
+      status: OPTIONAL
+
+    - name: home_address_city
+      jpath: "$.addresses[?(@.type.code=='HOME')].city"
+      status: OPTIONAL
+
+    - name: home_address_statecode
+      jpath: "$.addresses[?(@.type.code=='HOME')].stateCode"
+      status: OPTIONAL
+
+    - name: home_address_postalcode
+      jpath: "$.addresses[?(@.type.code=='HOME')].postalCode"
+      status: OPTIONAL
+
+    - name: email_emailaddress
+      jpath: "$.emails[?(@.primary==true)].emailAddress"
+      status: OPTIONAL
+
+    - name: phone_number
+      jpath: "$.phones[?(@.primary==true)].number"
+      status: OPTIONAL
+
+    - name: pref_name_familyname
+      jpath: "$.names[?(@.type.code=='PRF')].familyName"
+      status: OPTIONAL
+
+    - name: pref_name_givenname
+      jpath: "$.names[?(@.type.code=='PRF')].givenName"
+      status: OPTIONAL
+
+    - name: pref_name_middlename
+      jpath: "$.names[?(@.type.code=='PRF')].middleName"
+      status: OPTIONAL
+
+    - name: campus_uid
+      jpath: "$..identifiers[?(@.type=='campus-uid')].id"
+      status: OPTIONAL
