@@ -6,6 +6,7 @@ require 'logger'
 # Found and cribbed from:
 # https://stackoverflow.com/questions/917566/ruby-share-logger-instance-among-module-classes
 
+# Logging exporter
 module Logging
   class << self
     def logger
