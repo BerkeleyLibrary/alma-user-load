@@ -65,3 +65,11 @@ def stub_change_log(start_date, end_date, body)
     body: File.new("spec/data/ucpath/#{body}.json")
   )
 end
+
+def stub_sis_data(term_id, page_num)
+  sis_fetch_url = "https://apis.berkeley.edu/sis/v2/students?inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=100&term-id=#{term_id}"
+  stub_request(:get, sis_fetch_url).to_return(
+    status: 200,
+    body: File.new("spec/data/sis/term_#{term_id}_#{page_num}.json")
+  )
+end
