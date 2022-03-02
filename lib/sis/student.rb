@@ -66,12 +66,9 @@ module SIS
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-    # rubocop:disable Metrics/MethodLength
     def set_user_group
       rec.user_group = case user['acadcareer_code']
-                       when 'GRAD'
-                         'GRADSTUD'
-                       when 'LAW'
+                       when 'GRAD' || 'LAW'
                          'GRADSTUD'
                        when 'UCBX'
                          # TODO: confirm:
@@ -84,7 +81,6 @@ module SIS
                          user['acadcareer_code']
                        end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def set_primary_name
       rec.first_name = user['prim_name_givenname']
@@ -181,6 +177,7 @@ module SIS
       telephone = telephone.sub(/^\s+/, '')
       telephone = telephone.sub(/\s+$/, '')
 
+      # rubocop:disable Lint/DuplicateBranch
       case telephone
       when /^\d{3}-\d{3}-\d{4}$/
         # Correct format, hooray!
@@ -202,6 +199,7 @@ module SIS
         # puts "Failed Phone number: #{preserved_number}"
         return preserved_number
       end
+      # rubocop:enable Lint/DuplicateBranch
 
       telephone
     end

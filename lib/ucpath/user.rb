@@ -221,6 +221,7 @@ module UCPath
       # rubocop:enable Metrics/BlockLength
 
       ineligible_reasons&.each do |r|
+        g
         logger.info r
       end
     end
@@ -399,6 +400,7 @@ module UCPath
       telephone = telephone.sub(/^\s+/, '')
       telephone = telephone.sub(/\s+$/, '')
 
+      # rubocop:disable Lint/DuplicateBranch
       case telephone
       when /^\d{3}-\d{3}-\d{4}$/
         # Correct format, hooray!
@@ -419,6 +421,7 @@ module UCPath
         logger.info "#{id} - Failed to process phone number: #{preserved_number}"
         return nil
       end
+      # rubocop:enable Lint/DuplicateBranch
 
       telephone
     end
