@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'erb'
 require 'yaml'
 require 'json'
@@ -5,25 +7,28 @@ require 'logger'
 require 'ostruct'
 require 'dotenv/load'
 
+# Config class to hold/manage our configuration
 class Config
   # Secrets (passwords, api keys, etc...): Uses ERB for ENV variables
-  @secrets = JSON.parse(YAML.load(ERB.new(File.read('config/secrets.yml')).result).to_json, object_class: OpenStruct)
+  @secrets = JSON.parse(YAML.safe_load(ERB.new(File.read('config/secrets.yml')).result).to_json,
+                        object_class: OpenStruct)
 
   # General Settings: Uses ERB for ENV variables
-  @settings = JSON.parse(YAML.load(ERB.new(File.read('config/settings.yml')).result).to_json, object_class: OpenStruct)
+  @settings = JSON.parse(YAML.safe_load(ERB.new(File.read('config/settings.yml')).result).to_json,
+                         object_class: OpenStruct)
 
   ucpath_contents = File.open('config/ucpath_fields.yml').read
-  @ucpath_fields = YAML.load(ERB.new(ucpath_contents).result)
-  
+  @ucpath_fields = YAML.safe_load(ERB.new(ucpath_contents).result)
+
   ldap_contents = File.open('config/ldap_fields.yml').read
-  @ldap_fields = YAML.load(ERB.new(ldap_contents).result)
-  
+  @ldap_fields = YAML.safe_load(ERB.new(ldap_contents).result)
+
   ucpath_codes = File.open('config/ucpath_codes.yml').read
-  @ucpath_codes = YAML.load(ERB.new(ucpath_codes).result)
-  
+  @ucpath_codes = YAML.safe_load(ERB.new(ucpath_codes).result)
+
   sis_contents = File.open('config/sis_fields.yml').read
-  @sis_fields = YAML.load(ERB.new(sis_contents).result)
-  
+  @sis_fields = YAML.safe_load(ERB.new(sis_contents).result)
+
   # TODO:  Add a check to make sure all necessary config settings are set!
   #        warn if we don't have an .env with necessary settings!
   #        Maybe if missing needed .env locally I can offer a command line option
