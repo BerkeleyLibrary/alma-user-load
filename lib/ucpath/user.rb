@@ -3,6 +3,8 @@
 require 'date'
 require 'json'
 require 'ostruct'
+
+# I don't think I need these:
 require 'jsonpath'
 require 'nokogiri'
 require_relative 'user'
@@ -179,7 +181,7 @@ module UCPath
                            'NONACAD'
                          end
 
-        # EXPIRTY_DATE
+        # EXPIRY_DATE
         # if j.expected_end_date.blank?
         rec.expiry_date = if !j.expected_end_date || j.expected_end_date == ''
                             create_expected_end_date
@@ -208,9 +210,7 @@ module UCPath
         rec.identifiers = create_identifiers
 
         # USER_ROLES - DROP (according to D.Rez, Alma should assign)
-
         # USER_STATISTICS - TBD (addording to J.Gosselar these have yet to be determined)
-        rec.statistics = create_statistics
 
         # SET USER ELIGIBILITY
         self.eligible = job_eligible
@@ -225,17 +225,6 @@ module UCPath
       end
     end
     # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
-
-    def create_statistics
-      # Returns an array of statistic
-      stats = []
-      # Stats are made up of:
-      #   a category (are these hardcoded to UCB?)
-      #   a category type (always empty?)
-      #   a note
-
-      # s = Statistic.new
-    end
 
     # rubocop:disable Metrics/AbcSize
     def create_identifiers
@@ -473,8 +462,7 @@ module UCPath
         value = JsonPath.on(@user, jpath).first || ''
 
         # If field has an alternatate path (E.G., non primary phone)
-        # Hmmm.... put this through the ringer, had .blank?
-        value = JsonPath.on(@user, alt_jpath).first || '' if (!value || value == '') && alt_jpath
+        value = JsonPath.on(@user, alt_jpath).first || '' if value == '' && alt_jpath
 
         if status == 'REQUIRED' && (!value || value == '')
           errors.push("#{id} - Missing required field: #{name}")
