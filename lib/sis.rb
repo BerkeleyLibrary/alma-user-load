@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require_relative 'sis/api'
-require_relative 'sis/user'
+require_relative 'sis/student'
 
 module SIS
-  VERSION = '1.0'
+  include SIS::API
 end
