@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 
 module Alma
+  # XMLBuilder - builds an XML document for uploading to Alma
   class XMLBuilder
     attr_accessor :doc
 
@@ -8,6 +11,7 @@ module Alma
       @doc = build(recs)
     end
 
+    # rubocop :disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/BlockLength
     def build(recs)
       Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
         xml.users do
@@ -34,22 +38,26 @@ module Alma
 
                 xml.contact_info do
                   if r.contact_info.addresses
-                    address = r.contact_info.addresses
+                    addresses = r.contact_info.addresses
+
+                    addresses = [addresses] unless addresses.is_a?(Array)
 
                     # BUILD CONTACT>ADDRESSES
-                    xml.addresses do
-                      xml.address(preferred: address.preferred.to_s, segment_type: 'Internal') do
-                        xml.line1           address.line1
-                        xml.line2           address.line2
-                        xml.city            address.city
-                        xml.state_province  address.state_province
-                        xml.postal_code     address.postal_code
-                        xml.country         address.country
-                        xml.address_note    address.address_note
-                        xml.start_date      address.start_date
-                        xml.end_date        address.end_date
-                        xml.address_types do
-                          xml.address_type  address.address_types
+                    addresses.each do |address|
+                      xml.addresses do
+                        xml.address(preferred: address.preferred.to_s, segment_type: 'Internal') do
+                          xml.line1           address.line1
+                          xml.line2           address.line2
+                          xml.city            address.city
+                          xml.state_province  address.state_province
+                          xml.postal_code     address.postal_code
+                          xml.country         address.country
+                          xml.address_note    address.address_note
+                          xml.start_date      address.start_date
+                          xml.end_date        address.end_date
+                          xml.address_types do
+                            xml.address_type address.address_types
+                          end
                         end
                       end
                     end
@@ -73,7 +81,7 @@ module Alma
                   end
 
                   # BUILD CONTACT>PHONES
-                  if r.contact_info.phones.phone_number
+                  if r.contact_info.phones
                     phone = r.contact_info.phones
 
                     xml.phones do
@@ -116,25 +124,19 @@ module Alma
               #     end
               #   }
               # end
+
+              # PREFERRED NAME if we be hav'in it!
+              if r.preferred_name
+                xml.pref_first_name   r.pref_name_givenname
+                xml.pref_middle_name  r.pref_name_middlename
+                xml.pref_last_name    r.pref_name_familyname
+                xml.pref_full_name
+              end
             end
           end
         end
       end
     end
+    # rubocop :enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/BlockLength
   end
 end
-
-__END__
-
-<user_statistics>
-<user_statistic segment_type="External">
-  <statistic_category>UCB</statistic_category>
-  <category_type></category_type>
-  <statistic_note>FYUHS</statistic_note>
-</user_statistic>
-<user_statistic segment_type="External">
-  <statistic_category>UCB</statistic_category>
-  <category_type></category_type>
-  <statistic_note>Non-Academic Staff</statistic_note>
-</user_statistic>
-</user_statistics>
