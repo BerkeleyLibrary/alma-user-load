@@ -1,0 +1,10 @@
+{
+  "apiResponse": {
+    "correlationId": "2bd710e2-8e2d-11ec-bdd7-0050568d8a1e",
+    "httpStatus": {
+      "code": "404",
+      "description": "Not Found",
+      "formalDescription": "No data found"
+    }
+  }
+}
