@@ -3,6 +3,7 @@
 require 'faraday'
 
 module UCPath
+  # UCPATH API module - fetch employee and job info
   module API
     def fetch_ucpath_rec(id)
       req = url_root + "employees/#{id}?id-type=hr-employee-id"
@@ -13,7 +14,7 @@ module UCPath
 
       logger.info "#{id} - Successfully fetched UCPath record"
 
-      response = res.body
+      res.body
     end
 
     def fetch_ucpath_jobs(id)
@@ -24,9 +25,10 @@ module UCPath
       # TODO: - handle errors!
       return nil unless res.status == 200
 
-      response = res.body
+      res.body
     end
 
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
     def change_log(change_from, change_to)
       # where we'll stash our IDs:
       user_ids = []
@@ -94,6 +96,7 @@ module UCPath
       # Return the user ids:
       user_ids
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     private
 
