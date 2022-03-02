@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'ucpath/api'
 require_relative 'ucpath/user'
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # require_relative 'alma/api'
 # require_relative 'alma/user'
 require_relative 'alma/xml_builder'
