@@ -26,7 +26,7 @@ end
 
 # rubocop:disable Metrics/BlockLength
 describe SIS::Student do
-  it 'is a SIS Student Object and is eligible by default' do
+  it 'is a SIS Student Object' do
     user = {
       'student_id' => '12345',
       'prim_name_givenname' => 'Tony',
@@ -35,7 +35,6 @@ describe SIS::Student do
     }
     student = SIS::Student.new user
 
-    expect(student.eligible?).to eq(true)
     expect(student).to be_kind_of(Student)
   end
 
@@ -86,11 +85,6 @@ describe SIS::Student do
       'home_address_postalcode' => '000001'
     }
 
-    # TODO: fix this... need to set expected xml expiry_date and purge date
-    #       dynamically. Since these will change depending on the time of year.
-    # +    <expiry_date>2023-10-31</expiry_date>
-    # +    <purge_date>2024-10-31</purge_date>
-
     student = SIS::Student.new user
     builder = Alma::XMLBuilder.new [student]
 
@@ -110,12 +104,75 @@ describe SIS::Student do
     expect(student.rec.contact_info.phones.phone_number).to eq('925-555-1234')
   end
 
+  it 'does not format phone numbers where the pattern is not recognized' do
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD',
+      'phone_number' => '123456789101112'
+    }
+    student = SIS::Student.new user
+
+    expect(student.rec.contact_info.phones.phone_number).to eq('123456789101112')
+  end
+
+  it 'handles all known mangled telephone formats' do
+    known_phone_formats = [
+      '510 645-1234',
+      '5106451234',
+      '645-1234',
+      '5-1234'
+    ]
+
+    known_phone_formats.each do |number|
+      user = {
+        'student_id' => '12345',
+        'prim_name_givenname' => 'Thor',
+        'prim_name_familyname' => 'Odinson',
+        'acadcareer_code' => 'GRAD',
+        'phone_number' => number
+      }
+      student = SIS::Student.new user
+
+      expect(student.rec.contact_info.phones.phone_number).to eq('510-645-1234')
+    end
+  end
+
+  it 'sets expiry date to today if student cancelled registration' do
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD',
+      'withcncl' => 'CAN'
+    }
+    student = SIS::Student.new user
+    expected_expiry_date = Date.today.to_s
+    expect(student.rec.expiry_date).to eq(expected_expiry_date)
+  end
+
+  it 'sets expiry date to 10-31-xxxx if student is registration' do
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD'
+    }
+
+    current_year = Date.today.year
+    cr_plus2 = current_year + 2
+    allow(Date).to receive(:today).and_return(Date.parse("#{current_year}-08-31"))
+    student = SIS::Student.new user
+    expect(student.rec.expiry_date).to eq("#{cr_plus2}-10-31")
+  end
+
   it 'sets the user group' do
     # Let's test all of the user groups:
     user_group_map = {
       'GRAD' => 'GRADSTUD',
       'LAW' => 'GRADSTUD',
-      'UCBX' => 'UCBX',
+      'UCBX' => 'UCEXTSTUD',
       'UGRD' => 'UNDERGRAD',
       'UNKNOWN' => 'UNKNOWN'
     }
