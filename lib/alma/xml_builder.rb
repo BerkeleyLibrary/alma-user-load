@@ -43,8 +43,8 @@ module Alma
                     addresses = [addresses] unless addresses.is_a?(Array)
 
                     # BUILD CONTACT>ADDRESSES
-                    addresses.each do |address|
-                      xml.addresses do
+                    xml.addresses do
+                      addresses.each do |address|
                         xml.address(preferred: address.preferred.to_s, segment_type: 'Internal') do
                           xml.line1           address.line1
                           xml.line2           address.line2
