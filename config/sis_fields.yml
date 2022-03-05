@@ -68,7 +68,7 @@ SIS:
       status: OPTIONAL
 
     - name: home_address_address2
-      jpath: "$.addresses[?(@.type.code=='HOME')].address1"
+      jpath: "$.addresses[?(@.type.code=='HOME')].address2"
       status: OPTIONAL
 
     - name: home_address_city
