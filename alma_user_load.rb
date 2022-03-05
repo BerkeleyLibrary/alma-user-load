@@ -1,52 +1,5 @@
 # frozen_string_literal: true
 
-# TODO: -
-#  SEGREGATE THE UCPATH AND SIS PROCESSES BELOW TO MODULES
-#  Verify I have all "required" fields for eligibility
-#  STARTED - Setup SIS process
-#  STARTED - Setup options
-#  STARTED - REFACTOR the living shit out this
-#  STARTED - Clean up your config setup - it's a bit unruly right now
-#  SIS - Check on Identifiers logic (student-id particularly)
-#  SIS - User Roles
-#  SIS - User Statistics
-#  SIS - Add logging!!!
-#  Setup error handling!!!!
-#  STARTED - Rubocop it!
-#  Write test to check that we make expected job date in past ineligible!
-#  Move to Gitlab/Lap
-#  Setup DockerFile
-#  Setup in pipeline
-#  Setup transfer of zip file to Ex Libris
-#  Setup full user base (if we want that...sounds scary)
-#  Write up README
-#  DRY things up (UCPath vs. SIS --> phone, email, address, names, etc...)
-#  Save the change log to a temp file and go through (and track your progress)
-#  Only do a LDAP lookup if you have an eligible job!!!
-#  Go through the million "TODOs" littered through all this code!
-#  Eventually build out custom logger (CSV of each record touched, each event and outcome)
-#  DONE - See if I can do an SIS change log using as-of-date (YES - and done!)
-#  DONE - SIS - Set Expiry and Purge Dates
-#  DONE - SIS - add inc-regs and grab the withcncl code value!!!
-#  DONE - SIS - Add Unit Testing
-#  DONE - Get code coverage to 100%
-#  DONE - Setup logging (guess do a csv file per run... )
-#  DONE - Fix address start date
-#  DONE - Setup RSPEC
-#  DONE - Setup RCOV
-#  DONE - Workout the address start/end dates - it's unclear what they should be (Becky is working on this)
-#  DONE - Make file naming convention dynamic? (add date, type, etc...)
-#  DONE - Move Keys/PWs to config and ENV vars
-#  DONE - Setup LDAP fields
-#  DONE - Setup user aggregation/merge
-#  DONE - Get this into Gitlab!!!
-#  DONE - Setup "Eligibility" logic!!!
-#  DONE - Setup better XML builder/template writer
-#  DONE - switch to use JSON for all data collection (UCPath/SIS/Alma)
-#  DONE - Setup to zip the xml file
-#  DONE - Add 'E' prefix for hr-employee-id (aka ucpath_employee_id) identifier
-#  DONE - Format phone number
-
 require 'date'
 require 'zipruby'
 require 'getoptlong'
@@ -235,6 +188,7 @@ when 'sis'
   past_data_hash = {}
 
   past_data = SIS::API.fetch_by_term(@term_id, lookback_date)
+
   past_data.each_with_index do |user, _idx|
     student = SIS::Student.new(user)
     id = student.rec.primary_id
@@ -248,29 +202,34 @@ when 'sis'
   raw_users = SIS::API.fetch_by_term(@term_id)
   raw_users.each_with_index do |user, _idx|
     student = SIS::Student.new(user)
-
     id = student.rec.primary_id
     md5 = Digest::MD5.hexdigest(student.rec.to_s)
 
     if past_data_hash.key?(id)
-      if !past_data_hash[id] == md5 && student.eligible?
+      # If the checksums don't match - add the record to the user list
+      if past_data_hash[id] != md5
+        logger.info "#{id} - #{md5}"
         counter += 1
         user_list.push(student)
       end
     else
       # New Record, add it to the user list
       counter += 1
-      user_list.push(student) if student.eligible?
+      logger.info "#{id} - #{md5}"
+      user_list.push(student)
     end
   end
 
   logger.info "Total new and changed records: #{counter}"
+  puts "Total new and changed records: #{counter}"
 
   # BUILD XML
   builder = Alma::XMLBuilder.new user_list
 
   # WRITE XML TO FILE
   filename_prefix = "#{@type}_#{lookback_date}-#{today}"
+
+  logger.info "Writing XML File: #{filename_prefix}.xml"
   f = File.open("#{filename_prefix}.xml", 'w')
   f.write(builder.doc.to_xml)
   f.close
@@ -278,12 +237,72 @@ when 'sis'
   # CREATE ZIP FILE AND ADD XML FILE TO IT
   Zip::Archive.open("#{filename_prefix}.zip", Zip::CREATE) do |arc|
     arc.add_file("#{filename_prefix}.xml")
-    logger.info 'File Zipped'
+    logger.info "File Zipped: #{filename_prefix}.zip"
   end
 
   # TODO: setup FTP
-
+  # sftp [username]@upload.lib.berkeley.edu
+  # alma/
+  #   patron_employees/
+  #   patron_students/
+  #   sandbox/
+  #     patron_employees/
+when 'sftp'
+  puts "SFTP'ing file..."
 else
   puts "\nERROR: type is required and must be 'sis' or 'ucpath'\n"
   exit
 end
+
+__END__
+TODO: -
+ DONE - See if I can do an SIS change log using as-of-date (YES - and done!)
+ DONE - SIS - Set Expiry and Purge Dates
+ DONE - SIS - add inc-regs and grab the withcncl code value!!!
+ DONE - SIS - Add Unit Testing
+ DONE - Get code coverage to 100%
+ DONE - Setup logging (guess do a csv file per run... )
+ DONE - Fix address start date
+ DONE - Setup RSPEC
+ DONE - Setup RCOV
+ DONE - Workout the address start/end dates - it's unclear what they should be (Becky is working on this)
+ DONE - Make file naming convention dynamic? (add date, type, etc...)
+ DONE - Move Keys/PWs to config and ENV vars
+ DONE - Setup LDAP fields
+ DONE - Setup user aggregation/merge
+ DONE - Get this into Gitlab!!!
+ DONE - Setup "Eligibility" logic!!!
+ DONE - Setup better XML builder/template writer
+ DONE - switch to use JSON for all data collection (UCPath/SIS/Alma)
+ DONE - Setup to zip the xml file
+ DONE - Add 'E' prefix for hr-employee-id (aka ucpath_employee_id) identifier
+ DONE - Format phone number
+ DONE - SIS - keep only last 8 chars for primary id in barcode field!
+ DONE - update <campus_code>UCB Campus</campus_code> to <campus_code>UCB_Campus</campus_code>
+ DONE - replace user group UCBX with UCEXTSTUD
+ 
+ SEGREGATE THE UCPATH AND SIS PROCESSES Above TO MODULES
+ Verify I have all "required" fields for eligibility
+ TODO - replace fixtures w/some sort of factory (factorybot?)
+ STARTED - Setup SIS process
+ STARTED - Setup options
+ STARTED - REFACTOR the living shit out this
+ STARTED - Clean up your config setup - it's a bit unruly right now
+ SIS - Check on Identifiers logic (student-id particularly)
+ SIS - Improve logging!!!
+ Setup error handling!!!!
+ STARTED - Rubocop it!
+ Write test to check that we make expected job date in past ineligible!
+ Move to Gitlab/Lap
+ Setup DockerFile
+ Setup in pipeline
+ Setup transfer of zip file to Ex Libris
+ Setup full user base (if we want that...sounds scary)
+ Write up README
+ DRY things up (UCPath vs. SIS --> phone, email, address, names, etc...)
+ Save the change log to a temp file and go through (and track your progress)
+ Only do a LDAP lookup if you have an eligible job!!!
+ Go through the million "TODOs" littered through all this code!
+ Eventually build out custom logger (CSV of each record touched, each event and outcome)
+ Add some resiliency - maybe log progress so if there's an interuption I can restart from the last place
+ no phone number - don't add phone group at all! HRmmmm... 
