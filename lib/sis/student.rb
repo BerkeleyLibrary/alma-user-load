@@ -8,7 +8,7 @@ require 'date'
 module SIS
   # Student object for processing into Alma XML file
   class Student
-    attr_accessor :rec, :user, :eligible
+    attr_accessor :rec, :user
 
     Statistic = Struct.new(:segment_type, :category, :type, :note)
     Identifier = Struct.new(:segment_type, :id_type, :value, :status)
@@ -21,12 +21,7 @@ module SIS
     def initialize(user)
       @user = user
       @rec = OpenStruct.new
-      @eligible = true
       create_user_record
-    end
-
-    def eligible?
-      eligible
     end
 
     private
@@ -66,21 +61,21 @@ module SIS
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
+    # rubocop:disable Metrics/MethodLength
     def set_user_group
       rec.user_group = case user['acadcareer_code']
-                       when 'GRAD' || 'LAW'
+                       when 'GRAD', 'LAW'
                          'GRADSTUD'
                        when 'UCBX'
-                         # TODO: confirm:
-                         'UCBX'
+                         'UCEXTSTUD'
                        when 'UGRD'
                          'UNDERGRAD'
                        else
-                         # TODO: LOG THIS:
-                         # puts "ERROR: unknown career code: #{user['acadcareer_code']}"
+                         logger.warn "Unrecognized Career Code: #{user['acadcareer_code']}"
                          user['acadcareer_code']
                        end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def set_primary_name
       rec.first_name = user['prim_name_givenname']
@@ -99,7 +94,7 @@ module SIS
       c = ContactInfo.new
       c.addresses = create_addresses
       c.emails = create_email
-      c.phones = create_phone unless user['phone_number'].nil?
+      c.phones = create_phone unless user['phone_number'].nil? || user['phone_number'].empty?
       c
     end
 
@@ -206,8 +201,7 @@ module SIS
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def set_static_values
-      # TODO: - Confirm this is hardcoded? (I doubt it)
-      rec.campus_code = 'UCB Campus'
+      rec.campus_code = 'UCB_Campus'
 
       # ACCOUNT_TYPE
       rec.account_type = 'EXTERNAL'
@@ -220,7 +214,8 @@ module SIS
       identifiers = []
 
       # student-id
-      identifiers.push(create_identifier(user['student_id'])) if user['student_id']
+      # Only want the last 7 digits for this barcode
+      identifiers.push(create_identifier(user['student_id'].chars.last(8).join)) if user['student_id']
       # campus-uid
       identifiers.push(create_identifier(user['campus_uid'])) if user['campus_uid']
 
