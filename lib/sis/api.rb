@@ -68,8 +68,7 @@ module SIS
         # TODO: test this against real data... works for rspec
         status = response['apiResponse']['httpStatus']['code']
 
-        # if response && response != '' && status == 200
-        break loop if status == '200'
+        break loop if status != '200'
 
         # Remove after dev:
         # break loop if raw_users.count > 2
