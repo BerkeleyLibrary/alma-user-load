@@ -221,7 +221,6 @@ module UCPath
       # rubocop:enable Metrics/BlockLength
 
       ineligible_reasons&.each do |r|
-        g
         logger.info r
       end
     end
