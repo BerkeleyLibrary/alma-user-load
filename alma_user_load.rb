@@ -100,6 +100,9 @@ case @type
 when 'ucpath'
   user_list = []
 
+  logger.info "Start Date : #{@start_date}"
+  logger.info "End Date   : #{@end_date}"
+
   # Fetch the change log if we didn't specify users at the command line!
   # process_list = UCPath::User.fetch_change_log(@start_date, @end_date) unless process_list
   process_list ||= UCPath::API.change_log(@start_date, @end_date)
