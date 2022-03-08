@@ -196,8 +196,7 @@ module UCPath
         rec.contact_info = create_contact_info(j)
 
         # CAMPUS_CODE
-        # TODO - Confirm this is hardcoded? (I doubt it)
-        rec.campus_code = 'UCB Campus'
+        rec.campus_code = 'UCB_Campus'
 
         # ACCOUNT_TYPE
         rec.account_type = 'EXTERNAL'
@@ -234,9 +233,9 @@ module UCPath
       identifiers.push(create_identifier(ucpath_rec.ucpath_employee_id, 'E')) if ucpath_rec.ucpath_employee_id
 
       # legacy-hr-employee-id
-      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) if ucpath_rec.legacy_employee_id
+      identifiers.push(create_identifier(ucpath_rec.legacy_employee_id)) unless ucpath_rec.legacy_employee_id.empty?
 
-      if ucpath_rec.legacy_employee_id
+      unless ucpath_rec.legacy_employee_id.empty?
         identifiers.push(create_identifier(ucpath_rec.legacy_employee_id.chars.last(7).join,
                                            'A'))
       end
@@ -301,9 +300,7 @@ module UCPath
       #----------------------------------------------------------------#
       a.start_date = Date.today
       a.end_date = Date.iso8601(rec.expiry_date)
-
-      # CONFIRM THIS IS HARDCODED TO 'SCHOOL'
-      a.address_types = 'school'
+      a.address_types = 'work'
 
       # RETURN our address struct
       a
@@ -334,7 +331,7 @@ module UCPath
         e = Email.new
         e.preferred = 'true'
         e.email_address = ldap.berkeleyeduofficialemail.first
-        e.email_types = 'school'
+        e.email_types = 'work'
       end
 
       e
@@ -354,27 +351,33 @@ module UCPath
 
         telephone = format_phone ucpath_rec.phone_number
 
-        p = Phone.new
-        p.preferred = if !ucpath_rec.phone_primary_code || ucpath_rec.phone_primary_code == ''
-                        'false'
-                      else
-                        'true'
-                      end
+        if telephone
+          p = Phone.new
+          p.preferred = if !ucpath_rec.phone_primary_code || ucpath_rec.phone_primary_code == ''
+                          'false'
+                        else
+                          'true'
+                        end
 
-        p.preferred_sms = 'false'
-        p.phone_number = telephone || nil
-        p.phone_types = ucpath_rec.phone_type || nil
+          p.preferred_sms = 'false'
+          p.phone_number = telephone
+          p.phone_types = ucpath_rec.phone_type || 'office'
+          return p
+        end
       else
         telephone = format_phone ldap.telephonenumber.first
 
-        p = Phone.new
-        p.preferred = 'true'
-        p.preferred_sms = 'false'
-        p.phone_number = telephone || nil
-        p.phone_types = 'office'
+        if telephone
+          p = Phone.new
+          p.preferred = 'true'
+          p.preferred_sms = 'false'
+          p.phone_number = telephone
+          p.phone_types = 'office'
+          return p
+        end
       end
 
-      p
+      nil
     end
     # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
