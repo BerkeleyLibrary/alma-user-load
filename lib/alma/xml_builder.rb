@@ -27,7 +27,7 @@ module Alma
               xml.last_name     r.last_name
               xml.full_name
               xml.user_group    r.user_group
-              xml.campus_code   'UCB Campus'
+              xml.campus_code   'UCB_Campus'
               xml.expiry_date   r.expiry_date
               xml.purge_date    r.purge_date
               xml.account_type  'EXTERNAL'
