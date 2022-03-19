@@ -57,12 +57,17 @@ module UCPath
       # FETCH & PARSE UCPATH DATA
       logger.info "#{id} - Fetching ucpath record"
       @user = fetch_user
-      logger.error "#{id} - Failed to fetch UCPath record" if @user.nil?
+      if @user.nil?
+        @errors.push('Failed to fetch UCPath record')
+        return
+      end
 
       parse_user
 
       logger.info "#{id} - Fetching ucpath jobs data"
       @jobs = fetch_jobs
+      return if @jobs.nil?
+
       parse_jobs
 
       #----------------------------------------------------------------#
@@ -123,6 +128,25 @@ module UCPath
         rec.last_name = ldap.sn.first
       end
 
+      # Set the Full Name:
+      rec.full_name = rec.first_name
+      rec.full_name += " #{rec.middle_name}" if rec.middle_name
+      rec.full_name += " #{rec.last_name}"
+
+      # preferred names: (if present in UCPath)
+      rec.pref_name_givenname = ucpath_rec.pref_name_givenname unless ucpath_rec.pref_name_givenname.empty?
+      rec.pref_name_familyname = ucpath_rec.pref_name_familyname unless ucpath_rec.pref_name_familyname.empty?
+      rec.pref_name_middlename = ucpath_rec.pref_name_middlename unless ucpath_rec.pref_name_middlename.empty?
+
+      # Set the Full Name:
+      # TODO: move this into a library
+      if rec.pref_name_givenname && rec.pref_name_familyname
+        rec.preferred_name = true
+        rec.pref_name_fullname = rec.pref_name_givenname
+        rec.pref_name_fullname += " #{rec.pref_name_middlename}" unless rec.pref_name_middlename.nil?
+        rec.pref_name_fullname += " #{rec.pref_name_familyname}"
+      end
+
       #----------------------------------------------------------------#
       # USER_GROUP:
       # Probably spin this off to a separate function!
@@ -160,6 +184,9 @@ module UCPath
 
         # Found eligible job - clear out any previous ineligible reasons
         ineligible_reasons = nil
+
+        # JOB DESCRIPTION
+        rec.job_description = j.dept_desc || nil
 
         # USER_GROUP
         rec.user_group = if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.dept_code) ||
@@ -319,20 +346,21 @@ module UCPath
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def create_email
       # unless !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first.blank?
-      if !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first == ''
+      # ldap&.berkeleyeduaffiliations
+      if ldap.nil? || !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first == ''
         # return nil if ucpath_rec.email.blank?
         return nil unless ucpath_rec.email
 
         e = Email.new
         e.preferred = ucpath_rec.email_primary_code
         e.email_address = ucpath_rec.email
-        e.email_types = ucpath_rec.email_type
       else
         e = Email.new
         e.preferred = 'true'
         e.email_address = ldap.berkeleyeduofficialemail.first
-        e.email_types = 'work'
       end
+
+      e.email_types = 'work'
 
       e
     end
@@ -346,7 +374,7 @@ module UCPath
     #----------------------------------------------------------------#
     # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def create_phone
-      if !ldap.telephonenumber || ldap.telephonenumber == ''
+      if ldap.nil? || !ldap.telephonenumber || ldap.telephonenumber == ''
         return nil unless ucpath_rec.phone_number
 
         telephone = format_phone ucpath_rec.phone_number
@@ -361,7 +389,7 @@ module UCPath
 
           p.preferred_sms = 'false'
           p.phone_number = telephone
-          p.phone_types = ucpath_rec.phone_type || 'office'
+          p.phone_types = 'office'
           return p
         end
       else
