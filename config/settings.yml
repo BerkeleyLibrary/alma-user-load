@@ -1,6 +1,11 @@
 Settings:
-  change_log_days: 14
+  change_log_days: 7
   sis_look_back: 7
+  current_term: "2222"
+  sis_upload_path: "/alma/sandbox/patron_employees/"
+  ucpath_upload_path: "/alma/sandbox/patron_employees/"
+  upload_host: "upload.lib.berkeley.edu"
+  upload_user: "ssullivan"
 
 # TODO - flesh this out
 # http://docopt.org/
