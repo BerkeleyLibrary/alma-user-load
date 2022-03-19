@@ -10,7 +10,16 @@ describe UCPath::API do
     e = '2021-01-03'
 
     stub_change_log(s, e, 'change_log_1')
-    change_log(s, e)
+    log = change_log(s, e)
+    expect(log).to include('10000003', '10000004')
+  end
+
+  it 'returns nil on faraday error' do
+    stub_request(:get, 'https://apis.berkeley.edu/hr/v3/employees/dummy_id?id-type=hr-employee-id')
+      .to_raise('Someting went wrong dude')
+
+    u = fetch_ucpath_rec('dummy_id')
+    expect(u).to be_nil
   end
 end
 
@@ -276,6 +285,22 @@ describe UCPath::User do
 
     u = UCPath::User.new(id)
     expect(u.errors).to include("#{id} - Missing required field: ucpath_employee_id")
+  end
+
+  it 'records an error if the ucpath record is not returned' do
+    id = '10000666'
+    stub_ucpath_missing_user(id)
+    u = UCPath::User.new(id)
+    expect(u.errors).to include('Failed to fetch UCPath record')
+  end
+
+  it 'LDAP::API returns nil if fetch encounters an error' do
+    ucpath_id = '10527060'
+    stub_ucpath_user(ucpath_id)
+    stub_ucpath_jobs(ucpath_id)
+    allow(Net::LDAP).to receive(:new).and_raise(StandardError.new('error'))
+    u = UCPath::User.new(ucpath_id)
+    expect(u.ldap).to be_nil
   end
 end
 # rubocop:enable Metrics/BlockLength

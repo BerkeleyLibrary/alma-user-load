@@ -14,6 +14,14 @@ def stub_ucpath_user(id)
   )
 end
 
+def stub_ucpath_missing_user(id)
+  user_api_url = "https://apis.berkeley.edu/hr/v3/employees/#{id}?id-type=hr-employee-id"
+
+  stub_request(:get, user_api_url).to_return(
+    status: 400
+  )
+end
+
 def stub_ucpath_jobs(id)
   user_api_url = "https://apis.berkeley.edu/hr/v3/employees/#{id}/jobs?id-type=hr-employee-id"
 
@@ -67,7 +75,7 @@ def stub_change_log(start_date, end_date, body)
 end
 
 def stub_sis_data(term_id, page_num)
-  sis_fetch_url = "https://apis.berkeley.edu/sis/v2/students?inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=100&term-id=#{term_id}"
+  sis_fetch_url = "https://apis.berkeley.edu/sis/v2/students?inc-acad=true&inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=100&term-id=#{term_id}"
   stub_request(:get, sis_fetch_url).to_return(
     status: 200,
     body: File.new("spec/data/sis/term_#{term_id}_#{page_num}.json")
