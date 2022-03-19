@@ -20,18 +20,19 @@ module Alma
             r = rec.rec
 
             xml.user do
-              xml.record_type   'PUBLIC'
-              xml.primary_id    r.primary_id
-              xml.first_name    r.first_name
-              xml.middle_name   r.middle_name if r.middle_name
-              xml.last_name     r.last_name
-              xml.full_name
-              xml.user_group    r.user_group
-              xml.campus_code   'UCB_Campus'
-              xml.expiry_date   r.expiry_date
-              xml.purge_date    r.purge_date
-              xml.account_type  'EXTERNAL'
-              xml.status        'ACTIVE'
+              xml.record_type     'PUBLIC'
+              xml.primary_id      r.primary_id
+              xml.first_name      r.first_name
+              xml.middle_name     r.middle_name if r.middle_name
+              xml.last_name       r.last_name
+              xml.full_name       r.full_name
+              xml.job_description r.job_description
+              xml.user_group      r.user_group
+              xml.campus_code     'UCB_Campus'
+              xml.expiry_date     r.expiry_date
+              xml.purge_date      r.purge_date
+              xml.account_type    'EXTERNAL'
+              xml.status          'ACTIVE'
 
               # CONTACT INFO CONTAINS ADDRESSES, EMAILS, PHONES
               if r.contact_info
@@ -130,7 +131,7 @@ module Alma
                 xml.pref_first_name   r.pref_name_givenname
                 xml.pref_middle_name  r.pref_name_middlename
                 xml.pref_last_name    r.pref_name_familyname
-                xml.pref_full_name
+                xml.pref_full_name    r.pref_name_fullname
               end
             end
           end

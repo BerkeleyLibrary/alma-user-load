@@ -29,6 +29,10 @@ SIS:
       jpath: "$.academicStatuses[0].studentPlans[0].academicPlan.plan.description"
       status: OPTIONAL
 
+    - name: major
+      jpath: "$.academicStatuses[0].studentPlans[0].academicPlan.type.description"
+      status: OPTIONAL
+
     - name: prim_name_familyname
       jpath: "$.names[?(@.type.code=='PRI')].familyName"
       status: OPTIONAL

@@ -6,9 +6,10 @@ module SIS
   # SIS API module
   module API
     def current_term
-      # TODO: request access to Term API to grab this value
-      #       from SIS dynamically. For now, ugh, hardcode
-      '2222'
+      # TODO: for now get current term from config
+      #       eventually setup dynamic setting from API
+      #       or some sort of mapping based on the month/day
+      Config.setting('current_term')
     end
 
     # Fetch term by ID - can include as_of_date filter changes by a date
@@ -16,7 +17,6 @@ module SIS
     # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/BlockLength
     def fetch_by_term(term_id, as_of_date = nil)
       mode = as_of_date.nil? ? 'Current' : 'Past'
-      puts "Fetching #{mode} SIS Data..."
 
       raw_users = []
 
@@ -29,7 +29,6 @@ module SIS
 
         # break loop if current_page > 5
 
-        puts "Fetching Page: #{current_page}"
         logger.info "  Page: #{current_page}"
 
         # Build our API Request:
@@ -43,6 +42,9 @@ module SIS
 
         # Include Registration Info
         req += '&inc-regs=true'
+
+        # Include Academic Info
+        req += '&inc-acad=true'
 
         # Max page size is 100
         # though API doesn't really stick to it

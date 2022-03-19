@@ -34,6 +34,9 @@ module SIS
       set_primary_name
       set_preferred_name
 
+      # JOB_DESCRIPTION (Student's Major)
+      rec.job_description = user['major'] || nil
+
       # USER_GROUP
       set_user_group
 
