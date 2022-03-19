@@ -90,6 +90,24 @@ Employee:
       alt_xpath: "//emp:employee/p:phones/c:phone[1]/c:primary"
       status: OPTIONAL
 
+    - name: pref_name_givenname
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRF'][1]/p:givenName"
+      jpath: '$..names[?(@.type.code=="PRF")].givenName'
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:givenName"
+      status: PREFERRED
+
+    - name: pref_name_middlename
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRF'][1]/p:middleName"
+      jpath: '$..names[?(@.type.code=="PRF")].middleName'
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:middleName"
+      status: OPTIONAL
+
+    - name: pref_name_familyname
+      xpath: "//emp:employee/p:names/p:name[p:type/r:code='PRF'][1]/p:familyName"
+      jpath: '$..names[?(@.type.code=="PRF")].familyName'
+      alt_xpath: "//emp:employee/p:names/p:name[1]/p:familyName"
+      status: PREFERRED
+
     - name: db_date_added
 
     - name: db_date_modified
