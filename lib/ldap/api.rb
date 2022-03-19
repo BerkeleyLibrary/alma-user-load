@@ -6,24 +6,39 @@ require 'net/ldap'
 module LDAP
   # Fetches an LDAP record by UID returns an ostruct
   module API
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def fetch_ldap_rec(id)
+      logger.info '  starting LDAP fetch'
       ldap_rec = OpenStruct.new
       filter = Net::LDAP::Filter.eq('uid', id)
-      ldap = ldap_connection
+
+      # Track number of attempts incase of a timeout or other temporary glitch
+      attempts = 0
 
       # Extract required fields and bundle into open struct
-      if ldap.bind
+      begin
+        ldap = ldap_connection
+        attempts += 1
+        sleep(5) if attempts > 1
+        logger.info "  Attempt: #{attempts}" if attempts > 1
+
+        ldap.bind
         ldap.search(base: base, filter: filter) do |entry|
           entry.each do |attribute, values|
             ldap_rec[attribute] = values
           end
         end
+      rescue StandardError => e
+        attempts += 1
+        logger.error "  LDAP Error: #{e}"
+        retry if attempts <= 3
+        return nil
       end
-
+      logger.info '  LDAP Error: Recovered from LDAP Error!' if attempts > 1
+      logger.info '  finished LDAP fetch'
       ldap_rec
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     private
 

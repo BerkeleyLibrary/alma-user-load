@@ -10,7 +10,7 @@ module UCPath
 
       res = fetch(req, 'json')
 
-      return nil unless res.status == 200
+      return nil unless res && res.status == 200
 
       logger.info "#{id} - Successfully fetched UCPath record"
 
@@ -23,12 +23,12 @@ module UCPath
       res = fetch(req, 'json')
 
       # TODO: - handle errors!
-      return nil unless res.status == 200
+      return nil unless res && res.status == 200
 
       res.body
     end
 
-    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def change_log(change_from, change_to)
       # where we'll stash our IDs:
       user_ids = []
@@ -45,6 +45,8 @@ module UCPath
       loop do
         # Add 1 to our current page:
         current_page += 1
+
+        # break loop if current_page >= 5
 
         logger.info "Change Log page: #{current_page}"
         # Create our query parameter:
@@ -63,7 +65,7 @@ module UCPath
 
         # If it failed then return
         # TODO - make handle errors!
-        return nil unless res.status == 200
+        return nil unless res && res.status == 200
 
         # No error... let's parse our response and continue:
         response = JSON.parse(res.body)
@@ -96,7 +98,7 @@ module UCPath
       # Return the user ids:
       user_ids
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
+    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
     private
 
@@ -112,16 +114,33 @@ module UCPath
       Config.secrets.ucpath.id
     end
 
+    # rubocop:disable Metrics/MethodLength
     def fetch(req, type = 'xml')
-      Faraday.get(
-        req,
-        {},
-        {
-          'Accept' => "application/#{type}",
-          'app_id' => ucpath_id,
-          'app_key' => ucpath_key
-        }
-      )
+      attempts = 0
+      begin
+        attempts += 1
+        sleep(5) if attempts > 1
+        logger.info "Attempt: #{attempts}" if attempts > 1
+
+        Faraday.get(
+          req,
+          {},
+          {
+            'Accept' => "application/#{type}",
+            'app_id' => ucpath_id,
+            'app_key' => ucpath_key
+          }
+        )
+      rescue StandardError => e
+        attempts += 1
+        logger.error "UCPath API Error: #{e}"
+        logger.error "Attempt: #{attempts}"
+        logger.error "Request: #{req}"
+        retry if attempts <= 3
+
+        nil
+      end
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
