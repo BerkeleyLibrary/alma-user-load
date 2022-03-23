@@ -1,0 +1,15 @@
+services:
+  app:
+    &services-app
+    build:
+      context: .
+      target: development
+    init: true
+    networks:
+      default:
+        aliases:
+          - app.test
+    volumes:
+      - ./:/opt/app
+    ports:
+      - 3000:3000

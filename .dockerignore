@@ -1,0 +1,41 @@
+# Ignore .env
+.env
+
+# Ignore git
+.git
+.gitignore
+
+# Ignore bundler config.
+.bundle
+
+build
+
+secrets/*
+
+# Ignore devops files
+Jenkinsfile
+Dockerfile
+docker-compose*
+
+# Ignore markdown/readme files
+*.md
+
+# Ignore all log files
+*.log
+
+# Ignore all logfiles and tempfiles.
+log/*
+tmp/*
+
+# Ignore uploaded files in development
+storage/*
+
+
+.byebug_history
+
+
+# Ignore Sublime Text project files
+*.sublime*
+
+# Add back any .keep files
+!.keep
