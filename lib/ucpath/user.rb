@@ -3,13 +3,10 @@
 require 'date'
 require 'json'
 require 'ostruct'
-
-# I don't think I need these:
 require 'jsonpath'
 require 'nokogiri'
 require_relative 'user'
 require_relative '../alma'
-
 # TODO: - Decomposition
 # Break this into a bunch of smaller objects
 # raw_ucpath
@@ -77,12 +74,6 @@ module UCPath
       @ldap = LDAP::API.fetch_ldap_rec(@ucpath_rec.uid)
 
       #----------------------------------------------------------------#
-      # FETCH ALMA RECORD (NOT SURE IF I'LL NEED THIS OR NOT....)
-      # @alma_rec = Alma::User.new
-      # @alma_rec.load_user(id)
-      # puts "Last Name: #{@alma_rec.user.last_name}"
-
-      #----------------------------------------------------------------#
       # CREATE THE USER RECORD (@rec) FROM THE ABOVE DATA SOURCES
       logger.info "#{id} - Creating user record"
       create_user_record
@@ -97,9 +88,6 @@ module UCPath
 
     #----------------------------------------------------------------#
     # CREATE A FINAL RECORD THAT CAN BE USED FOR GENERATING XML
-    # TODO - probably want to move this into a separate class
-    #        "AlmaUser" or something like that, then I can reuse
-    #        most of the code when I setup SIS.
     # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def create_user_record
       rec.primary_id = ucpath_rec.ucpath_employee_id
@@ -507,8 +495,6 @@ module UCPath
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
-    # TODO: - I may need to set this up to always have the primary job
-    #        as the first element in the array
     # We'll throw all the jobs into an array of open structs:
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def parse_jobs
@@ -552,26 +538,6 @@ module UCPath
       end
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
-
-    # Need to get list of users (change log or full list)
-    # Need to process each user:
-    #  1 - fetch the users ucpath record
-    #  2 - fetch the users ucpath jobs
-    #  3?? not sure after this - some data massaging I'm assuming
-
-    #  4 - generate an XML record for the user
-    #  or
-    #  4 - fetch the users record from Alma
-    #      compare and build xml record accordingly (add notes or other necessary fields)
-    #  5 - add user xml record to the XML file
-    #  6 - move XML file to processing location
-
-    # Class function to fetch the UCPath User Change Log
-
-    # TODO: - Remove this from here... I think at least...
-    # def self.fetch_change_log(start_date, end_date)
-    #   log = User.change_log(start_date, end_date) || nil
-    # end
 
     def fetch_user
       User.fetch_ucpath_rec(id)
