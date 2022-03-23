@@ -18,7 +18,7 @@ gem 'net-ldap', '~> 0.17.0'
 gem 'nokogiri', '~> 1.12', '>= 1.12.5'
 
 # AND the file has to be zipped
-gem 'rubyzip', '~> 1.2'
+gem 'rubyzip', '~> 2.3.2'
 
 # For SFTPing zip file
 gem 'bcrypt_pbkdf', '~> 1.1'
