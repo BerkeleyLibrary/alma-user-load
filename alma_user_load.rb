@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+# !/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler/setup'
+require 'zip'
 require 'date'
-require 'zipruby'
 require 'getoptlong'
 require 'net/sftp'
 require 'digest/md5'
@@ -145,8 +149,8 @@ when 'ucpath'
     logger.info "Records writing to #{filename_prefix}.xml"
 
     # CREATE ZIP FILE AND ADD XML FILE TO IT
-    Zip::Archive.open("#{filename_prefix}.zip", Zip::CREATE) do |arc|
-      arc.add_file("#{filename_prefix}.xml")
+    Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
+      arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
       logger.info "File Zipped: #{filename_prefix}.zip"
     end
 
@@ -250,8 +254,8 @@ when 'sis'
   f.close
 
   # CREATE ZIP FILE AND ADD XML FILE TO IT
-  Zip::Archive.open("#{filename_prefix}.zip", Zip::CREATE) do |arc|
-    arc.add_file("#{filename_prefix}.xml")
+  Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
+    arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
     logger.info "File Zipped: #{filename_prefix}.zip"
   end
 
@@ -265,31 +269,14 @@ when 'sis'
     end
   end
 
-# TODO: Remove 'sftp' and 'zip' options (these are dev only)
-when 'sftp'
-  puts "SFTP'ing file..."
-
-  file = 'ucpath_2022-02-21_2022-03-07.zip'
-
-  # TODO: set this up to use generic credentials:
-  Net::SFTP.start(Config.setting('upload_host'), Config.setting('upload_user')) do |sftp|
-    # upload a file or directory to the remote host
-    sftp.upload!(file, "/alma/patron_employees/#{file}") if @deliver
-
-    # download a file or directory from the remote host
-    # sftp.download!("/path/to/remote", "/path/to/local")
-
-    # list the entries in a directory
-    sftp.dir.foreach('/alma/patron_employees') do |entry|
-      puts entry.longname
-    end
-  end
-when 'zip'
+# FOR DEV:
+when 'hey'
+  puts 'Heyy!'
+  puts Dir.entries('.')
   filename_prefix = 'sis_2022-01-10-2022-03-16'
 
-  # CREATE ZIP FILE AND ADD XML FILE TO IT
-  Zip::Archive.open("#{filename_prefix}.zip", Zip::CREATE) do |arc|
-    arc.add_file("#{filename_prefix}.xml")
+  Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
+    arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
     logger.info "File Zipped: #{filename_prefix}.zip"
   end
 else
@@ -325,30 +312,33 @@ DONE - update <campus_code>UCB Campus</campus_code> to <campus_code>UCB_Campus</
 DONE - replace user group UCBX with UCEXTSTUD
 DONE - Move to Gitlab/Lap (DM had to do this)
 DONE - Request Term API access
-DONE - No phone number - don't add phone group at all!
+DONE - No phone number - don not add phone group at all!
+DONE - Remove SFTP (Not necessary!)
+DONE - Setup error handling!!!!
+DONE - Add job_description field (holds department for ucpath, major for sis)
+
+STARTED - Setup DockerFile
+STARTED - Clean up your config setup - a bit unruly right now
+STARTED - Setup options
+
+Setup in pipeline
 
 SEGREGATE THE UCPATH AND SIS PROCESSES Above TO MODULES
 Verify I have all "required" fields for eligibility
 Replace fixtures w/some sort of factory (factorybot?)
-STARTED - Setup options
-STARTED - REFACTOR the living shit out this
-STARTED - Clean up your config setup - it's a bit unruly right now
+REFACTOR...then refactor more!
 SIS - Check on Identifiers logic (student-id particularly)
 SIS - Improve logging!!!
-Setup error handling!!!!
+Improve error handling
 Write test to check that we make expected job date in past ineligible!
-Setup DockerFile
-Setup in pipeline
-Setup transfer of zip file to Ex Libris
-Setup full user base (if we want that...sounds scary)
+Setup full user base run (if we want that)
 Write up README
 DRY things up (UCPath vs. SIS --> phone, email, address, names, etc...)
 Save the change log to a temp file and go through (and track your progress)
 Only do a LDAP lookup if you have an eligible job!!!
 Go through the million "TODOs" littered through all this code!
 Eventually build out custom logger (CSV of each record touched, each event and outcome)
-Add some resiliency - maybe log progress so if there's an interuption I can restart from the last place
-Add job_description field (holds department for ucpath, major for sis)
-
+Add some resiliency - maybe log progress so if there is an interuption I can restart from the last place
+SIS - add run by user id (similar to how I setup ucpath)
 Test a student in sandbox (regular student user...not admin)
 Get "current term" dynamically from API
