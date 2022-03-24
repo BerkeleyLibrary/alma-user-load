@@ -270,45 +270,19 @@ when 'sis'
   end
 
 # FOR DEV:
-when 'hey'
-  puts 'Heyy!'
-  puts Dir.entries('.')
-  filename_prefix = 'sis_2022-01-10-2022-03-16'
+when 'test'
+  puts 'TESTING...'
+  puts "---------- alma_user_load | line# 275 ------------"
+  puts "Config.secrets.ldap.host : #{Config.secrets.ldap.host}"
+  puts "--------------------------------------"
+  # puts Dir.entries('.')
+  # filename_prefix = 'sis_2022-01-10-2022-03-16'
 
-  Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
-    arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
-    logger.info "File Zipped: #{filename_prefix}.zip"
-  end
+  # Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
+  #   arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
+  #   logger.info "File Zipped: #{filename_prefix}.zip"
+  # end
 else
   puts "\nERROR: type is required and must be 'sis' or 'ucpath'\n"
   exit
 end
-
-__END__
-
-TODO FOR GO LIVE:
-STARTED - Setup DockerFile
-Setup in pipeline
-Write up README
-
-TODO EVENTUALLY:
-Setup config setup and options
-SEGREGATE THE UCPATH AND SIS PROCESSES Above TO MODULES
-Verify I have all "required" fields for eligibility
-Replace fixtures w/some sort of factory (factorybot?)
-REFACTOR...then refactor more!
-SIS - Check on Identifiers logic (student-id particularly)
-SIS - Improve logging!!!
-Improve error handling
-Write test to check that we make expected job date in past ineligible!
-Setup full user base run (if we want that)
-DRY things up (UCPath vs. SIS --> phone, email, address, names, etc...)
-Save the change log to a temp file and go through (and track your progress)
-Only do a LDAP lookup if you have an eligible job!!!
-Go through the million "TODOs" littered through all this code!
-Eventually build out custom logger (CSV of each record touched, each event and outcome)
-Add some resiliency - maybe log progress so if there is an interuption I can restart from the last place
-SIS - add run by user id (similar to how I setup ucpath)
-Test a student in sandbox (regular student user...not admin)
-Get "current term" dynamically from API
-Move 'create_user_record' from user.rb to a separate class
