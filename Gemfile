@@ -20,6 +20,8 @@ gem 'nokogiri', '~> 1.12', '>= 1.12.5'
 # AND the file has to be zipped
 gem 'rubyzip', '~> 2.3.2'
 
+gem 'rspec_junit_formatter'
+
 # For SFTPing zip file
 gem 'bcrypt_pbkdf', '~> 1.1'
 gem 'ed25519', '~> 1.3'
