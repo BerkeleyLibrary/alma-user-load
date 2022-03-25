@@ -67,6 +67,17 @@ module UCPath
 
       parse_jobs
 
+      # Trying this... don't hit LDAP unless the user has an eligible job:
+      # Worked...was able to do the full run!
+      unless eligible_job?
+        @user = nil
+        @jobs = nil
+        @rec = nil
+        @ucpath_rec = nil
+        logger.info "#{id} - No eligible job, skipping LDAP search"
+        return
+      end
+
       #----------------------------------------------------------------#
       # FETCH LDAP
       # TODO - only hit LDAP if you have a valid job!
@@ -77,6 +88,11 @@ module UCPath
       # CREATE THE USER RECORD (@rec) FROM THE ABOVE DATA SOURCES
       logger.info "#{id} - Creating user record"
       create_user_record
+
+
+      # Another possible way of clearing up some memory:
+      # At this point I need @rec, @eligible, @id
+      # Delete: @jobs, @user, @ldap, @ucpath_rec
 
       logger.info "#{id} - Eligible: #{eligible?}"
     end
@@ -507,29 +523,17 @@ module UCPath
 
       job_data.first.each_with_index do |job, _idx|
         # JsonPath.on returns a hash - convert that back to JSON so our jsonpath path's work!
-        # TODO - see if there's a better way..., this feels hacky.
         j = job.to_json
-
-        # WORKS:
-        # puts "JOBCODE  :  -->#{JsonPath.on(j.first, '$.position.jobCode.code.code')}<--"
-        # Also works:
-        # puts "JOBCODE  :  -->#{JsonPath.on(j, '$[*].position.jobCode.code.code')}<--"
 
         job = OpenStruct.new
 
         Config.ucpath_job_fields.each do |f|
           name = f['name']
           jpath = f['jpath']
-          # status = f['status'] || 'OPTIONAL'
 
           next unless jpath
 
           value = JsonPath.on(j, jpath).first || ''
-
-          # TODO: - verifty if there are any required job fields, I don't think there are
-          # if status == 'REQUIRED' && value == ''
-          #   logger.error "#{id} - Job Missing Required Field: #{name}"
-          # end
 
           job[name] = value if value
         end
@@ -538,6 +542,52 @@ module UCPath
       end
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+
+    # TODO - DRY this up!!!
+    # In a rush so just duping this code from above
+    def eligible_job?
+      ineligible_reasons = []
+      eligible = false
+
+      # rubocop:disable Metrics/BlockLength
+      ucpath_rec.jobs.each do |j|
+        # Assume this job is eligible - this is based on the 3 criteria below
+        job_eligible = true
+
+        # 1. hrStatus/code = A
+        unless j.hr_status_code == 'A'
+          ineligible_reasons.push("#{rec.primary_id} - Ineligible: HR status code: '#{j.hr_status_code}' - must be 'A'")
+          job_eligible = false
+        end
+
+        # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
+        # unless j.expected_end_date.blank?
+        unless !j.expected_end_date || j.expected_end_date == ''
+          ineligible_reasons.push("#{rec.primary_id} - Ineligible: expected_end_date not in the future")
+          job_eligible = false if Date.iso8601(j.expected_end_date) <= Date.today
+        end
+
+        # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
+        #    the Visiting Scholar category.
+        # unless j.org_relationship_code.blank?
+        if !(!j.org_relationship_code || j.org_relationship_code == '') && (j.org_relationship_code == 'CWR')
+          ineligible_reasons.push("#{rec.primary_id} - Ineligible: org code CWR has non visiting scholar job code")
+          job_eligible = false unless Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
+        end
+
+        next unless job_eligible
+
+        # Found eligible job - clear out any previous ineligible reasons
+        ineligible_reasons = nil
+        return true
+      end
+
+      ineligible_reasons&.each do |r|
+        logger.info r
+      end
+      return false
+    end
+
 
     def fetch_user
       User.fetch_ucpath_rec(id)
