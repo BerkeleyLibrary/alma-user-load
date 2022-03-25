@@ -12,6 +12,7 @@ require 'digest/md5'
 
 # Load library
 require_relative 'config/config'
+require_relative 'lib/docker'
 require_relative 'lib/alma'
 require_relative 'lib/ldap'
 require_relative 'lib/sis'
@@ -27,7 +28,6 @@ include UCPath
 include Logging
 # rubocop:enable Style/MixinUsage
 
-# TODO: - Set up options, build help menu!
 opts = GetoptLong.new(
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
   ['--type', '-t', GetoptLong::REQUIRED_ARGUMENT],
@@ -100,7 +100,6 @@ else
   filename_range = "#{@start_date}_#{@end_date}"
 end
 
-# TODO: This should really be extracted to a separate module
 case @type
 when 'ucpath'
   user_list = []
@@ -109,23 +108,13 @@ when 'ucpath'
   logger.info "End Date   : #{@end_date}"
 
   # Fetch the change log if we didn't specify users at the command line!
-  # process_list = UCPath::User.fetch_change_log(@start_date, @end_date) unless process_list
   process_list ||= UCPath::API.change_log(@start_date, @end_date)
-
-  # TODO: move this someplace....
-  # Stash the Change Log while developing...
-  File.open("tmp/sfcl_#{filename_range}.txt", 'w') do |file|
-    process_list.each do |id|
-      file.write("#{id}\n")
-    end
-  end
 
   logger.info process_list
 
   # LET'S DO THIS!!!!
-  logger.info "About to process #{process_list.count} records..."
-
   if process_list
+    logger.info "About to process #{process_list.count} records..."
 
     # Fetch and Process each ID from process_list
     process_list.each_with_index do |id, idx|
@@ -146,7 +135,7 @@ when 'ucpath'
     f.write(builder.doc.to_xml)
     f.close
 
-    logger.info "Records writing to #{filename_prefix}.xml"
+    logger.info "Writing records to #{filename_prefix}.xml"
 
     # CREATE ZIP FILE AND ADD XML FILE TO IT
     Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
@@ -154,19 +143,8 @@ when 'ucpath'
       logger.info "File Zipped: #{filename_prefix}.zip"
     end
 
-    # DELIVER FILE TO SFTP ALMA UPLOAD FOLDER
-    if @deliver
-      Net::SFTP.start(host, username) do |sftp|
-        file_name = "#{filename_prefix}.zip"
-        upload_path = Config.setting('ucpath_upload_path') + file_name
-        sftp.upload!(file_name, upload_path)
-        logger.info "File Uploaded: #{upload_path}"
-      end
-    end
-
   else
-    # Log this? Error? Should we ALWAYS expect some recs?
-    puts "\n\nWARNING - No Records Found\n\n"
+    logger.info 'WARNING - No Records Found'
   end
 
 when 'sis'
@@ -191,17 +169,14 @@ when 'sis'
   # out comes a delicious XML document... it's just that easy!
 
   today = Date.today
-  # TODO: allow for commandline lookback_date
   lookback_date = (today - Config.setting('sis_look_back')).to_s
-
-  # lookback_date = '2022-01-10'
 
   logger.info 'Processing SIS'
   logger.info "Term: #{@term_id}"
   logger.info "Going Back to: #{lookback_date}"
 
   #----------------------------------------------------------------#
-  # First fetch the term for the as-of-date == lookback_date
+  # First fetch the term for the as-of-date (aka lookback_date)
 
   # This will hold the snap shot of what the data looked like a week ago
   past_data_hash = {}
@@ -225,7 +200,8 @@ when 'sis'
     md5 = Digest::MD5.hexdigest(student.rec.to_s)
 
     if past_data_hash.key?(id)
-      # If the checksums don't match - add the record to the user list
+      # If the checksums don't match the record has changed
+      # add the record to the user list
       if past_data_hash[id] != md5
         logger.info "#{id} - #{md5}"
         counter += 1
@@ -240,7 +216,6 @@ when 'sis'
   end
 
   logger.info "Total new and changed records: #{counter}"
-  puts "Total new and changed records: #{counter}"
 
   # BUILD XML
   builder = Alma::XMLBuilder.new user_list
@@ -259,30 +234,9 @@ when 'sis'
     logger.info "File Zipped: #{filename_prefix}.zip"
   end
 
-  # DELIVER FILE TO SFTP ALMA UPLOAD FOLDER
-  if @deliver
-    Net::SFTP.start(host, username) do |sftp|
-      file_name = "#{filename_prefix}.zip"
-      upload_path = Config.setting('sis_upload_path') + file_name
-      sftp.upload!(file_name, upload_path)
-      logger.info "File Uploaded: #{upload_path}"
-    end
-  end
 
-# FOR DEV:
-when 'test'
-  puts 'TESTING...'
-  puts "---------- alma_user_load | line# 275 ------------"
-  puts "Config.secrets.ldap.host : #{Config.secrets.ldap.host}"
-  puts "--------------------------------------"
-  # puts Dir.entries('.')
-  # filename_prefix = 'sis_2022-01-10-2022-03-16'
-
-  # Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
-  #   arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
-  #   logger.info "File Zipped: #{filename_prefix}.zip"
-  # end
 else
   puts "\nERROR: type is required and must be 'sis' or 'ucpath'\n"
+  logger.error "Type is required and must be 'sis' or 'ucpath'"
   exit
 end
