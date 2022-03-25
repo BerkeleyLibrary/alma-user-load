@@ -42,3 +42,7 @@ Write up README
 - Add a check to make sure all necessary config settings are set!
 - Maybe if missing needed .env locally I can offer a command line option to create a skeleton .env file.
 - move zip functionality to a separate class/module
+- Clean up options
+- Clean up file naming code...move to separate class, it's hacky right now
+- Move ucpath/sis processes fram alma_user_load.rb to separate modules/classes
+- Setup SIS so I can set the look back date, or even date range via commandline
