@@ -2,11 +2,10 @@
 
 dockerComposePipeline(
   commands: [
-    'rspec',
-    'rubocop'
+    [entrypoint: 'bin/sh', command: 'rspec']
   ],
   artifacts: [
-    junit   : 'artifacts/rspec/**/*.xml',
+    junit   : 'artifacts/rspec/*.xml',
     html    : [
       'Code Coverage': 'coverage/',
       'RuboCop'      : 'artifacts/rubocop'
