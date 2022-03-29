@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # !/usr/bin/env ruby
 
 require 'rubygems'
@@ -233,7 +231,6 @@ when 'sis'
     arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
     logger.info "File Zipped: #{filename_prefix}.zip"
   end
-
 
 else
   puts "\nERROR: type is required and must be 'sis' or 'ucpath'\n"
