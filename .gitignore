@@ -5,12 +5,7 @@
 /log/*
 /tmp/*
 /coverage/*
+/artifacts/*
 
-# TODO - Remove these near end of dev!
-# Ignore some local test scripts
-xfrag.rb
-xnoko.rb
-xtest.rb
-user_uploads.xml
 *.xml
 *.zip
