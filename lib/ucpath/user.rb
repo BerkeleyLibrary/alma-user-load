@@ -7,18 +7,6 @@ require 'jsonpath'
 require 'nokogiri'
 require_relative 'user'
 require_relative '../alma'
-# TODO: - Decomposition
-# Break this into a bunch of smaller objects
-# raw_ucpath
-# ldap
-# user_record
-# statistics
-# user_group
-# identifiers
-# contact_info
-#  -> emails
-#  -> phones
-#  -> addresses
 
 module UCPath
   # UCPath::User
@@ -88,7 +76,6 @@ module UCPath
       # CREATE THE USER RECORD (@rec) FROM THE ABOVE DATA SOURCES
       logger.info "#{id} - Creating user record"
       create_user_record
-
 
       # Another possible way of clearing up some memory:
       # At this point I need @rec, @eligible, @id
@@ -250,9 +237,7 @@ module UCPath
       end
       # rubocop:enable Metrics/BlockLength
 
-      ineligible_reasons&.each do |r|
-        logger.info r
-      end
+      ineligible_reasons&.each { |r| logger.info r }
     end
     # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
@@ -543,13 +528,12 @@ module UCPath
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-    # TODO - DRY this up!!!
+    # TODO: - DRY this up!!!
     # In a rush so just duping this code from above
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def eligible_job?
       ineligible_reasons = []
-      eligible = false
 
-      # rubocop:disable Metrics/BlockLength
       ucpath_rec.jobs.each do |j|
         # Assume this job is eligible - this is based on the 3 criteria below
         job_eligible = true
@@ -585,9 +569,8 @@ module UCPath
       ineligible_reasons&.each do |r|
         logger.info r
       end
-      return false
+      false
     end
-
 
     def fetch_user
       User.fetch_ucpath_rec(id)
@@ -597,5 +580,6 @@ module UCPath
       User.fetch_ucpath_jobs(id)
     end
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
   # rubocop:enable Metrics/ClassLength
 end
