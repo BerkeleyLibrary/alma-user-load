@@ -2,7 +2,7 @@
 
 dockerComposePipeline(
   commands: [
-    [entrypoint: 'bin/sh', command: 'rspec']
+    [run: 'rspec', entrypoint: '/bin/sh -c']
   ],
   artifacts: [
     junit   : 'artifacts/rspec/*.xml',
