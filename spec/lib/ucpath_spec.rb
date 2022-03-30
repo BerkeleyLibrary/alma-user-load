@@ -280,8 +280,15 @@ describe UCPath::User do
 
   it 'logs an error if the ucpath record is missing a required field' do
     id = '10000006'
+    ldap_id = '1628831'
+
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
+
+    ldap_data = OpenStruct.new
+    ldap_data['sn'] = ['test_last_name']
+    ldap_data['givenname'] = ['test_first_name']
+    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
 
     u = UCPath::User.new(id)
     expect(u.errors).to include("#{id} - Missing required field: ucpath_employee_id")
