@@ -7,5 +7,5 @@
 /coverage/*
 /artifacts/*
 
-*.xml
+/*.xml
 *.zip
