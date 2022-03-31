@@ -40,10 +40,29 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # TODO: move this to stub_helper
-    ldap_data = OpenStruct.new
-    ldap_data['berkeleyeduaffiliations'] = ['STUDENT-TYPE-REGISTERED']
-    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+    # STUB LDAP:
+    ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+    ldap_params = {
+      auth: { method: :simple,
+              password: 'MISSING',
+              username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+      host: 'ldap.berkeley.edu',
+      port: 389
+    }
+
+    ldap_base = {
+      base: 'ou=people,dc=berkeley,dc=edu',
+      filter: ldap_filter
+    }
+
+    entries = [
+      { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
+    ]
+
+    ldap_conn = instance_double(Net::LDAP)
+    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+    expect(ldap_conn).to receive(:bind)
+    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.eligible?).to be(false)
@@ -55,12 +74,30 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # TODO: move to stub_helper
-    ldap_data = OpenStruct.new
-    ldap_data['sn'] = ['test_last_name']
-    ldap_data['givenname'] = ['test_first_name']
+    # STUB LDAP:
+    ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+    ldap_params = {
+      auth: { method: :simple,
+              password: 'MISSING',
+              username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+      host: 'ldap.berkeley.edu',
+      port: 389
+    }
 
-    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+    ldap_base = {
+      base: 'ou=people,dc=berkeley,dc=edu',
+      filter: ldap_filter
+    }
+
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    ldap_conn = instance_double(Net::LDAP)
+    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+    expect(ldap_conn).to receive(:bind)
+    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.first_name).to eq('test_first_name')
@@ -168,13 +205,33 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # TODO: move to stub_helper
-    ldap_data = OpenStruct.new
-    ldap_data['sn'] = ['test_last_name']
-    ldap_data['givenname'] = ['test_first_name']
-    ldap_data['telephonenumber'] = ['925-555-1234']
+    # TODO: try to move this LDAP stub to stub_helper
+    # STUB LDAP:
+    ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+    ldap_params = {
+      auth: { method: :simple,
+              password: 'MISSING',
+              username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+      host: 'ldap.berkeley.edu',
+      port: 389
+    }
 
-    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+    ldap_base = {
+      base: 'ou=people,dc=berkeley,dc=edu',
+      filter: ldap_filter
+    }
+
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] },
+      { 'telephonenumber' => ['925-555-1234'] },
+      { 'berkeleyeduofficialemail' => ['fake@email.edu'] }
+    ]
+
+    ldap_conn = instance_double(Net::LDAP)
+    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+    expect(ldap_conn).to receive(:bind)
+    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1]).and_yield(entries[2]).and_yield(entries[3])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.phone_number).to eq('925-555-1234')
@@ -194,12 +251,31 @@ describe UCPath::User do
       stub_ucpath_user(ucpath_id)
       stub_ucpath_jobs(ucpath_id)
 
-      ldap_data = OpenStruct.new
-      ldap_data['sn'] = ['test_last_name']
-      ldap_data['givenname'] = ['test_first_name']
-      ldap_data['telephonenumber'] = [number.to_s]
+      # STUB LDAP:
+      ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+      ldap_params = {
+        auth: { method: :simple,
+                password: 'MISSING',
+                username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+        host: 'ldap.berkeley.edu',
+        port: 389
+      }
 
-      allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+      ldap_base = {
+        base: 'ou=people,dc=berkeley,dc=edu',
+        filter: ldap_filter
+      }
+
+      entries = [
+        { 'sn' => ['test_last_name'] },
+        { 'givenname' => ['test_first_name'] },
+        { 'telephonenumber' => [number.to_s] }
+      ]
+
+      ldap_conn = instance_double(Net::LDAP)
+      allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+      expect(ldap_conn).to receive(:bind)
+      expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1]).and_yield(entries[2])
 
       u = UCPath::User.new(ucpath_id)
       expect(u.rec.contact_info.phones.phone_number).to eq('510-645-1234')
@@ -212,11 +288,30 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    ldap_data = OpenStruct.new
-    ldap_data['sn'] = ['test_last_name']
-    ldap_data['givenname'] = ['test_first_name']
+    # STUB LDAP:
+    ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+    ldap_params = {
+      auth: { method: :simple,
+              password: 'MISSING',
+              username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+      host: 'ldap.berkeley.edu',
+      port: 389
+    }
 
-    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+    ldap_base = {
+      base: 'ou=people,dc=berkeley,dc=edu',
+      filter: ldap_filter
+    }
+
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    ldap_conn = instance_double(Net::LDAP)
+    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+    expect(ldap_conn).to receive(:bind)
+    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.preferred).to eq('false')
@@ -228,11 +323,30 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    ldap_data = OpenStruct.new
-    ldap_data['sn'] = ['test_last_name']
-    ldap_data['givenname'] = ['test_first_name']
+    # STUB LDAP:
+    ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+    ldap_params = {
+      auth: { method: :simple,
+              password: 'MISSING',
+              username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+      host: 'ldap.berkeley.edu',
+      port: 389
+    }
 
-    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+    ldap_base = {
+      base: 'ou=people,dc=berkeley,dc=edu',
+      filter: ldap_filter
+    }
+
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    ldap_conn = instance_double(Net::LDAP)
+    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+    expect(ldap_conn).to receive(:bind)
+    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.preferred).to eq('true')
@@ -244,10 +358,30 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    ldap_data = OpenStruct.new
-    ldap_data['sn'] = ['test_last_name']
-    ldap_data['givenname'] = ['test_first_name']
-    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+    # STUB LDAP:
+    ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+    ldap_params = {
+      auth: { method: :simple,
+              password: 'MISSING',
+              username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+      host: 'ldap.berkeley.edu',
+      port: 389
+    }
+
+    ldap_base = {
+      base: 'ou=people,dc=berkeley,dc=edu',
+      filter: ldap_filter
+    }
+
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    ldap_conn = instance_double(Net::LDAP)
+    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+    expect(ldap_conn).to receive(:bind)
+    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
 
     current_year = Date.today.year
     expiration_year = current_year + 1
@@ -264,10 +398,30 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    ldap_data = OpenStruct.new
-    ldap_data['sn'] = ['test_last_name']
-    ldap_data['givenname'] = ['test_first_name']
-    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+    # STUB LDAP:
+    ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+    ldap_params = {
+      auth: { method: :simple,
+              password: 'MISSING',
+              username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+      host: 'ldap.berkeley.edu',
+      port: 389
+    }
+
+    ldap_base = {
+      base: 'ou=people,dc=berkeley,dc=edu',
+      filter: ldap_filter
+    }
+
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    ldap_conn = instance_double(Net::LDAP)
+    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+    expect(ldap_conn).to receive(:bind)
+    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
 
     current_year = Date.today.year
     expiration_year = current_year + 2
@@ -285,10 +439,30 @@ describe UCPath::User do
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
 
-    ldap_data = OpenStruct.new
-    ldap_data['sn'] = ['test_last_name']
-    ldap_data['givenname'] = ['test_first_name']
-    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+    # STUB LDAP:
+    ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+    ldap_params = {
+      auth: { method: :simple,
+              password: 'MISSING',
+              username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
+      host: 'ldap.berkeley.edu',
+      port: 389
+    }
+
+    ldap_base = {
+      base: 'ou=people,dc=berkeley,dc=edu',
+      filter: ldap_filter
+    }
+
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    ldap_conn = instance_double(Net::LDAP)
+    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+    expect(ldap_conn).to receive(:bind)
+    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
 
     u = UCPath::User.new(id)
     expect(u.errors).to include("#{id} - Missing required field: ucpath_employee_id")
@@ -309,5 +483,74 @@ describe UCPath::User do
     u = UCPath::User.new(ucpath_id)
     expect(u.ldap).to be_nil
   end
+
+  # it 'learn to mock LDAP correctly' do
+  #   id = '10000006'
+  #   ldap_id = '1628831'
+
+  #   stub_ucpath_user(id)
+  #   stub_ucpath_jobs(id)
+
+  #   # BAD:
+  #   # ldap_data = OpenStruct.new
+  #   # ldap_data['sn'] = ['test_last_name']
+  #   # ldap_data['givenname'] = ['test_first_name']
+  #   # allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
+
+  #   # STUB LDAP:
+  #   ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+  #   ldap_params = {
+  #     :auth=>
+  #          {:method=>:simple,
+  #           :password=>"MISSING",
+  #           :username=>"uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu"},
+  #         :host=>"ldap.berkeley.edu",
+  #         :port=>389
+  #   }
+
+  #   ldap_base = {
+  #     :base=>"ou=people,dc=berkeley,dc=edu",
+  #     :filter=>ldap_filter}
+
+  #   entries = [
+  #     {'sn' => ['test_last_name']},
+  #     {'givenname' => ['test_first_name']}
+  #   ]
+
+  #   ldap_conn = instance_double(Net::LDAP)
+  #   allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+  #   expect(ldap_conn).to receive(:bind)
+  #   expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
+
+  #   u = UCPath::User.new(id)
+  #   expect(u.errors).to include("#{id} - Missing required field: ucpath_employee_id")
+  # end
 end
 # rubocop:enable Metrics/BlockLength
+
+__END__
+
+# STUB LDAP:
+ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
+ldap_params = {
+  :auth=>
+        {:method=>:simple,
+        :password=>"MISSING",
+        :username=>"uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu"},
+      :host=>"ldap.berkeley.edu",
+      :port=>389
+}
+
+ldap_base = {
+  :base=>"ou=people,dc=berkeley,dc=edu",
+  :filter=>ldap_filter}
+
+entries = [
+  {'sn' => ['test_last_name']},
+  {'givenname' => ['test_first_name']}
+]
+
+ldap_conn = instance_double(Net::LDAP)
+allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
+expect(ldap_conn).to receive(:bind)
+expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
