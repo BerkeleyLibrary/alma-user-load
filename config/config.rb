@@ -25,16 +25,16 @@ class Config
   @settings = JSON.parse(YAML.safe_load(ERB.new(File.read('config/settings.yml')).result).to_json,
                          object_class: OpenStruct)
 
-  ucpath_contents = File.open('config/ucpath_fields.yml').read
+  ucpath_contents = File.read('config/ucpath_fields.yml')
   @ucpath_fields = YAML.safe_load(ERB.new(ucpath_contents).result)
 
-  ldap_contents = File.open('config/ldap_fields.yml').read
+  ldap_contents = File.read('config/ldap_fields.yml')
   @ldap_fields = YAML.safe_load(ERB.new(ldap_contents).result)
 
-  ucpath_codes = File.open('config/ucpath_codes.yml').read
+  ucpath_codes = File.read('config/ucpath_codes.yml')
   @ucpath_codes = YAML.safe_load(ERB.new(ucpath_codes).result)
 
-  sis_contents = File.open('config/sis_fields.yml').read
+  sis_contents = File.read('config/sis_fields.yml')
   @sis_fields = YAML.safe_load(ERB.new(sis_contents).result)
 
   # Returns ostruct of the secrets yaml file
