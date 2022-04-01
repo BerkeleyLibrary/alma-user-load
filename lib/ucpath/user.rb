@@ -5,7 +5,6 @@ require 'json'
 require 'ostruct'
 require 'jsonpath'
 require 'nokogiri'
-require_relative 'user'
 require_relative '../alma'
 
 module UCPath
