@@ -1,11 +1,6 @@
 require 'rubocop'
 require 'rubocop/rake_task'
 
-desc 'Print reminder about eating more fruit.'
-task :apple do
-  puts 'Eat more apples!'
-end
-
 desc 'Run rubocop with HTML output'
 RuboCop::RakeTask.new(:rubocop) do |cop|
   output = ENV['RUBOCOP_OUTPUT'] || 'artifacts/rubocop/index.html'
