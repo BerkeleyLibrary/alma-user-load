@@ -16,7 +16,7 @@ describe UCPath::API do
 
   it 'returns nil on faraday error' do
     stub_request(:get, 'https://apis.berkeley.edu/hr/v3/employees/dummy_id?id-type=hr-employee-id')
-      .to_raise('Someting went wrong dude')
+      .to_raise('fake error')
 
     u = fetch_ucpath_rec('dummy_id')
     expect(u).to be_nil
@@ -484,73 +484,5 @@ describe UCPath::User do
     expect(u.ldap).to be_nil
   end
 
-  # it 'learn to mock LDAP correctly' do
-  #   id = '10000006'
-  #   ldap_id = '1628831'
-
-  #   stub_ucpath_user(id)
-  #   stub_ucpath_jobs(id)
-
-  #   # BAD:
-  #   # ldap_data = OpenStruct.new
-  #   # ldap_data['sn'] = ['test_last_name']
-  #   # ldap_data['givenname'] = ['test_first_name']
-  #   # allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
-
-  #   # STUB LDAP:
-  #   ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
-  #   ldap_params = {
-  #     :auth=>
-  #          {:method=>:simple,
-  #           :password=>"MISSING",
-  #           :username=>"uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu"},
-  #         :host=>"ldap.berkeley.edu",
-  #         :port=>389
-  #   }
-
-  #   ldap_base = {
-  #     :base=>"ou=people,dc=berkeley,dc=edu",
-  #     :filter=>ldap_filter}
-
-  #   entries = [
-  #     {'sn' => ['test_last_name']},
-  #     {'givenname' => ['test_first_name']}
-  #   ]
-
-  #   ldap_conn = instance_double(Net::LDAP)
-  #   allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
-  #   expect(ldap_conn).to receive(:bind)
-  #   expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
-
-  #   u = UCPath::User.new(id)
-  #   expect(u.errors).to include("#{id} - Missing required field: ucpath_employee_id")
-  # end
 end
 # rubocop:enable Metrics/BlockLength
-
-__END__
-
-# STUB LDAP:
-ldap_filter = Net::LDAP::Filter.eq('uid', ldap_id)
-ldap_params = {
-  :auth=>
-        {:method=>:simple,
-        :password=>"MISSING",
-        :username=>"uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu"},
-      :host=>"ldap.berkeley.edu",
-      :port=>389
-}
-
-ldap_base = {
-  :base=>"ou=people,dc=berkeley,dc=edu",
-  :filter=>ldap_filter}
-
-entries = [
-  {'sn' => ['test_last_name']},
-  {'givenname' => ['test_first_name']}
-]
-
-ldap_conn = instance_double(Net::LDAP)
-allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
-expect(ldap_conn).to receive(:bind)
-expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
