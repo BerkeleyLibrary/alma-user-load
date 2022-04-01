@@ -30,6 +30,7 @@ gem 'net-sftp', '~> 3.0'
 # TODO: - set these up as "dev" or "test"
 gem 'dotenv', '~> 2.7', '>= 2.7.6'
 gem 'rspec', '~> 3.10'
+gem 'rubocop', '~> 1.26.0'
 gem 'simplecov', '~> 0.21.2', require: false
 gem 'simplecov-rcov', require: false
 gem 'webmock', '~> 3.14'
