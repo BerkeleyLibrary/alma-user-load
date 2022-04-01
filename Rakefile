@@ -26,5 +26,5 @@ end
 # clear rspec/rails default :spec task
 Rake::Task[:default].clear if Rake::Task.task_defined?(:default)
 
-desc 'check code style, bundle/audit'
-task default: %i[rubocop bundle:audit]
+desc 'check code style'
+task default: %i[rubocop]
