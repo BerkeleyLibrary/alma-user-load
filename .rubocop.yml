@@ -88,3 +88,7 @@ Style/Lambda:
 # Unclear why it's a good idea to give parameters semantically meaningless names
 Style/SingleLineBlockParams:
   Enabled: false
+
+# For now allowing my obsesive use of OpenStructs
+Style/OpenStructUse:
+  Enabled: false
