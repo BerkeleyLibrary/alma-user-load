@@ -29,12 +29,12 @@ include Logging
 opts = GetoptLong.new(
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
   ['--type', '-t', GetoptLong::REQUIRED_ARGUMENT],
-  ['--deliver', '-d', GetoptLong::NO_ARGUMENT],
   ['--startdate', '-s', GetoptLong::REQUIRED_ARGUMENT],
   ['--enddate', '-e', GetoptLong::REQUIRED_ARGUMENT],
   ['--numdays', '-n', GetoptLong::REQUIRED_ARGUMENT],
   ['--users', '-u', GetoptLong::REQUIRED_ARGUMENT],
-  ['--term', GetoptLong::REQUIRED_ARGUMENT]
+  ['--term', GetoptLong::REQUIRED_ARGUMENT],
+  ['--outdir', '-o', GetoptLong::REQUIRED_ARGUMENT]
 )
 
 @num_days = Config.setting('change_log_days')
@@ -56,8 +56,8 @@ opts.each do |opt, arg|
     @users = arg.split(/\s*,\s*/)
   when '--term'
     @term_id = arg
-  when '--deliver'
-    @deliver = true
+  when '--outdir'
+    @outdir = arg
   end
 end
 
@@ -66,6 +66,9 @@ end
 filename_range = ''
 
 logger.info "Type: #{@type}"
+
+# If we didn't pass an output directory use the current working directory
+@outdir ||= Dir.pwd
 
 if @users
   filename_range = 'adhoc'
@@ -129,16 +132,16 @@ when 'ucpath'
     filename_prefix = "#{@type}_#{filename_range}"
 
     # WRITE XML TO FILE
-    f = File.open("#{filename_prefix}.xml", 'w')
+    f = File.open("#{@outdir}/#{filename_prefix}.xml", 'w')
     f.write(builder.doc.to_xml)
     f.close
 
-    logger.info "Writing records to #{filename_prefix}.xml"
+    logger.info "Writing records to #{@outdir}/#{filename_prefix}.xml"
 
     # CREATE ZIP FILE AND ADD XML FILE TO IT
-    Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
-      arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
-      logger.info "File Zipped: #{filename_prefix}.zip"
+    Zip::File.open("#{@outdir}/#{filename_prefix}.zip", create: true) do |arc|
+      arc.add("#{filename_prefix}.xml", "#{@outdir}/#{filename_prefix}.xml")
+      logger.info "File Zipped: #{@outdir}/#{filename_prefix}.zip"
     end
 
   else
@@ -222,14 +225,14 @@ when 'sis'
   filename_prefix = "#{@type}_#{lookback_date}-#{today}"
 
   logger.info "Writing XML File: #{filename_prefix}.xml"
-  f = File.open("#{filename_prefix}.xml", 'w')
+  f = File.open("#{@outdir}/#{filename_prefix}.xml", 'w')
   f.write(builder.doc.to_xml)
   f.close
 
   # CREATE ZIP FILE AND ADD XML FILE TO IT
-  Zip::File.open("#{filename_prefix}.zip", create: true) do |arc|
-    arc.add("#{filename_prefix}.xml", "#{filename_prefix}.xml")
-    logger.info "File Zipped: #{filename_prefix}.zip"
+  Zip::File.open("#{@outdir}/#{filename_prefix}.zip", create: true) do |arc|
+    arc.add("#{filename_prefix}.xml", "#{@outdir}#{filename_prefix}.xml")
+    logger.info "File Zipped: #{@outdir}/#{filename_prefix}.zip"
   end
 
 else
