@@ -231,7 +231,7 @@ when 'sis'
 
   # CREATE ZIP FILE AND ADD XML FILE TO IT
   Zip::File.open("#{@outdir}/#{filename_prefix}.zip", create: true) do |arc|
-    arc.add("#{filename_prefix}.xml", "#{@outdir}#{filename_prefix}.xml")
+    arc.add("#{filename_prefix}.xml", "#{@outdir}/#{filename_prefix}.xml")
     logger.info "File Zipped: #{@outdir}/#{filename_prefix}.zip"
   end
 
