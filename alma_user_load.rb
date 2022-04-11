@@ -103,8 +103,6 @@ end
 
 case @type
 when 'ucpath'
-  user_list = []
-
   logger.info "Start Date : #{@start_date}"
   logger.info "End Date   : #{@end_date}"
 
@@ -117,28 +115,25 @@ when 'ucpath'
   if process_list
     logger.info "About to process #{process_list.count} records..."
 
+    filename_prefix = "#{@type}_#{filename_range}"
+    filepath = "#{@outdir}/#{filename_prefix}.xml"
+
+    # Open the writer...
+    writer = Alma::XMLWriter.new(filepath)
+
     # Fetch and Process each ID from process_list
     process_list.each_with_index do |id, idx|
       logger.info "#{idx} - #{id}"
-      puts "#{idx} - #{id}"
+
       u = UCPath::User.new(id)
 
-      user_list.push(u) if u.eligible?
+      writer.write(u) if u.eligible?
     end
 
-    # BUILD XML
-    builder = Alma::XMLBuilder.new user_list
+    # Close the writer!
+    writer.close
 
-    filename_prefix = "#{@type}_#{filename_range}"
-
-    # WRITE XML TO FILE
-    f = File.open("#{@outdir}/#{filename_prefix}.xml", 'w')
-    f.write(builder.doc.to_xml)
-    f.close
-
-    logger.info "Writing records to #{@outdir}/#{filename_prefix}.xml"
-
-    # CREATE ZIP FILE AND ADD XML FILE TO IT
+    # Zip it!
     Zip::File.open("#{@outdir}/#{filename_prefix}.zip", create: true) do |arc|
       arc.add("#{filename_prefix}.xml", "#{@outdir}/#{filename_prefix}.xml")
       logger.info "File Zipped: #{@outdir}/#{filename_prefix}.zip"
@@ -149,10 +144,6 @@ when 'ucpath'
   end
 
 when 'sis'
-
-  # We'll populate our list of eligible users into this array
-  user_list = []
-
   # BY TERM:
   @term_id ||= SIS::API.current_term
 
@@ -184,7 +175,7 @@ when 'sis'
 
   past_data = SIS::API.fetch_by_term(@term_id, lookback_date)
 
-  past_data.each_with_index do |user, _idx|
+  past_data.each do |user|
     student = SIS::Student.new(user)
     id = student.rec.primary_id
     md5 = Digest::MD5.hexdigest(student.rec.to_s)
@@ -192,44 +183,31 @@ when 'sis'
   end
 
   #----------------------------------------------------------------#
+  # Setup your XML file and writer
+  filename_prefix = "#{@type}_#{lookback_date}-#{today}"
+  filepath = "#{@outdir}/#{filename_prefix}.xml"
+  writer = Alma::XMLWriter.new(filepath)
+
+  #----------------------------------------------------------------#
   # Now fetch the term for the as-of-date == current date
-  counter = 0
   raw_users = SIS::API.fetch_by_term(@term_id)
-  raw_users.each_with_index do |user, _idx|
+  raw_users.each do |user|
     student = SIS::Student.new(user)
     id = student.rec.primary_id
     md5 = Digest::MD5.hexdigest(student.rec.to_s)
 
     if past_data_hash.key?(id)
-      # If the checksums don't match the record has changed
-      # add the record to the user list
-      if past_data_hash[id] != md5
-        logger.info "#{id} - #{md5}"
-        counter += 1
-        user_list.push(student)
-      end
+      # Checksums don't match the record has changed - write it
+      writer.write(student) if past_data_hash[id] != md5
     else
-      # New Record, add it to the user list
-      counter += 1
-      logger.info "#{id} - #{md5}"
-      user_list.push(student)
+      # New Record - write it!
+      writer.write(student)
     end
   end
 
-  logger.info "Total new and changed records: #{counter}"
+  writer.close
 
-  # BUILD XML
-  builder = Alma::XMLBuilder.new user_list
-
-  # WRITE XML TO FILE
-  filename_prefix = "#{@type}_#{lookback_date}-#{today}"
-
-  logger.info "Writing XML File: #{filename_prefix}.xml"
-  f = File.open("#{@outdir}/#{filename_prefix}.xml", 'w')
-  f.write(builder.doc.to_xml)
-  f.close
-
-  # CREATE ZIP FILE AND ADD XML FILE TO IT
+  # Zip it
   Zip::File.open("#{@outdir}/#{filename_prefix}.zip", create: true) do |arc|
     arc.add("#{filename_prefix}.xml", "#{@outdir}/#{filename_prefix}.xml")
     logger.info "File Zipped: #{@outdir}/#{filename_prefix}.zip"
