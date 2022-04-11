@@ -3,6 +3,61 @@
 require 'spec_helper'
 require 'stub_helper'
 require 'ostruct'
+require 'tempfile'
+
+# rubocop :disable Metrics/BlockLength
+describe Alma::XMLWriter do
+  before(:each) do
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD',
+      'home_address_address1' => '413 Palace Place',
+      'home_address_address2' => '#3',
+      'home_address_city' => 'Asgard',
+      'home_address_statecode' => 'Midgard',
+      'home_address_postalcode' => '000001',
+      'email_emailaddress' => 'pointbreak@avengers.org',
+      'phone_number' => '555-333-1234'
+    }
+    @student_rec = SIS::Student.new user
+  end
+
+  it 'rejects an invalid file path' do
+    bad_directory = Dir.mktmpdir(File.basename(__FILE__, '.rb')) { |dir| dir }
+    expect(File.directory?(bad_directory)).to eq(false)
+    output_path = File.join(bad_directory, 'alma.xml')
+    expect { Alma::XMLWriter.open(output_path) }.to raise_error(ArgumentError)
+  end
+
+  it 'writes an Alma record to a file as XML via open class method' do
+    Dir.mktmpdir(File.basename(__FILE__, '.rb')) do |dir|
+      out = File.join(dir, 'test.xml')
+      Alma::XMLWriter.open(out) { |w| w.write(@student_rec) }
+      actual = File.read(out)
+      xml = Alma::XMLBuilder.new(@student_rec).build
+      expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<users>\n#{xml}\n</users>"
+      expect(actual).to eq(expected)
+    end
+  end
+
+  it 'writes an Alma record to a file as XML via instance method' do
+    Dir.mktmpdir(File.basename(__FILE__, '.rb')) do |dir|
+      out = File.join(dir, 'test.xml')
+      writer = Alma::XMLWriter.new(out)
+      writer.write(@student_rec)
+      writer.close
+      actual = File.read(out)
+
+      xml = Alma::XMLBuilder.new(@student_rec).build
+      expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<users>\n#{xml}\n</users>"
+
+      expect(actual).to eq(expected)
+    end
+  end
+end
+# rubocop :enable Metrics/BlockLength
 
 describe Alma::XMLBuilder do
   it 'creates an Alma XMLBuilder Object' do

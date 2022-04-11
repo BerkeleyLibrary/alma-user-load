@@ -22,6 +22,18 @@ describe SIS::API do
 
     expect(current_term).to eq(term)
   end
+
+  # TODO: improve this, should probably check the log
+  # also setup so that we over-ride the # of failed
+  # attempts and the sleep duration.
+  it 'returns empty array after multiple failed attempts' do
+    term_id = '2222'
+    stub_request(:get, 'https://apis.berkeley.edu/sis/v2/students?inc-acad=true&inc-cntc=true&inc-regs=true&page-number=1&page-size=100&term-id=2222')
+      .to_raise('fake error')
+
+    u = SIS::API.fetch_by_term(term_id)
+    expect(u).to eq([])
+  end
 end
 
 # rubocop:disable Metrics/BlockLength
@@ -72,7 +84,28 @@ describe SIS::Student do
     expect(student.rec.contact_info.addresses[0].address_types).to eq('home')
   end
 
-  it 'can be built into XML' do
+  it 'can be built into <user> XML element' do
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD',
+      'home_address_address1' => '413 Palace Place',
+      'home_address_address2' => '#3',
+      'home_address_city' => 'Asgard',
+      'home_address_statecode' => 'Midgard',
+      'home_address_postalcode' => '000001',
+      'email_emailaddress' => 'pointbreak@avengers.org',
+      'phone_number' => '555-333-1234'
+    }
+
+    student = SIS::Student.new user
+    xml_rec = Alma::XMLBuilder.new(student).build
+
+    expect(xml_rec.to_xml).to eq(File.read('spec/data/sis/expected_xml_1.xml'))
+  end
+
+  it 'can be built into <user> XML element without email/phone' do
     user = {
       'student_id' => '12345',
       'prim_name_givenname' => 'Thor',
@@ -86,9 +119,9 @@ describe SIS::Student do
     }
 
     student = SIS::Student.new user
-    builder = Alma::XMLBuilder.new [student]
+    xml_rec = Alma::XMLBuilder.new(student).build
 
-    expect(builder.doc.to_xml).to eq(File.read('spec/data/sis/expected_xml.xml'))
+    expect(xml_rec.to_xml).to eq(File.read('spec/data/sis/expected_xml_2.xml'))
   end
 
   it 'sets the phone' do

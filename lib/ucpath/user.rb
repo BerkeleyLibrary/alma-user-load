@@ -25,7 +25,7 @@ module UCPath
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def initialize(id)
       @id = id
-      logger.info "#{id} - Begin processing record"
+      logger.info "#{id} - Processing record..."
 
       @errors = []
 
@@ -67,18 +67,21 @@ module UCPath
 
       #----------------------------------------------------------------#
       # FETCH LDAP
-      # TODO - only hit LDAP if you have a valid job!
       logger.info "#{id} - Fetching LDAP record: #{@ucpath_rec.uid}"
       @ldap = LDAP::API.fetch_ldap_rec(@ucpath_rec.uid)
 
       #----------------------------------------------------------------#
       # CREATE THE USER RECORD (@rec) FROM THE ABOVE DATA SOURCES
-      logger.info "#{id} - Creating user record"
+      # logger.info "#{id} - Creating user record"
       create_user_record
 
-      # Another possible way of clearing up some memory:
+      # Save some memory:
       # At this point I need @rec, @eligible, @id
-      # Delete: @jobs, @user, @ldap, @ucpath_rec
+      # I don't need: @jobs, @user, @ldap, @ucpath_rec
+      @jobs = nil
+      @user = nil
+      @ldap = nil
+      @ucpath_rec = nil
 
       logger.info "#{id} - Eligible: #{eligible?}"
     end

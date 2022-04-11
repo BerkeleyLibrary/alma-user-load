@@ -60,14 +60,13 @@ module SIS
         # Fetch it!
         res = sis_fetch(req, 'json')
 
-        break loop unless res.status == 200
+        break loop unless res && res.status == 200
 
         response = JSON.parse(res.body)
 
         # return nil if !response || response == ''
         # return nil unless res.status == 200
 
-        # TODO: test this against real data... works for rspec
         status = response['apiResponse']['httpStatus']['code']
 
         break loop if status != '200'
@@ -116,16 +115,35 @@ module SIS
       Config.secrets.sis.id
     end
 
+    # rubocop :disable Metrics/MethodLength
     def sis_fetch(req, type = 'xml')
-      Faraday.get(
-        req,
-        {},
-        {
-          'Accept' => "application/#{type}",
-          'app_id' => sis_id,
-          'app_key' => sis_key
-        }
-      )
+      # TODO: make #attempts and sleep time config items
+      # and over-ridable for testing...
+      attempts = 0
+      begin
+        attempts += 1
+        sleep(15) if attempts > 1
+        logger.info "Attempt: #{attempts}" if attempts > 1
+
+        Faraday.get(
+          req,
+          {},
+          {
+            'Accept' => "application/#{type}",
+            'app_id' => sis_id,
+            'app_key' => sis_key
+          }
+        )
+      rescue StandardError => e
+        attempts += 1
+        logger.error "UCPath API Error: #{e}"
+        logger.error "Attempt: #{attempts}"
+        logger.error "Request: #{req}"
+        retry if attempts <= 7
+
+        nil
+      end
     end
+    # rubocop :enable Metrics/MethodLength
   end
 end
