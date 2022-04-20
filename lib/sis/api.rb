@@ -136,7 +136,7 @@ module SIS
         )
       rescue StandardError => e
         attempts += 1
-        logger.error "UCPath API Error: #{e}"
+        logger.error "SIS API Error: #{e}"
         logger.error "Attempt: #{attempts}"
         logger.error "Request: #{req}"
         retry if attempts <= 7
