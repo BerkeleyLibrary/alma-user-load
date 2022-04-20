@@ -5,6 +5,29 @@ require 'stub_helper'
 require 'ostruct'
 require 'nokogiri'
 
+# rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant
+describe SIS do
+  it 'runs sis' do
+    term_id = '2222'
+    stub_past_sis_data(term_id, '2022-04-10', 1)
+    stub_past_sis_data(term_id, '2022-04-10', 2)
+    stub_sis_data(term_id, 1)
+    stub_sis_data(term_id, 2)
+
+    Dir.mktmpdir do |dir|
+      outpath = Pathname.new(dir)
+
+      ARGV = ['--type', 'sis', '-s', '2022-04-10', '--term', '2222', '--outdir', outpath]
+      setup = Helpers::Setup.new
+      SIS.run_sis setup
+
+      expect(File.exist?(setup.zip_path)).to eq(true)
+      expect(File.read(setup.xml_path)).to eq(File.read('spec/data/sis/expected_xml_3.xml'))
+    end
+  end
+end
+# rubocop :enable Lint/ConstantDefinitionInBlock, Style/MutableConstant
+
 describe SIS::API do
   it 'fetches students by term' do
     term_id = '2222'
@@ -13,7 +36,7 @@ describe SIS::API do
 
     users = SIS::API.fetch_by_term(term_id)
 
-    expect(users.count).to eq(1)
+    expect(users.count).to eq(2)
   end
 
   it 'returns the current term' do

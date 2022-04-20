@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+<user>
+  <record_type>PUBLIC</record_type>
+  <primary_id>10000004</primary_id>
+  <first_name>James</first_name>
+  <middle_name>D</middle_name>
+  <last_name>Patterson</last_name>
+  <full_name>James D Patterson</full_name>
+  <job_description>Undergraduate Admissions</job_description>
+  <user_group>NONACAD</user_group>
+  <campus_code>UCB_Campus</campus_code>
+  <expiry_date>2500-02-11</expiry_date>
+  <purge_date>2501-02-11</purge_date>
+  <account_type>EXTERNAL</account_type>
+  <status>ACTIVE</status>
+  <contact_info>
+    <addresses>
+      <address preferred="true" segment_type="Internal">
+        <line1>Undergraduate Admissions</line1>
+        <line2>Sproul Hall-F01-94726</line2>
+        <city>Berkeley</city>
+        <state_province>CA</state_province>
+        <postal_code>94720</postal_code>
+        <country/>
+        <address_note/>
+        <start_date>2022-04-19</start_date>
+        <end_date>2500-02-11</end_date>
+        <address_types>
+          <address_type>work</address_type>
+        </address_types>
+      </address>
+    </addresses>
+    <emails>
+      <email preferred="true" segment_type="Internal">
+        <email_address>jpatterson@berkeley.edu</email_address>
+        <email_types>
+          <email_type>work</email_type>
+        </email_types>
+      </email>
+    </emails>
+    <phones>
+      <phone preferred="false" preferred_sms="false" segment_type="External">
+        <phone_number>510-555-1234</phone_number>
+        <phone_types>
+          <phone_type>office</phone_type>
+        </phone_types>
+      </phone>
+    </phones>
+  </contact_info>
+  <user_identifiers>
+    <user_identifier segment_type="Internal">
+      <id_type>BARCODE</id_type>
+      <value>E10000004</value>
+      <status>ACTIVE</status>
+    </user_identifier>
+    <user_identifier segment_type="Internal">
+      <id_type>BARCODE</id_type>
+      <value>011251010</value>
+      <status>ACTIVE</status>
+    </user_identifier>
+    <user_identifier segment_type="Internal">
+      <id_type>BARCODE</id_type>
+      <value>A1251010</value>
+      <status>ACTIVE</status>
+    </user_identifier>
+    <user_identifier segment_type="Internal">
+      <id_type>BARCODE</id_type>
+      <value>112823</value>
+      <status>ACTIVE</status>
+    </user_identifier>
+  </user_identifiers>
+  <pref_first_name>Jim</pref_first_name>
+  <pref_middle_name/>
+  <pref_last_name>Patterson</pref_last_name>
+  <pref_full_name>Jim Patterson</pref_full_name>
+</user>
+</users>
