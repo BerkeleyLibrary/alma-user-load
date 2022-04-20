@@ -8,7 +8,7 @@ Additional documentation can be found on B-Drive: [link](https://drive.google.co
 ___
 
 #### Info
-Alma-User_load is deployed via the Dockar Swarm.
+Alma-User_load is deployed via the Docker Swarm.
 It is kept in the `lap/alma-user-load` repo.
 
 #### Schedule
@@ -18,7 +18,7 @@ UCPath : Thursday Mornings 1am
 The schedules are defined in the `ops/docker-swarm` repo:
 `files/production/swarm/stacks/alma_user_loader.yml`
 
-#### XML Output
+#### XML and Zip File Output
 Files are saved to:
 SIS: ```upload.lib.berkeley.edu/alma/patron_students```
 UCPath: ```upload.lib.berkeley.edu/alma/patron_employees```
@@ -70,26 +70,18 @@ docker build -t alma-user-load .
 
 **Commandline Options**
 * --type [ucpath|sis] *required*
-* --term [term-code]
+* --term [term-code]  *SIS only*
 * --startdate  Declare start date [yyyy-mm-dd]
 * --enddate    Declare end date [yyyy-mm-dd]
+* --outdir Set the output directory for xml/zip files
 * --help
 
 ___
 
 ##### Future Improvements:
-- Move zip functionality to a separate class/module
-- Clean up options
-- Clean up file naming code...move to separate class, it's hacky right now
-- Move ucpath/sis processes from alma_user_load.rb to separate modules/classes
 - Get "current term" dynamically from API (awaiting access to API)
-- Setup SIS so I can set the look back date, or even date range via commandline
-- Verify I have all "required" fields for eligibility
 - Replace fixtures w/some sort of factory (factorybot?)
-- SIS - Check on Identifiers logic (student-id particularly)
-- Write test to check that we make expected job date in past ineligible!
 - DRY things up (UCPath vs. SIS --> phone, email, address, names, etc...)
 - SIS - add run by user id (similar to how I setup ucpath)
-- Test a student in sandbox (regular student user...not admin)
 - Move 'create_user_record' from user.rb to a separate class
 - Add a check to make sure all necessary config settings are set!
