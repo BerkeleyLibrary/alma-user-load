@@ -36,8 +36,13 @@ describe UCPath do
       setup = Helpers::Setup.new
       UCPath.run_ucpath setup
 
+      # Since the fixture is static but the start date value is dynamic we
+      # need to swap that out before we do the comparison
+      expected_file = File.read('spec/data/ucpath/expected_xml_1.xml')
+      expected_file.gsub!(%r{<start_date>2022-04-19</start_date>}, "<start_date>#{Date.today}</start_date>")
+
       expect(File.exist?(setup.zip_path)).to eq(true)
-      expect(File.read(setup.xml_path)).to eq(File.read('spec/data/ucpath/expected_xml_1.xml'))
+      expect(File.read(setup.xml_path)).to eq(expected_file)
     end
   end
 
