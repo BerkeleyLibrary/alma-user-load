@@ -19,6 +19,7 @@ require_relative '../lib/sis'
 require_relative '../lib/ldap'
 require_relative '../lib/ucpath'
 require_relative '../lib/logging'
+require_relative '../lib/helpers'
 
 # rubocop:disable Style/MixinUsage
 include LDAP

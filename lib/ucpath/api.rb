@@ -58,14 +58,13 @@ module UCPath
         # Add size and pagination
         req = req + page_size + page_number
 
-        # Tell me the request we're making....
-        # puts "request : #{req}"
-
         res = fetch(req, 'json')
 
         # If it failed then return
-        # TODO - make handle errors!
         return nil unless res && res.status == 200
+
+        # If it the API gave us an empty body return
+        return nil if res.body.empty?
 
         # No error... let's parse our response and continue:
         response = JSON.parse(res.body)

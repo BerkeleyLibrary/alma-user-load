@@ -4,6 +4,66 @@ require 'spec_helper'
 require 'stub_helper'
 require 'ostruct'
 
+# rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength
+describe UCPath do
+  it 'does not create a file if changelog returns zero records' do
+    stub_empty_change_log('2022-04-10', '2022-04-13')
+
+    Dir.mktmpdir do |dir|
+      outpath = Pathname.new(dir)
+
+      ARGV = ['--type', 'ucpath', '-s', '2022-04-10', '-e', '2022-04-13', '--outdir', outpath]
+      setup = Helpers::Setup.new
+
+      UCPath.run_ucpath setup
+
+      expect(File.exist?(setup.zip_path)).to eq(false)
+      expect(File.exist?(setup.xml_path)).to eq(false)
+    end
+  end
+
+  it 'runs ucpath' do
+    stub_change_log('2022-04-10', '2022-04-13', 'change_log_1')
+    stub_ucpath_user('10000003')
+    stub_ucpath_jobs('10000003')
+    stub_ucpath_user('10000004')
+    stub_ucpath_jobs('10000004')
+
+    Dir.mktmpdir do |dir|
+      outpath = Pathname.new(dir)
+
+      ARGV = ['--type', 'ucpath', '-s', '2022-04-10', '-e', '2022-04-13', '--outdir', outpath]
+      setup = Helpers::Setup.new
+      UCPath.run_ucpath setup
+
+      # Since the fixture is static but the start date value is dynamic we
+      # need to swap that out before we do the comparison
+      expected_file = File.read('spec/data/ucpath/expected_xml_1.xml')
+      expected_file.gsub!(%r{<start_date>2022-04-19</start_date>}, "<start_date>#{Date.today}</start_date>")
+
+      expect(File.exist?(setup.zip_path)).to eq(true)
+      expect(File.read(setup.xml_path)).to eq(expected_file)
+    end
+  end
+
+  it 'runs ucpath for a specific user' do
+    id = '10000005'
+    stub_ucpath_user(id)
+    stub_ucpath_jobs(id)
+
+    Dir.mktmpdir do |dir|
+      outpath = Pathname.new(dir)
+
+      ARGV = ['--type', 'ucpath', '--users', '10000005', '--outdir', outpath]
+      setup = Helpers::Setup.new
+      UCPath.run_ucpath setup
+
+      expect(File.exist?(setup.zip_path)).to eq(true)
+    end
+  end
+end
+# rubocop :enable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength
+
 describe UCPath::API do
   it 'creates a change log' do
     s = '2021-01-01'
