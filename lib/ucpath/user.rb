@@ -1,15 +1,12 @@
-# frozen_string_literal: false
-
 require 'date'
 require 'json'
 require 'ostruct'
 require 'jsonpath'
 require 'nokogiri'
+require_relative 'jobs'
 require_relative '../alma'
 
 module UCPath
-  # UCPath::User
-  # TODO: break this down into much a smaller number of classes.
   # rubocop:disable Metrics/ClassLength
   class User
     attr_accessor :id, :rec, :user, :jobs, :errors, :ldap, :eligible, :ucpath_rec
@@ -38,25 +35,24 @@ module UCPath
       @ucpath_rec = OpenStruct.new
 
       #----------------------------------------------------------------#
-      # FETCH & PARSE UCPATH DATA
+      # FETCH & PARSE UCPATH USER AND JOBS
+
+      # First fetch/parse the user's ucpath record
       logger.info "#{id} - Fetching ucpath record"
       @user = fetch_user
       if @user.nil?
         @errors.push('Failed to fetch UCPath record')
         return
       end
-
       parse_user
 
-      logger.info "#{id} - Fetching ucpath jobs data"
-      @jobs = fetch_jobs
-      return if @jobs.nil?
+      # Then get the users jobs
+      # UCPath::Jobs will fetch/process users jobs
+      @jobs = Jobs.new(id)
 
-      parse_jobs
-
-      # Trying this... don't hit LDAP unless the user has an eligible job:
-      # Worked...was able to do the full run!
-      unless eligible_job?
+      #----------------------------------------------------------------#
+      # NO ELIGIBLE JOB - NO REASON TO PROCEED!
+      unless @jobs.eligible_job?
         @user = nil
         @jobs = nil
         @rec = nil
@@ -72,10 +68,10 @@ module UCPath
 
       #----------------------------------------------------------------#
       # CREATE THE USER RECORD (@rec) FROM THE ABOVE DATA SOURCES
-      # logger.info "#{id} - Creating user record"
       create_user_record
 
-      # Save some memory:
+      #----------------------------------------------------------------#
+      # CLEANUP - recover some memory
       # At this point I need @rec, @eligible, @id
       # I don't need: @jobs, @user, @ldap, @ucpath_rec
       @jobs = nil
@@ -97,7 +93,6 @@ module UCPath
     def create_user_record
       rec.primary_id = ucpath_rec.ucpath_employee_id
 
-      #----------------------------------------------------------------#
       # STUDENT CHECK - berkeleyeduaffiliations in Student Affiliation (ldap_fields.yml)
       if ldap&.berkeleyeduaffiliations
         ldap.berkeleyeduaffiliations.each do |affiliation|
@@ -108,8 +103,7 @@ module UCPath
         end
       end
 
-      #----------------------------------------------------------------#
-      # NAMES:
+      # NAMES
       # Get first_name, middle_name, last_name from the primary UCPath Employee record
       # If the UCPath lacks first_name and last_name, use LDAP record
       if ucpath_rec.first_name != '' && ucpath_rec.last_name != ''
@@ -132,7 +126,6 @@ module UCPath
       rec.pref_name_middlename = ucpath_rec.pref_name_middlename unless ucpath_rec.pref_name_middlename.empty?
 
       # Set the Full Name:
-      # TODO: move this into a library
       if rec.pref_name_givenname && rec.pref_name_familyname
         rec.preferred_name = true
         rec.pref_name_fullname = rec.pref_name_givenname
@@ -140,110 +133,71 @@ module UCPath
         rec.pref_name_fullname += " #{rec.pref_name_familyname}"
       end
 
-      #----------------------------------------------------------------#
-      # USER_GROUP:
-      # Probably spin this off to a separate function!
+      # USER_GROUP - Probably spin this off to a separate function!
       rec.user_group = nil
 
-      ineligible_reasons = []
+      # Note
+      # I broke most of the "Jobs" code off to UCPath::Jobs
+      # rather than rename all of the references below, just
+      # assign the eligible job to 'j'
+      j = jobs.job
 
-      # rubocop:disable Metrics/BlockLength
-      ucpath_rec.jobs.each do |j|
-        # Assume this job is eligible - this is based on the 3 criteria below
-        job_eligible = true
+      # JOB DESCRIPTION
+      rec.job_description = j.dept_desc || nil
 
-        # 1. hrStatus/code = A
-        unless j.hr_status_code == 'A'
-          ineligible_reasons.push("#{rec.primary_id} - Ineligible: HR status code: '#{j.hr_status_code}' - must be 'A'")
-          job_eligible = false
-        end
+      # USER_GROUP
+      rec.user_group = if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.dept_code) ||
+                          Config.check_ucpath_code('Library Staff Job Code', j.job_code)
+                         'LIBSTAFF'
+                       elsif Config.check_ucpath_code('Postdoc Job Code', j.job_code)
+                         'UCB POST'
+                       elsif Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
+                         'UCBVISSCHOL'
+                       elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) &&
+                              Config.check_ucpath_code('UC Extension Faculty', j.dept_code)
+                         'UCEXT'
+                       elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) ||
+                              Config.check_ucpath_code('Emeritus Job Code', j.job_code)
+                         'FACULTY'
+                       elsif Config.check_ucpath_code('Executive Classification Indic', j.classification_indc)
+                         'EXECUTIVE'
+                       else
+                         'NONACAD'
+                       end
 
-        # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
-        # unless j.expected_end_date.blank?
-        unless !j.expected_end_date || j.expected_end_date == ''
-          ineligible_reasons.push("#{rec.primary_id} - Ineligible: expected_end_date not in the future")
-          job_eligible = false if Date.iso8601(j.expected_end_date) <= Date.today
-        end
+      # EXPIRY_DATE
+      rec.expiry_date = if !j.expected_end_date || j.expected_end_date == ''
+                          create_expected_end_date
+                        else
+                          j.expected_end_date
+                        end
 
-        # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
-        #    the Visiting Scholar category.
-        # unless j.org_relationship_code.blank?
-        if !(!j.org_relationship_code || j.org_relationship_code == '') && (j.org_relationship_code == 'CWR')
-          ineligible_reasons.push("#{rec.primary_id} - Ineligible: org code CWR has non visiting scholar job code")
-          job_eligible = false unless Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
-        end
+      # PURGE_DATE (expiry date plus one year)
+      rec.purge_date = Date.iso8601(rec.expiry_date).next_year.to_s
 
-        next unless job_eligible
+      # CONTACT_INFO - build that in a separate set of functions
+      # Addresses, emails and phones are taken from this one and only job...weird!
+      rec.contact_info = create_contact_info(j)
 
-        # Found eligible job - clear out any previous ineligible reasons
-        ineligible_reasons = nil
+      # CAMPUS_CODE
+      rec.campus_code = 'UCB_Campus'
 
-        # JOB DESCRIPTION
-        rec.job_description = j.dept_desc || nil
+      # ACCOUNT_TYPE
+      rec.account_type = 'EXTERNAL'
 
-        # USER_GROUP
-        rec.user_group = if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.dept_code) ||
-                            Config.check_ucpath_code('Library Staff Job Code', j.job_code)
-                           'LIBSTAFF'
-                         elsif Config.check_ucpath_code('Postdoc Job Code', j.job_code)
-                           'UCB POST'
-                         elsif Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
-                           'UCBVISSCHOL'
-                         elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) &&
-                               Config.check_ucpath_code('UC Extension Faculty', j.dept_code)
-                           'UCEXT'
-                         elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) ||
-                               Config.check_ucpath_code('Emeritus Job Code', j.job_code)
-                           'FACULTY'
-                         elsif Config.check_ucpath_code('Executive Classification Indic', j.classification_indc)
-                           'EXECUTIVE'
-                         else
-                           'NONACAD'
-                         end
+      # STATUS - always ACTIVE
+      rec.status = 'ACTIVE'
 
-        # EXPIRY_DATE
-        # if j.expected_end_date.blank?
-        rec.expiry_date = if !j.expected_end_date || j.expected_end_date == ''
-                            create_expected_end_date
-                          else
-                            j.expected_end_date
-                          end
+      # USER_IDENTIFIERS
+      rec.identifiers = create_identifiers
 
-        # PURGE_DATE (expiry date plus one year)
-        rec.purge_date = Date.iso8601(rec.expiry_date).next_year.to_s
+      # USER_ROLES - DROP (according to D.Rez, Alma should assign)
+      # USER_STATISTICS - TBD (addording to J.Gosselar these have yet to be determined)
 
-        # Oddly, addresses, emails and phones are taken from this one and only job...weird!
-        rec.contact_info = create_contact_info(j)
-
-        # CAMPUS_CODE
-        rec.campus_code = 'UCB_Campus'
-
-        # ACCOUNT_TYPE
-        rec.account_type = 'EXTERNAL'
-
-        # STATUS - SAFE TO ASSUME ACTIVE???
-        # rec.status = 'ACTIVE' if j.job_status_code == 'A'
-        rec.status = 'ACTIVE'
-
-        # USER_IDENTIFIERS
-        rec.identifiers = create_identifiers
-
-        # USER_ROLES - DROP (according to D.Rez, Alma should assign)
-        # USER_STATISTICS - TBD (addording to J.Gosselar these have yet to be determined)
-
-        # SET USER ELIGIBILITY
-        self.eligible = job_eligible
-
-        # We've found an job_eligible job... we set the user group, no need to go through more jobs
-        break
-      end
-      # rubocop:enable Metrics/BlockLength
-
-      ineligible_reasons&.each { |r| logger.info r }
+      # SET USER ELIGIBILITY
+      self.eligible = true
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
-    # rubocop:disable Metrics/AbcSize
     def create_identifiers
       identifiers = []
 
@@ -298,7 +252,7 @@ module UCPath
       create_phone
     end
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
     def create_address(job)
       a = Address.new
 
@@ -336,8 +290,6 @@ module UCPath
     #----------------------------------------------------------------#
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def create_email
-      # unless !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first.blank?
-      # ldap&.berkeleyeduaffiliations
       if ldap.nil? || !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first == ''
         # return nil if ucpath_rec.email.blank?
         return nil unless ucpath_rec.email
@@ -363,7 +315,7 @@ module UCPath
     # found use the primary number from the Employee record if it    #
     # exists, otherwise use any other phone number from the record.  #
     #----------------------------------------------------------------#
-    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def create_phone
       if ldap.nil? || !ldap.telephonenumber || ldap.telephonenumber == ''
         return nil unless ucpath_rec.phone_number
@@ -498,90 +450,10 @@ module UCPath
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
-    # We'll throw all the jobs into an array of open structs:
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-    def parse_jobs
-      ucpath_rec['jobs'] = []
-
-      # Query @jobs for the actual jobs
-      job_data = JsonPath.on(@jobs, '$..response[*].jobs')
-
-      return nil unless job_data.count.positive?
-
-      job_data.first.each_with_index do |job, _idx|
-        # JsonPath.on returns a hash - convert that back to JSON so our jsonpath path's work!
-        j = job.to_json
-
-        job = OpenStruct.new
-
-        Config.ucpath_job_fields.each do |f|
-          name = f['name']
-          jpath = f['jpath']
-
-          next unless jpath
-
-          value = JsonPath.on(j, jpath).first || ''
-
-          job[name] = value if value
-        end
-
-        ucpath_rec['jobs'].push(job)
-      end
-    end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
-
-    # TODO: - DRY this up!!!
-    # In a rush so just duping this code from above
-    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
-    def eligible_job?
-      ineligible_reasons = []
-
-      ucpath_rec.jobs.each do |j|
-        # Assume this job is eligible - this is based on the 3 criteria below
-        job_eligible = true
-
-        # 1. hrStatus/code = A
-        unless j.hr_status_code == 'A'
-          ineligible_reasons.push("#{rec.primary_id} - Ineligible: HR status code: '#{j.hr_status_code}' - must be 'A'")
-          job_eligible = false
-        end
-
-        # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
-        # unless j.expected_end_date.blank?
-        unless !j.expected_end_date || j.expected_end_date == ''
-          ineligible_reasons.push("#{rec.primary_id} - Ineligible: expected_end_date not in the future")
-          job_eligible = false if Date.iso8601(j.expected_end_date) <= Date.today
-        end
-
-        # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
-        #    the Visiting Scholar category.
-        # unless j.org_relationship_code.blank?
-        if !(!j.org_relationship_code || j.org_relationship_code == '') && (j.org_relationship_code == 'CWR')
-          ineligible_reasons.push("#{rec.primary_id} - Ineligible: org code CWR has non visiting scholar job code")
-          job_eligible = false unless Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
-        end
-
-        next unless job_eligible
-
-        # Found eligible job - clear out any previous ineligible reasons
-        ineligible_reasons = nil
-        return true
-      end
-
-      ineligible_reasons&.each do |r|
-        logger.info r
-      end
-      false
-    end
-
     def fetch_user
       User.fetch_ucpath_rec(id)
     end
 
-    def fetch_jobs
-      User.fetch_ucpath_jobs(id)
-    end
   end
-  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
   # rubocop:enable Metrics/ClassLength
 end
