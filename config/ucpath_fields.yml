@@ -113,16 +113,7 @@ Employee:
     - name: db_date_modified
 
 Job:
-  tablename: jobs
   fields:
-    - name: job_id
-      dbdef: "INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY"
-
-    - name: ucpath_employee_id
-      dbdef: "VARCHAR(16) NOT NULL"
-      xpath: ""
-      status: REQUIRED
-
     - name: job_code
       xpath: "./pos:position/jc:jobCode/jc:code/r:code"
       jpath: "$.position.jobCode.code.code"
@@ -134,14 +125,6 @@ Job:
       jpath: "$.department.code"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
-
-    - name: job_id
-      dbdef: "INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY"
-
-    - name: ucpath_employee_id
-      dbdef: "VARCHAR(16) NOT NULL"
-      xpath: ""
-      status: REQUIRED
 
     - name: job_code
       xpath: "./pos:position/jc:jobCode/jc:code/r:code"
