@@ -9,11 +9,6 @@ FROM ruby:3.0.3-slim AS base
 # ------------------------------------------------------------
 # Declarative metadata
 
-# This declares that the container intends to listen on port 3000. It doesn't
-# actually "expose" the port anywhere -- it is just metadata. It advises tools
-# like Traefik about how to treat this container in staging/production.
-EXPOSE 3000
-
 # ------------------------------------------------------------
 # Create the application user/group and installation directory
 
