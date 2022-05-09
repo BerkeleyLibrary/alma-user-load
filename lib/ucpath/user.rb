@@ -166,11 +166,7 @@ module UCPath
                        end
 
       # EXPIRY_DATE
-      rec.expiry_date = if !j.expected_end_date || j.expected_end_date == ''
-                          create_expected_end_date
-                        else
-                          j.expected_end_date
-                        end
+      rec.expiry_date = Helpers::ApplicationHelper.upcath_expire_date(rec.user_group, j.expected_end_date)
 
       # PURGE_DATE (expiry date plus one year)
       rec.purge_date = Date.iso8601(rec.expiry_date).next_year.to_s
@@ -399,30 +395,6 @@ module UCPath
       telephone
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
-
-    #----------------------------------------------------------------#
-    # Per Alvin:                                                     #
-    # Date advances forward expiration_year_interval years on the    #
-    # first day of change_month.                                     #
-    # For example on July 31 2009 the expiration date will be        #
-    # 10-31-2010. On Aug 1 2009 though, the expiration date will     #
-    # advance forward two years to 10-31-2011.                       #
-    #----------------------------------------------------------------#
-    def create_expected_end_date
-      expiration_month_day = '10-31'
-      expiration_year_interval = 2
-      change_month = 7
-
-      d = Date.today
-
-      expiration_year = if d.month < change_month
-                          d.year + expiration_year_interval - 1
-                        else
-                          d.year + expiration_year_interval
-                        end
-
-      "#{expiration_year}-#{expiration_month_day}"
-    end
 
     # First load all UCPath Employee Data into obj
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
