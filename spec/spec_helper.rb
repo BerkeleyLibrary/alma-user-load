@@ -26,6 +26,7 @@ include LDAP
 include UCPath
 include Logging
 include SIS
+include Helpers
 # rubocop:enable Style/MixinUsage
 
 WebMock.disable_net_connect!(allow_localhost: true)

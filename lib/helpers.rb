@@ -1,6 +1,6 @@
 require_relative 'helpers/setup'
-# require_relative 'sis/student'
+require_relative 'helpers/application_helper'
 
 module Helpers
-  # include Helpers::Setup
+  include Helpers::ApplicationHelper
 end
