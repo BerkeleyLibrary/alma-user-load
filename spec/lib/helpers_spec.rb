@@ -87,3 +87,24 @@ describe Helpers::FileZip do
     end
   end
 end
+
+describe Helpers::ApplicationHelper do
+  it 'delays faculty expire date if in faculty safe date range' do
+    fake_expire_first = "#{Date.today.year}-05-15"
+    fake_expire_last = "#{Date.today.year}-06-30"
+    expected_date = "#{Date.today.year}-09-01"
+    actual_first = Helpers::ApplicationHelper.upcath_expire_date('FACULTY', fake_expire_first)
+    actual_last = Helpers::ApplicationHelper.upcath_expire_date('FACULTY', fake_expire_last)
+    expect(actual_first).to eq(expected_date)
+    expect(actual_last).to eq(expected_date)
+  end
+
+  it 'does not delay faculty expire dates outside of safe date range' do
+    fake_expire_first = "#{Date.today.year}-05-14"
+    fake_expire_last = "#{Date.today.year}-07-01"
+    actual_first = Helpers::ApplicationHelper.upcath_expire_date('FACULTY', fake_expire_first)
+    actual_last = Helpers::ApplicationHelper.upcath_expire_date('FACULTY', fake_expire_last)
+    expect(actual_first).to eq(fake_expire_first)
+    expect(actual_last).to eq(fake_expire_last)
+  end
+end
