@@ -20,6 +20,7 @@ include SIS
 include Alma
 include LDAP
 include UCPath
+include Helpers
 include Logging
 # rubocop:enable Style/MixinUsage
 
