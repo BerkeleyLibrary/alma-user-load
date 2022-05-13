@@ -85,6 +85,10 @@ end
 
 # rubocop:disable Metrics/BlockLength
 describe UCPath::User do
+  before(:each) do
+    allow(Config.secrets.ldap).to receive(:pass).and_return('MISSING')
+  end
+
   it 'is a ucpath user object' do
     id = '10527060'
     stub_ucpath_user(id)
