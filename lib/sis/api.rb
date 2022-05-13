@@ -1,15 +1,45 @@
-# frozen_string_literal: true
-
 require 'faraday'
 
 module SIS
   # SIS API module
   module API
+
+    #----------------------------------------------------------------#
+    # Term Codes:
+    # From Dave Rez: They have the most confusing term ids. The
+    # current term is "2222." This (below) is the commented note I
+    # put in my query to help me remember, the thing to know is that
+    # the second character of the year is dropped, so 2022 becomes
+    # 222, the last character is the code for whichever term it is,
+    # fall, spring or summer.
+    # 2178 = fall semester for 2017
+    # 8=Fall
+    # 2=Spring
+    # 5=Summer
+    #----------------------------------------------------------------#
     def current_term
-      # TODO: for now get current term from config
-      #       eventually setup dynamic setting from API
-      #       or some sort of mapping based on the month/day
-      Config.setting('current_term')
+      # Prefix is the year, minus the 2nd digit (WEIRD!)
+      prefix = Date.today.year.to_s
+
+      # Remove that digit!
+      prefix.slice!(1, 1)
+
+      # Return the prefix plus the term code for Fall||Spring||Summer
+      "#{prefix}#{term_code}"
+    end
+
+    def term_code
+      case Date.today.month
+      when 12, 1, 2, 3, 4
+        # Spring
+        '2'
+      when 5, 6, 7, 8
+        # Summer
+        '5'
+      else
+        # Fall
+        '8'
+      end
     end
 
     # Fetch term by ID - can include as_of_date filter changes by a date

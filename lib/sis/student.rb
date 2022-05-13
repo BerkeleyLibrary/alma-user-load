@@ -26,7 +26,7 @@ module SIS
 
     private
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
     def create_user_record
       rec.primary_id = user['student_id']
 
@@ -41,14 +41,7 @@ module SIS
       set_user_group
 
       # EXPIRY_DATE
-      # TODO: Set to "today" if student withdrawls or cancels!
-      # TODO: add 'WDR'
-      rec.expiry_date = if user['withcncl'] && user['withcncl'] == 'CAN'
-                          Date.today.to_s
-                        else
-                          # else looks like it's next year - 10-31
-                          create_expected_end_date
-                        end
+      rec.expiry_date = Helpers::ApplicationHelper.sis_expire_date(user['withcncl'] || nil)
 
       # PURGE_DATE (expiry date plus one year)
       rec.purge_date = Date.iso8601(rec.expiry_date).next_year.to_s
@@ -62,7 +55,7 @@ module SIS
       # MISC. HARDCODED VALUES
       set_static_values
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:enable Metrics/AbcSize
 
     # rubocop:disable Metrics/MethodLength
     def set_user_group
@@ -235,21 +228,6 @@ module SIS
       i
     end
 
-    def create_expected_end_date
-      expiration_month_day = '10-31'
-      expiration_year_interval = 2
-      change_month = 7
-
-      d = Date.today
-
-      expiration_year = if d.month < change_month
-                          d.year + expiration_year_interval - 1
-                        else
-                          d.year + expiration_year_interval
-                        end
-
-      "#{expiration_year}-#{expiration_month_day}"
-    end
   end
 end
 # rubocop:enable Metrics/ClassLength

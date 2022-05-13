@@ -28,6 +28,7 @@ describe SIS do
 end
 # rubocop :enable Lint/ConstantDefinitionInBlock, Style/MutableConstant
 
+# rubocop:disable Metrics/BlockLength
 describe SIS::API do
   it 'fetches students by term' do
     term_id = '2222'
@@ -39,16 +40,27 @@ describe SIS::API do
     expect(users.count).to eq(2)
   end
 
-  it 'returns the current term' do
-    term = '2222'
+  it 'returns the correct term code for summer term' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 6, 15)
+    expected_term = '2225'
     current_term = SIS::API.current_term
-
-    expect(current_term).to eq(term)
+    expect(current_term).to eq(expected_term)
   end
 
-  # TODO: improve this, should probably check the log
-  # also setup so that we over-ride the # of failed
-  # attempts and the sleep duration.
+  it 'returns the correct term code for fall term' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 11, 15)
+    expected_term = '2228'
+    current_term = SIS::API.current_term
+    expect(current_term).to eq(expected_term)
+  end
+
+  it 'returns the correct term code for spring term' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 4, 15)
+    expected_term = '2222'
+    current_term = SIS::API.current_term
+    expect(current_term).to eq(expected_term)
+  end
+
   it 'returns empty array after multiple failed attempts' do
     term_id = '2222'
     stub_request(:get, 'https://apis.berkeley.edu/sis/v2/students?inc-acad=true&inc-cntc=true&inc-regs=true&page-number=1&page-size=100&term-id=2222')
@@ -59,7 +71,6 @@ describe SIS::API do
   end
 end
 
-# rubocop:disable Metrics/BlockLength
 describe SIS::Student do
   it 'is a SIS Student Object' do
     user = {
@@ -195,7 +206,22 @@ describe SIS::Student do
     end
   end
 
-  it 'sets expiry date to today if student cancelled registration' do
+  it 'sets expiry date to default if student not withcncl and month not May, Aug, Dec' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 1, 15)
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD'
+    }
+
+    student = SIS::Student.new user
+    expected_expiry_date = '2023-10-31'
+    expect(student.rec.expiry_date).to eq(expected_expiry_date)
+  end
+
+  it 'sets expiry date to today if student cancelled registration and month not May, Aug, Dec' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 1, 15)
     user = {
       'student_id' => '12345',
       'prim_name_givenname' => 'Thor',
@@ -205,6 +231,20 @@ describe SIS::Student do
     }
     student = SIS::Student.new user
     expected_expiry_date = Date.today.to_s
+    expect(student.rec.expiry_date).to eq(expected_expiry_date)
+  end
+
+  it 'sets expiry date to default if student cancelled registration within month May, Aug, Dec' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 12, 15)
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD',
+      'withcncl' => 'CAN'
+    }
+    student = SIS::Student.new user
+    expected_expiry_date = '2024-10-31'
     expect(student.rec.expiry_date).to eq(expected_expiry_date)
   end
 
