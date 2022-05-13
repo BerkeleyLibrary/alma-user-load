@@ -33,7 +33,7 @@ module SIS
       when 12, 1, 2, 3, 4
         # Spring
         '2'
-      when 5, 6, 7, 8
+      when 5, 6, 7
         # Summer
         '5'
       else
