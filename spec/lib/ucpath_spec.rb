@@ -81,6 +81,14 @@ describe UCPath::API do
     u = fetch_ucpath_rec('dummy_id')
     expect(u).to be_nil
   end
+
+  it 'retries on a 429 status' do
+    id = '10527060'
+    stub_ucpath_user(id)
+    stub_ucpath_jobs_rate(id)
+    u = UCPath::User.new(id)
+    expect(u.jobs).to eq(nil)
+  end
 end
 
 # rubocop:disable Metrics/BlockLength

@@ -8,23 +8,40 @@ module UCPath
     def fetch_ucpath_rec(id)
       req = url_root + "employees/#{id}?id-type=hr-employee-id"
 
-      res = fetch(req, 'json')
+      # Fetch the Users Record
+      res = managed_fetch("#{id} - UCPath User", req, 'json')
 
-      return nil unless res && res.status == 200
+      # If we didn't get ANYTHING back just return nil
+      # (we log the error in the fetch)
+      return nil unless res
+
+      # If we did get something back, but not a 200 return nil
+      return nil if res && res.status != 200
+
+      logger.warn "#{id} - Returned no body" unless res.body
+      return nil unless res.body
 
       logger.info "#{id} - Successfully fetched UCPath record"
-
       res.body
     end
 
     def fetch_ucpath_jobs(id)
       req = url_root + "employees/#{id}/jobs?id-type=hr-employee-id"
 
-      res = fetch(req, 'json')
+      # Fetch the Users Jobs
+      res = managed_fetch("#{id} - UCPath Job", req, 'json')
 
-      # TODO: - handle errors!
-      return nil unless res && res.status == 200
+      # If we didn't get ANYTHING back just return nil
+      # (we log the error in the fetch)
+      return nil unless res
 
+      # If we did get something back, but not a 200 return nil
+      return nil if res && res.status != 200
+
+      logger.warn "#{id} - Returned no body" unless res.body
+      return nil unless res.body
+
+      logger.info "#{id} - Successfully fetched UCPath record"
       res.body
     end
 
@@ -58,24 +75,22 @@ module UCPath
         # Add size and pagination
         req = req + page_size + page_number
 
-        res = fetch(req, 'json')
+        # Fetch the current page of our change log
+        res = managed_fetch("CL Page: #{current_page}", req, 'json')
 
         # If it failed then return
         return nil unless res && res.status == 200
 
-        # If it the API gave us an empty body return
+        # If the API gave us an empty body return nil
         return nil if res.body.empty?
 
-        # No error... let's parse our response and continue:
+        # We're good! Let's parse our response and continue:
         response = JSON.parse(res.body)
 
         return nil if !response || response == ''
 
         # Put the offset into a var for easy peasy access:
         offset = response['offset']
-
-        # Keep user posted on where we are at with grabbing data:
-        # puts "REMAINING: #{offset['remaining']}"
 
         # Put the Users IDs from the response into a variable:
         identifiers = response['response']
@@ -112,6 +127,26 @@ module UCPath
     def ucpath_id
       Config.secrets.ucpath.id
     end
+
+    # rubocop:disable Metrics/MethodLength
+    def managed_fetch(source, req, _type = 'xml')
+      req_attempts = 0
+
+      until req_attempts >= 5
+        req_attempts += 1
+        res = fetch(req, 'json')
+        logger.info "#{source} : returned status: #{res.status} (#{req_attempts})" if res
+        logger.error "#{source} : did not return a status" unless res
+
+        return res if res && res.status == 200
+
+        sleep(2)
+      end
+
+      logger.error "#{source} : Failed Request: #{req}"
+      nil
+    end
+    # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
     def fetch(req, type = 'xml')

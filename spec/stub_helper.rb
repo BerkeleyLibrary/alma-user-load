@@ -31,6 +31,14 @@ def stub_ucpath_jobs(id)
   )
 end
 
+def stub_ucpath_jobs_rate(id)
+  user_api_url = "https://apis.berkeley.edu/hr/v3/employees/#{id}/jobs?id-type=hr-employee-id"
+
+  stub_request(:get, user_api_url).to_return(
+    status: 429
+  )
+end
+
 # Recieves ID and "overrides" where we can set certain fields in the
 # fixture at runtime so I don't have to create separate fixtures.
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
