@@ -1,6 +1,6 @@
 <user>
   <record_type>PUBLIC</record_type>
-  <primary_id>12345</primary_id>
+  <primary_id>30012345</primary_id>
   <first_name>Thor</first_name>
   <last_name>Odinson</last_name>
   <full_name/>
@@ -48,7 +48,7 @@
   <user_identifiers>
     <user_identifier segment_type="Internal">
       <id_type>BARCODE</id_type>
-      <value>12345</value>
+      <value>30012345</value>
       <status>ACTIVE</status>
     </user_identifier>
   </user_identifiers>

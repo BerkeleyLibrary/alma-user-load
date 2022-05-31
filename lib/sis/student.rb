@@ -34,8 +34,8 @@ module SIS
       set_primary_name
       set_preferred_name
 
-      # JOB_DESCRIPTION (Student's Major)
-      rec.job_description = user['major'] || nil
+      # JOB_DESCRIPTION (Student's Major - comes from academic plan desc)
+      rec.job_description = user['acadplan_descr'] || nil
 
       # USER_GROUP
       set_user_group
@@ -207,22 +207,36 @@ module SIS
       rec.status = 'ACTIVE'
     end
 
+    # rubocop:disable Metrics/AbcSize
     def create_identifiers
       identifiers = []
 
       # student-id
-      # Only want the last 7 digits for this barcode
-      identifiers.push(create_identifier(user['student_id'].chars.last(8).join)) if user['student_id']
+      #  - Only want this ID if it's "newer" (begins with '30')
+      #  - Only want the last 8 digits for this barcode
+      identifiers.push(create_identifier(user['student_id'].chars.last(8).join)) if user['student_id'] && user['student_id'][/^30.*/]
+
       # campus-uid
-      identifiers.push(create_identifier(user['campus_uid'])) if user['campus_uid']
+      identifiers.push(create_univ_id(user['campus_uid'])) if user['campus_uid']
 
       identifiers
     end
+    # rubocop:enable Metrics/AbcSize
 
     def create_identifier(identifier, prefix = nil)
       i = Identifier.new
       i.segment_type = 'Internal'
       i.id_type = 'BARCODE'
+      i.value = "#{prefix || ''}#{identifier}"
+      i.status = 'ACTIVE'
+
+      i
+    end
+
+    def create_univ_id(identifier, prefix = nil)
+      i = Identifier.new
+      i.segment_type = 'Internal'
+      i.id_type = 'UNIV_ID'
       i.value = "#{prefix || ''}#{identifier}"
       i.status = 'ACTIVE'
 

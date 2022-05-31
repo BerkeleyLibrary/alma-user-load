@@ -125,7 +125,7 @@ describe SIS::Student do
     allow(Date).to receive(:today).and_return Date.new(2022, 5, 31)
 
     user = {
-      'student_id' => '12345',
+      'student_id' => '30012345',
       'prim_name_givenname' => 'Thor',
       'prim_name_familyname' => 'Odinson',
       'acadcareer_code' => 'GRAD',
