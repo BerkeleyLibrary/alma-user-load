@@ -120,7 +120,7 @@ describe SIS::Student do
 
   it 'can be built into <user> XML element' do
     user = {
-      'student_id' => '12345',
+      'student_id' => '30012345',
       'prim_name_givenname' => 'Thor',
       'prim_name_familyname' => 'Odinson',
       'acadcareer_code' => 'GRAD',

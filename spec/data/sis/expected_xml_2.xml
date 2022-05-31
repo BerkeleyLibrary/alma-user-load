@@ -31,13 +31,7 @@
     <emails/>
     <phones/>
   </contact_info>
-  <user_identifiers>
-    <user_identifier segment_type="Internal">
-      <id_type>BARCODE</id_type>
-      <value>12345</value>
-      <status>ACTIVE</status>
-    </user_identifier>
-  </user_identifiers>
+  <user_identifiers/>
   <pref_first_name/>
   <pref_middle_name/>
   <pref_last_name/>
