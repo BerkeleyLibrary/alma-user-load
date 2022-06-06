@@ -8,6 +8,8 @@ require 'nokogiri'
 # rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant
 describe SIS do
   it 'runs sis' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 5, 31)
+
     term_id = '2222'
     stub_past_sis_data(term_id, '2022-04-10', 1)
     stub_past_sis_data(term_id, '2022-04-10', 2)
