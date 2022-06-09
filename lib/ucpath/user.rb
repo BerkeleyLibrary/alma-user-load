@@ -209,7 +209,7 @@ module UCPath
       end
 
       # campus-uid
-      identifiers.push(create_identifier(ucpath_rec.uid)) if ucpath_rec.uid
+      identifiers.push(create_univ_id(ucpath_rec.uid)) if ucpath_rec.uid
 
       identifiers
     end
@@ -219,6 +219,16 @@ module UCPath
       i = Identifier.new
       i.segment_type = 'Internal'
       i.id_type = 'BARCODE'
+      i.value = "#{prefix || ''}#{identifier}"
+      i.status = 'ACTIVE'
+
+      i
+    end
+
+    def create_univ_id(identifier, prefix = nil)
+      i = Identifier.new
+      i.segment_type = 'Internal'
+      i.id_type = 'UNIV_ID'
       i.value = "#{prefix || ''}#{identifier}"
       i.status = 'ACTIVE'
 

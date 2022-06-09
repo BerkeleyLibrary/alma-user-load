@@ -65,7 +65,7 @@
       <status>ACTIVE</status>
     </user_identifier>
     <user_identifier segment_type="Internal">
-      <id_type>BARCODE</id_type>
+      <id_type>UNIV_ID</id_type>
       <value>112823</value>
       <status>ACTIVE</status>
     </user_identifier>
