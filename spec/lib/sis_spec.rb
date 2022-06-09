@@ -121,6 +121,9 @@ describe SIS::Student do
   end
 
   it 'can be built into <user> XML element' do
+
+    allow(Date).to receive(:today).and_return Date.new(2022, 5, 31)
+
     user = {
       'student_id' => '12345',
       'prim_name_givenname' => 'Thor',
@@ -142,6 +145,9 @@ describe SIS::Student do
   end
 
   it 'can be built into <user> XML element without email/phone' do
+
+    allow(Date).to receive(:today).and_return Date.new(2022, 5, 31)
+
     user = {
       'student_id' => '12345',
       'prim_name_givenname' => 'Thor',

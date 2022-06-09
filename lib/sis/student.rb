@@ -26,7 +26,7 @@ module SIS
 
     private
 
-    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def create_user_record
       rec.primary_id = user['student_id']
 
@@ -41,7 +41,8 @@ module SIS
       set_user_group
 
       # EXPIRY_DATE
-      rec.expiry_date = Helpers::ApplicationHelper.sis_expire_date(user['withcncl'] || nil)
+      withcncl = user['withcncl'] || ''
+      rec.expiry_date = Helpers::ApplicationHelper.sis_expire_date(withcncl)
 
       # PURGE_DATE (expiry date plus one year)
       rec.purge_date = Date.iso8601(rec.expiry_date).next_year.to_s
@@ -55,7 +56,7 @@ module SIS
       # MISC. HARDCODED VALUES
       set_static_values
     end
-    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
     def set_user_group
