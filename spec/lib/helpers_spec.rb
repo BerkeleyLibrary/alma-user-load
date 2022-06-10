@@ -88,6 +88,7 @@ describe Helpers::FileZip do
   end
 end
 
+# rubocop :disable Metrics/BlockLength
 describe Helpers::ApplicationHelper do
   it 'delays faculty expire date if in faculty safe date range' do
     fake_expire_first = "#{Date.today.year}-05-15"
@@ -107,4 +108,32 @@ describe Helpers::ApplicationHelper do
     expect(actual_first).to eq(fake_expire_first)
     expect(actual_last).to eq(fake_expire_last)
   end
+
+  it 'does not expire withdrawaled/canceled students during month of May' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 5, 15)
+
+    expected_date = '2023-10-31'
+    expire_date = Helpers::ApplicationHelper.sis_expire_date('CAN')
+
+    expect(expire_date).to eq(expected_date)
+  end
+
+  it 'does not expire withdrawaled/canceled students during month of Aug' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 8, 31)
+
+    expected_date = '2024-10-31'
+    expire_date = Helpers::ApplicationHelper.sis_expire_date('CAN')
+
+    expect(expire_date).to eq(expected_date)
+  end
+
+  it 'does not expire withdrawaled/canceled students during month of Dec' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 12, 28)
+
+    expected_date = '2024-10-31'
+    expire_date = Helpers::ApplicationHelper.sis_expire_date('CAN')
+
+    expect(expire_date).to eq(expected_date)
+  end
+  # rubocop :enable Metrics/BlockLength
 end
