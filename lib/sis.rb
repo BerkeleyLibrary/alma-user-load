@@ -28,29 +28,30 @@ module SIS
   include SIS::API
 
   # If we want to switch to run ALL students without trying to use a changelog
-  # def run_sis(setup)
-  #   logger.info 'Running SIS'
+  def run_sis(setup)
+    puts "Running FULL SIS!!!"
+    logger.info 'Running SIS'
 
-  #   term_id = setup.term_id || SIS::API.current_term
+    term_id = setup.term_id || SIS::API.current_term
 
-  #   #----------------------------------------------------------------#
-  #   # Setup our XML file
-  #   writer = Alma::XMLWriter.new(setup.xml_path)
+    #----------------------------------------------------------------#
+    # Setup our XML file
+    writer = Alma::XMLWriter.new(setup.xml_path)
 
-  #   #----------------------------------------------------------------#
-  #   # Fetch the term the as-of-date == current date
-  #   raw_users = SIS::API.fetch_by_term(term_id)
-  #   raw_users.each do |user|
-  #     writer.write(SIS::Student.new(user))
-  #   end
+    #----------------------------------------------------------------#
+    # Fetch the term the as-of-date == current date
+    raw_users = SIS::API.fetch_by_term(term_id)
+    raw_users.each do |user|
+      writer.write(SIS::Student.new(user))
+    end
 
-  #   writer.close
+    writer.close
 
-  #   Helpers::FileZip.zipit!(setup.zip_path, setup.xml_path)
-  # end
+    Helpers::FileZip.zipit!(setup.zip_path, setup.xml_path)
+  end
 
   # rubocop :disable Metrics/AbcSize, Metrics/MethodLength
-  def run_sis(setup)
+  def run_sis_old(setup)
     logger.info 'Running SIS'
 
     term_id = setup.term_id || SIS::API.current_term
