@@ -7,7 +7,7 @@
   <middle_name>Andre</middle_name>
   <last_name>Forte</last_name>
   <full_name/>
-  <job_description>Major - Health Sciences</job_description>
+  <job_description>Epidemiology PhD</job_description>
   <user_group>GRADSTUD</user_group>
   <campus_code>UCB_Campus</campus_code>
   <expiry_date>2023-10-31</expiry_date>
@@ -64,12 +64,7 @@
   </contact_info>
   <user_identifiers>
     <user_identifier segment_type="Internal">
-      <id_type>BARCODE</id_type>
-      <value>10162050</value>
-      <status>ACTIVE</status>
-    </user_identifier>
-    <user_identifier segment_type="Internal">
-      <id_type>BARCODE</id_type>
+      <id_type>UNIV_ID</id_type>
       <value>114278</value>
       <status>ACTIVE</status>
     </user_identifier>
@@ -86,7 +81,7 @@
   <middle_name>D</middle_name>
   <last_name>Person</last_name>
   <full_name/>
-  <job_description>Major - Health Sciences</job_description>
+  <job_description>Epidemiology PhD</job_description>
   <user_group>GRADSTUD</user_group>
   <campus_code>UCB_Campus</campus_code>
   <expiry_date>2023-10-31</expiry_date>
@@ -143,12 +138,7 @@
   </contact_info>
   <user_identifiers>
     <user_identifier segment_type="Internal">
-      <id_type>BARCODE</id_type>
-      <value>10162000</value>
-      <status>ACTIVE</status>
-    </user_identifier>
-    <user_identifier segment_type="Internal">
-      <id_type>BARCODE</id_type>
+      <id_type>UNIV_ID</id_type>
       <value>114200</value>
       <status>ACTIVE</status>
     </user_identifier>

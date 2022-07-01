@@ -125,7 +125,7 @@ describe SIS::Student do
     allow(Date).to receive(:today).and_return Date.new(2022, 5, 31)
 
     user = {
-      'student_id' => '12345',
+      'student_id' => '30012345',
       'prim_name_givenname' => 'Thor',
       'prim_name_familyname' => 'Odinson',
       'acadcareer_code' => 'GRAD',
@@ -221,6 +221,21 @@ describe SIS::Student do
       'prim_name_givenname' => 'Thor',
       'prim_name_familyname' => 'Odinson',
       'acadcareer_code' => 'GRAD'
+    }
+
+    student = SIS::Student.new user
+    expected_expiry_date = '2023-10-31'
+    expect(student.rec.expiry_date).to eq(expected_expiry_date)
+  end
+
+  it 'sets expiry date to default if student withcncl is empty string and month not May, Aug, Dec' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 1, 15)
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD',
+      'withcncl' => ''
     }
 
     student = SIS::Student.new user
