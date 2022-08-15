@@ -6,7 +6,7 @@ SIS:
 
     - name: term_id
       jpath: "$.registrations[0].term.id"
-      status: OPTIONAL
+      status: REQUIRED
 
     - name: registered
       jpath: "$.registrations[0].registered"
