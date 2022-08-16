@@ -46,18 +46,14 @@ module SIS
     # which requires 2 passes. (Takes a loooong time!)
     # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/BlockLength
     def fetch_by_term(term_id, as_of_date = nil)
-      mode = as_of_date.nil? ? 'Current' : 'Past'
-
       raw_users = []
-
-      logger.info "Fetching #{mode} Data..."
 
       current_page = 0
 
       loop do
         current_page += 1
 
-        # break loop if current_page > 5
+        # break loop if current_page > 2
 
         logger.info "  Page: #{current_page}"
 
@@ -76,8 +72,10 @@ module SIS
         # Include Academic Info
         req += '&inc-acad=true'
 
-        # Max page size is 100
-        # though API doesn't really stick to it
+        # Make sure we get all users regardless of affiliation-status
+        req += '&affiliation-status=ALL'
+
+        # Max page size is 100 - though API doesn't really stick to it
         req += '&page-size=100'
 
         # We'll need to page through the results
@@ -107,6 +105,8 @@ module SIS
         # Extract the students array from the response
         students = response['apiResponse']['response']['students'] || 0
 
+        errors = false
+
         students.each_with_index do |student, _idx|
           # Bundle this student's data into a hash
           s = {}
@@ -121,9 +121,14 @@ module SIS
             next unless jpath
 
             s[name] = JsonPath.on(student, jpath).first || ''
+
+            if status == 'REQUIRED' && (!s[name] || s[name] == '')
+              logger.error "#{s['student_id']} - missing required field: #{name}"
+              errors = true
+            end
           end
 
-          raw_users.push(s)
+          raw_users.push(s) unless errors
         end
       end
 

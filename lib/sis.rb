@@ -11,7 +11,7 @@ module SIS
 
   def run_sis(setup)
     term_id = setup.term_id || SIS::API.current_term
-    logger.info "Running SIS\nTerm ID: #{term_id}"
+    logger.info "Running SIS\nTerm ID: #{term_id}\nRequest Root: #{sis_root}"
 
     #----------------------------------------------------------------#
     # Setup our XML file

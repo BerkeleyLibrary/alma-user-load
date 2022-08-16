@@ -10,6 +10,7 @@ module UCPath
   # rubocop :disable Metrics/MethodLength, Metrics/AbcSize
   def run_ucpath(setup)
     logger.info 'Running UCPath'
+    logger.info "UCPath Request Root: #{url_root}"
 
     process_list = setup.users || UCPath::API.change_log(setup.start_date, setup.end_date)
 
