@@ -33,9 +33,9 @@ describe Helpers::Setup do
 
   it 'accepts an output directory as a commanline argument' do
     ARGV = ['--type', 'sis',
-            '--outdir', '/this/is/a/path']
+            '--outdir', Dir.getwd]
     setup = Helpers::Setup.new
-    expect(setup.outdir).to eq('/this/is/a/path')
+    expect(setup.outdir).to eq(Dir.getwd)
   end
 
   it 'accepts a start and end date commandline arguements' do
