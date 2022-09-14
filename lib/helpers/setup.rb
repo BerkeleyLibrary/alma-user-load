@@ -15,10 +15,13 @@ module Helpers
       wrangle_commandline
       set_dates
       set_filenames
+
+      # must run after set_filenames (which sets :outdir)
+      check_for_zips
     end
 
     def set_filenames
-      # If no outdir define it as empty string
+      # If no outdir defined set to current working directory
       @outdir ||= Dir.pwd
 
       # range
@@ -42,6 +45,18 @@ module Helpers
 
       # Default start date is the
       @start_date ||= end_date - Config.setting('change_log_days')
+    end
+
+    # Change the extension for any existing zip files that we do not want
+    # Ex Libris to process. (anything other than '.zip')
+    def check_for_zips
+      Dir.entries(@outdir).each do |f|
+        pn = Pathname.new(@outdir) + f
+
+        next if pn.directory?
+
+        File.rename(pn.to_s, "#{pn}.stale") if pn.extname == '.zip'
+      end
     end
 
     # rubocop :disable Metrics/CyclomaticComplexity, Metrics/MethodLength

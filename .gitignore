@@ -9,6 +9,7 @@
 
 /*.xml
 *.zip
+*.stale
 
 # Ignore Mac File 
 .DS_Store
