@@ -76,10 +76,9 @@ describe UCPath::API do
 
   it 'returns nil on faraday error' do
     stub_request(:get, 'https://apis.berkeley.edu/hr/v3/employees/dummy_id?id-type=hr-employee-id')
-      .to_raise('fake error')
+      .to_raise('API Error')
 
-    u = fetch_ucpath_rec('dummy_id')
-    expect(u).to be_nil
+    expect { fetch_ucpath_rec('dummy_id') }.to raise_error(StandardError)
   end
 
   it 'retries on a 429 status' do

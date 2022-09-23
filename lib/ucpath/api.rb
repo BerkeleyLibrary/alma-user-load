@@ -167,17 +167,15 @@ module UCPath
         )
       rescue StandardError => e
         attempts += 1
-        logger.error "UCPath API Error: #{e}"
-        logger.error "Attempt: #{attempts}"
+        logger.error "API Error (#{attempts}): #{e}"
         logger.error "Request: #{req}"
         retry if attempts <= 3
 
         # We've exhausted all of our retries - API must be down. Bale.
         logger.error 'FATAL ERROR: Exhausted API rquests'
-        logger.error "Error: #{e}"
-        Logging.error("API ERROR: #{e}")
+        logger.error "Fatal API Error: #{e}"
 
-        nil
+        throw StandardError.new 'API Error'
       end
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize

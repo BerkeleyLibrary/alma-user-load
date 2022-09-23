@@ -25,9 +25,6 @@ module UCPath
 
       writer.close
 
-      # Check if there were any API errors - exit noisily w/o zipping file!
-      exit false if Logging.errors?
-
       Helpers::FileZip.zipit!(setup.zip_path, setup.xml_path)
     else
       logger.info 'Warning - no records found to be processed'

@@ -75,10 +75,9 @@ describe SIS::API do
   it 'returns empty array after multiple failed attempts' do
     term_id = '2222'
     stub_request(:get, 'https://apis.berkeley.edu/sis/v2/students?affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=1&page-size=100&term-id=2222')
-      .to_raise('fake error')
+      .to_raise('API Error')
 
-    u = SIS::API.fetch_by_term(term_id)
-    expect(u).to eq([])
+    expect { SIS::API.fetch_by_term(term_id) }.to raise_error(StandardError)
   end
 end
 
