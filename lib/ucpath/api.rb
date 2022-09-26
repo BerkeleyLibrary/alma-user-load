@@ -148,7 +148,7 @@ module UCPath
     end
     # rubocop:enable Metrics/MethodLength
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def fetch(req, type = 'xml')
       attempts = 0
       begin
@@ -167,14 +167,17 @@ module UCPath
         )
       rescue StandardError => e
         attempts += 1
-        logger.error "UCPath API Error: #{e}"
-        logger.error "Attempt: #{attempts}"
+        logger.error "API Error (#{attempts}): #{e}"
         logger.error "Request: #{req}"
         retry if attempts <= 3
 
-        nil
+        # We've exhausted all of our retries - API must be down. Bale.
+        logger.error 'FATAL ERROR: Exhausted API rquests'
+        logger.error "Fatal API Error: #{e}"
+
+        throw StandardError.new 'API Error'
       end
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
   end
 end

@@ -150,7 +150,7 @@ module SIS
       Config.secrets.sis.id
     end
 
-    # rubocop :disable Metrics/MethodLength
+    # rubocop :disable Metrics/MethodLength, Metrics/AbcSize
     def sis_fetch(req, type = 'xml')
       # TODO: make #attempts and sleep time config items
       # and over-ridable for testing...
@@ -171,14 +171,17 @@ module SIS
         )
       rescue StandardError => e
         attempts += 1
-        logger.error "SIS API Error: #{e}"
-        logger.error "Attempt: #{attempts}"
-        logger.error "Request: #{req}"
+        logger.info "API Error(#{attempts}): #{e}"
+        logger.info "Request: #{req}"
         retry if attempts <= 7
 
-        nil
+        # We've exhausted all of our retries - API must be down. Bale.
+        logger.error 'FATAL ERROR: Exhausted API rquests'
+        logger.error "Fatal API Error: #{e}"
+
+        throw StandardError.new 'API Error'
       end
     end
-    # rubocop :enable Metrics/MethodLength
+    # rubocop :enable Metrics/MethodLength, Metrics/AbcSize
   end
 end
