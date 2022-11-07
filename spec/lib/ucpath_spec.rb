@@ -75,7 +75,7 @@ describe UCPath::API do
   end
 
   it 'returns nil on faraday error' do
-    stub_request(:get, 'https://apis.berkeley.edu/hr/v3/employees/dummy_id?id-type=hr-employee-id')
+    stub_request(:get, 'https://gateway.api.berkeley.edu/hr/v3/employees/dummy_id?id-type=hr-employee-id')
       .to_raise('API Error')
 
     expect { fetch_ucpath_rec('dummy_id') }.to raise_error(StandardError)

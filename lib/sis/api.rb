@@ -84,7 +84,7 @@ module SIS
         # If we want to run a snapshot for a previous timeframe:
         req += "&as-of-date=#{as_of_date}" if as_of_date
 
-        # https://apis.berkeley.edu/sis/v2/students?term-id=2222&inc-cntc=true&inc-regs=true&page-size=100&page-number=1&as-of-date=2022-02-16
+        # https://gateway.api.berkeley.edu/sis/v2/students?term-id=2222&inc-cntc=true&inc-regs=true&page-size=100&page-number=1&as-of-date=2022-02-16
         # Fetch it!
         res = sis_fetch(req, 'json')
 
