@@ -2,11 +2,13 @@
 
 source 'https://rubygems.org'
 
+ruby '2.7.2'
+
 # Used to create MD5 to compare SIS recs for changes
 gem 'digest', '~> 3.1'
 
 # For API calls
-gem 'faraday', '~> 1.8'
+gem 'faraday', '~> 2.7', '>= 2.7.1'
 
 # Simplfy finding data values from the JSON we get back from APIs
 gem 'jsonpath', '~> 0.5.8'

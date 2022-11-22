@@ -1,0 +1,850 @@
+{
+  "apiResponse": {
+    "correlationId": "a5543ec6-8bd1-11ec-88bc-0050568de42b",
+    "httpStatus": {
+      "code": "200",
+      "description": "OK"
+    },
+    "responseType": "namespaceURI=\"http://bmeta.berkeley.edu/student/studentV1.xsd\" element=\"students\"",
+    "response": {
+      "students": [
+        {
+          "identifiers": [
+            {
+              "type": "student-id",
+              "id": "10162050",
+              "disclose": false
+            },
+            {
+              "type": "campus-uid",
+              "id": "114278",
+              "disclose": true
+            },
+            {
+              "type": "Social Security Number",
+              "id": "***-**-****",
+              "primary": true,
+              "disclose": false
+            },
+            {
+              "type": "CalNet ID",
+              "id": "deirdra.wilson",
+              "disclose": false,
+              "fromDate": "2021-08-13"
+            },
+            {
+              "type": "DB2",
+              "id": "10162050",
+              "disclose": false,
+              "fromDate": "1902-02-01"
+            }
+          ],
+          "names": [
+            {
+              "type": {
+                "code": "PRF",
+                "description": "Preferred"
+              },
+              "familyName": "Forte",
+              "givenName": "Deirdra",
+              "middleName": "Andre",
+              "formattedName": "Deirdra Andre Forte",
+              "preferred": true,
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              },
+              "fromDate": "1902-02-01"
+            },
+            {
+              "type": {
+                "code": "PRI",
+                "description": "Primary"
+              },
+              "familyName": "Forte",
+              "givenName": "Deirdra",
+              "middleName": "Andre",
+              "formattedName": "Deirdra Andre Forte",
+              "preferred": false,
+              "disclose": false,
+              "uiControl": {
+                "code": "D",
+                "description": "Display Only"
+              },
+              "fromDate": "1902-02-01"
+            }
+          ],
+          "affiliations": [
+            {
+              "type": {
+                "code": "GRADUATE",
+                "description": "Graduate Student",
+                "formalDescription": "An individual with a Graduate-based Career/Program/Plan."
+              },
+              "detail": "Active",
+              "status": {
+                "code": "ACT",
+                "description": "Active",
+                "formalDescription": "Active"
+              },
+              "fromDate": "2015-12-15"
+            }
+          ],
+          "addresses": [
+            {
+              "type": {
+                "code": "HOME",
+                "description": "Home"
+              },
+              "address1": "6626 CLAREMONT AVENU",
+              "city": "RICHMOND",
+              "stateCode": "CA",
+              "stateName": "California",
+              "postalCode": "94805",
+              "countryCode": "USA",
+              "countryName": "United States",
+              "formattedAddress": "6626 CLAREMONT AVENU\nRICHMOND, California 94805",
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              },
+              "fromDate": "2007-08-30"
+            },
+            {
+              "type": {
+                "code": "LOCL",
+                "description": "Local"
+              },
+              "address1": "6626 CLAREMONT AVE",
+              "city": "RICHMOND",
+              "stateCode": "CA",
+              "stateName": "California",
+              "postalCode": "94805",
+              "countryCode": "USA",
+              "countryName": "United States",
+              "formattedAddress": "6626 CLAREMONT AVE\nRICHMOND, California 94805",
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              },
+              "fromDate": "2007-08-30"
+            }
+          ],
+          "phones": [
+            {
+              "type": {
+                "code": "HOME",
+                "description": "Home/Permanent"
+              },
+              "number": "510/965-1883",
+              "primary": false,
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              }
+            },
+            {
+              "type": {
+                "code": "LOCL",
+                "description": "Local"
+              },
+              "number": "510/965-1883",
+              "primary": true,
+              "disclose": false,
+              "uiControl": {
+                "code": "F",
+                "description": "Full Edit"
+              }
+            }
+          ],
+          "emails": [
+            {
+              "type": {
+                "code": "CAMP",
+                "description": "Campus"
+              },
+              "emailAddress": "deirdra.wilson@berkeley.edu",
+              "primary": true,
+              "disclose": true,
+              "uiControl": {
+                "code": "D",
+                "description": "Display Only"
+              }
+            },
+            {
+              "type": {
+                "code": "OTHR",
+                "description": "Other"
+              },
+              "emailAddress": "daforte@berkeley.edu",
+              "primary": false,
+              "disclose": true,
+              "uiControl": {
+                "code": "F",
+                "description": "Full Edit"
+              }
+            }
+          ],
+          "confidential": false,
+          "academicStatuses": [
+            {
+              "studentCareer": {
+                "academicCareer": {
+                  "code": "GRAD",
+                  "description": "Graduate",
+                  "formalDescription": "Graduate"
+                },
+                "matriculation": {
+                  "term": {
+                    "id": "1998",
+                    "name": "1999 Fall",
+                    "category": {
+                      "code": "R",
+                      "description": "Regular Term"
+                    },
+                    "academicYear": "2000",
+                    "beginDate": "1999-08-17",
+                    "endDate": "1999-12-16"
+                  },
+                  "homeLocation": {
+                    "code": "001",
+                    "description": "Alameda County"
+                  }
+                },
+                "fromDate": "1999-08-17",
+                "toDate": "2022-05-13"
+              },
+              "studentPlans": [
+                {
+                  "academicPlan": {
+                    "plan": {
+                      "code": "96357PHDG",
+                      "description": "Epidemiology PhD",
+                      "formalDescription": "Epidemiology"
+                    },
+                    "type": {
+                      "code": "HS",
+                      "description": "Major - Health Sciences",
+                      "formalDescription": "Major - Health Sciences"
+                    },
+                    "cipCode": "26.1309",
+                    "targetDegree": {
+                      "type": {
+                        "code": "PD",
+                        "description": "Doctor of Philosophy",
+                        "formalDescription": "Doctor of Philosophy"
+                      }
+                    },
+                    "ownedBy": [
+                      {
+                        "organization": {
+                          "code": "GGEPIDM",
+                          "description": "Epidemiology Grad Grp",
+                          "formalDescription": "Epidemiology Graduate Group"
+                        },
+                        "percentage": 1E+2
+                      }
+                    ],
+                    "academicProgram": {
+                      "program": {
+                        "code": "GACAD",
+                        "description": "GR Acd Pgm",
+                        "formalDescription": "Graduate Academic Programs"
+                      },
+                      "academicGroup": {
+                        "code": "GRAD",
+                        "description": "Grad Div",
+                        "formalDescription": "Graduate Division"
+                      },
+                      "academicCareer": {
+                        "code": "GRAD",
+                        "description": "Graduate",
+                        "formalDescription": "Graduate"
+                      }
+                    }
+                  },
+                  "statusInPlan": {
+                    "status": {
+                      "code": "AC",
+                      "description": "Active",
+                      "formalDescription": "Active in Program"
+                    },
+                    "action": {
+                      "code": "DATA",
+                      "description": "Data Chg",
+                      "formalDescription": "Data Change"
+                    },
+                    "reason": {
+                      "code": "GTAC",
+                      "description": "Grad Term - Advisor Change",
+                      "formalDescription": "Graduation Term - Advisor Change"
+                    }
+                  },
+                  "primary": true,
+                  "expectedGraduationTerm": {
+                    "id": "2222",
+                    "name": "2022 Spring",
+                    "category": {
+                      "code": "R",
+                      "description": "Regular Term"
+                    },
+                    "academicYear": "2022",
+                    "beginDate": "2022-01-11",
+                    "endDate": "2022-05-13"
+                  },
+                  "fromDate": "1999-08-17",
+                  "toDate": "2022-05-13"
+                }
+              ],
+              "cumulativeGPA": {
+                "type": {
+                  "code": "CGPA",
+                  "description": "Cumulative GPA"
+                },
+                "average": 3.814,
+                "source": "UCB"
+              },
+              "cumulativeUnits": [
+                {
+                  "type": {
+                    "code": "Total",
+                    "description": "Total Units"
+                  },
+                  "unitsTaken": 156,
+                  "unitsPassed": 156,
+                  "unitsCumulative": 156
+                },
+                {
+                  "type": {
+                    "code": "For GPA",
+                    "description": "Units For GPA"
+                  },
+                  "unitsTaken": 95,
+                  "unitsPassed": 95
+                },
+                {
+                  "type": {
+                    "code": "Not For GPA",
+                    "description": "Units Not For GPA"
+                  },
+                  "unitsTaken": 61,
+                  "unitsPassed": 61
+                }
+              ]
+            }
+          ],
+          "registrations": [
+            {
+              "term": {
+                "id": "2222",
+                "name": "2022 Spring",
+                "category": {
+                  "code": "R",
+                  "description": "Regular Term"
+                },
+                "academicYear": "2022",
+                "beginDate": "2022-01-11",
+                "endDate": "2022-05-13"
+              },
+              "academicCareer": {
+                "code": "GRAD",
+                "description": "Graduate"
+              },
+              "eligibleToRegister": false,
+              "eligibilityStatus": {
+                "code": "C",
+                "description": "Continuing"
+              },
+              "registered": false,
+              "disabled": false,
+              "athlete": false,
+              "intendsToGraduate": false,
+              "academicLevels": [
+                {
+                  "type": {
+                    "code": "BOT",
+                    "description": "Beginning of Term"
+                  },
+                  "level": {
+                    "code": "GR",
+                    "description": "Graduate"
+                  }
+                },
+                {
+                  "type": {
+                    "code": "EOT",
+                    "description": "End of Term"
+                  },
+                  "level": {
+                    "code": "GR",
+                    "description": "Graduate"
+                  }
+                }
+              ],
+              "termUnits": [
+                {
+                  "type": {
+                    "code": "Total",
+                    "description": "Total Units"
+                  },
+                  "unitsMin": 0.5
+                },
+                {
+                  "type": {
+                    "code": "For GPA",
+                    "description": "Units For GPA"
+                  }
+                },
+                {
+                  "type": {
+                    "code": "Not For GPA",
+                    "description": "Units Not For GPA"
+                  },
+                  "unitsMax": 20.5
+                }
+              ],
+              "termGPA": {
+                "type": {
+                  "code": "TGPA",
+                  "description": "Term GPA"
+                },
+                "average": 0,
+                "source": "UCB"
+              },
+              "specialStudyProgram": {
+                "type": {
+                  "code": "BGNNFILING",
+                  "description": "Filing Fee"
+                },
+                "fromDate": "2022-01-11",
+                "toDate": "2022-05-13"
+              }
+            }
+          ]
+        },
+        {
+          "identifiers": [
+            {
+              "type": "student-id",
+              "id": "10162000",
+              "disclose": false
+            },
+            {
+              "type": "campus-uid",
+              "id": "114200",
+              "disclose": true
+            },
+            {
+              "type": "Social Security Number",
+              "id": "***-**-****",
+              "primary": true,
+              "disclose": false
+            },
+            {
+              "type": "CalNet ID",
+              "id": "fake.person",
+              "disclose": false,
+              "fromDate": "2021-08-13"
+            },
+            {
+              "type": "DB2",
+              "id": "1016200",
+              "disclose": false,
+              "fromDate": "1902-02-01"
+            }
+          ],
+          "names": [
+            {
+              "type": {
+                "code": "PRF",
+                "description": "Preferred"
+              },
+              "familyName": "Person",
+              "givenName": "Fake",
+              "middleName": "Dude",
+              "formattedName": "Fake D. Person",
+              "preferred": true,
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              },
+              "fromDate": "1902-02-01"
+            },
+            {
+              "type": {
+                "code": "PRI",
+                "description": "Primary"
+              },
+              "familyName": "Person",
+              "givenName": "Fake",
+              "middleName": "D",
+              "formattedName": "Fake D Person",
+              "preferred": false,
+              "disclose": false,
+              "uiControl": {
+                "code": "D",
+                "description": "Display Only"
+              },
+              "fromDate": "1902-02-01"
+            }
+          ],
+          "affiliations": [
+            {
+              "type": {
+                "code": "GRADUATE",
+                "description": "Graduate Student",
+                "formalDescription": "An individual with a Graduate-based Career/Program/Plan."
+              },
+              "detail": "Active",
+              "status": {
+                "code": "ACT",
+                "description": "Active",
+                "formalDescription": "Active"
+              },
+              "fromDate": "2015-12-15"
+            }
+          ],
+          "addresses": [
+            {
+              "type": {
+                "code": "HOME",
+                "description": "Home"
+              },
+              "address1": "133 Nowhere",
+              "city": "RICHMOND",
+              "stateCode": "CA",
+              "stateName": "California",
+              "postalCode": "94805",
+              "countryCode": "USA",
+              "countryName": "United States",
+              "formattedAddress": "6626 CLAREMONT AVENU\nRICHMOND, California 94805",
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              },
+              "fromDate": "2007-08-30"
+            },
+            {
+              "type": {
+                "code": "LOCL",
+                "description": "Local"
+              },
+              "address1": "6626 CLAREMONT AVE",
+              "city": "RICHMOND",
+              "stateCode": "CA",
+              "stateName": "California",
+              "postalCode": "94805",
+              "countryCode": "USA",
+              "countryName": "United States",
+              "formattedAddress": "6626 CLAREMONT AVE\nRICHMOND, California 94805",
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              },
+              "fromDate": "2007-08-30"
+            }
+          ],
+          "phones": [
+            {
+              "type": {
+                "code": "HOME",
+                "description": "Home/Permanent"
+              },
+              "number": "510/965-1883",
+              "primary": false,
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              }
+            },
+            {
+              "type": {
+                "code": "LOCL",
+                "description": "Local"
+              },
+              "number": "510/965-1883",
+              "primary": true,
+              "disclose": false,
+              "uiControl": {
+                "code": "F",
+                "description": "Full Edit"
+              }
+            }
+          ],
+          "emails": [
+            {
+              "type": {
+                "code": "CAMP",
+                "description": "Campus"
+              },
+              "emailAddress": "deirdra.wilson@berkeley.edu",
+              "primary": true,
+              "disclose": true,
+              "uiControl": {
+                "code": "D",
+                "description": "Display Only"
+              }
+            },
+            {
+              "type": {
+                "code": "OTHR",
+                "description": "Other"
+              },
+              "emailAddress": "daforte@berkeley.edu",
+              "primary": false,
+              "disclose": true,
+              "uiControl": {
+                "code": "F",
+                "description": "Full Edit"
+              }
+            }
+          ],
+          "confidential": false,
+          "academicStatuses": [
+            {
+              "studentCareer": {
+                "academicCareer": {
+                  "code": "GRAD",
+                  "description": "Graduate",
+                  "formalDescription": "Graduate"
+                },
+                "matriculation": {
+                  "term": {
+                    "id": "1998",
+                    "name": "1999 Fall",
+                    "category": {
+                      "code": "R",
+                      "description": "Regular Term"
+                    },
+                    "academicYear": "2000",
+                    "beginDate": "1999-08-17",
+                    "endDate": "1999-12-16"
+                  },
+                  "homeLocation": {
+                    "code": "001",
+                    "description": "Alameda County"
+                  }
+                },
+                "fromDate": "1999-08-17",
+                "toDate": "2022-05-13"
+              },
+              "studentPlans": [
+                {
+                  "academicPlan": {
+                    "plan": {
+                      "code": "96357PHDG",
+                      "description": "Epidemiology PhD",
+                      "formalDescription": "Epidemiology"
+                    },
+                    "type": {
+                      "code": "HS",
+                      "description": "Major - Health Sciences",
+                      "formalDescription": "Major - Health Sciences"
+                    },
+                    "cipCode": "26.1309",
+                    "targetDegree": {
+                      "type": {
+                        "code": "PD",
+                        "description": "Doctor of Philosophy",
+                        "formalDescription": "Doctor of Philosophy"
+                      }
+                    },
+                    "ownedBy": [
+                      {
+                        "organization": {
+                          "code": "GGEPIDM",
+                          "description": "Epidemiology Grad Grp",
+                          "formalDescription": "Epidemiology Graduate Group"
+                        },
+                        "percentage": 1E+2
+                      }
+                    ],
+                    "academicProgram": {
+                      "program": {
+                        "code": "GACAD",
+                        "description": "GR Acd Pgm",
+                        "formalDescription": "Graduate Academic Programs"
+                      },
+                      "academicGroup": {
+                        "code": "GRAD",
+                        "description": "Grad Div",
+                        "formalDescription": "Graduate Division"
+                      },
+                      "academicCareer": {
+                        "code": "GRAD",
+                        "description": "Graduate",
+                        "formalDescription": "Graduate"
+                      }
+                    }
+                  },
+                  "statusInPlan": {
+                    "status": {
+                      "code": "AC",
+                      "description": "Active",
+                      "formalDescription": "Active in Program"
+                    },
+                    "action": {
+                      "code": "DATA",
+                      "description": "Data Chg",
+                      "formalDescription": "Data Change"
+                    },
+                    "reason": {
+                      "code": "GTAC",
+                      "description": "Grad Term - Advisor Change",
+                      "formalDescription": "Graduation Term - Advisor Change"
+                    }
+                  },
+                  "primary": true,
+                  "expectedGraduationTerm": {
+                    "id": "2222",
+                    "name": "2022 Spring",
+                    "category": {
+                      "code": "R",
+                      "description": "Regular Term"
+                    },
+                    "academicYear": "2022",
+                    "beginDate": "2022-01-11",
+                    "endDate": "2022-05-13"
+                  },
+                  "fromDate": "1999-08-17",
+                  "toDate": "2022-05-13"
+                }
+              ],
+              "cumulativeGPA": {
+                "type": {
+                  "code": "CGPA",
+                  "description": "Cumulative GPA"
+                },
+                "average": 3.814,
+                "source": "UCB"
+              },
+              "cumulativeUnits": [
+                {
+                  "type": {
+                    "code": "Total",
+                    "description": "Total Units"
+                  },
+                  "unitsTaken": 156,
+                  "unitsPassed": 156,
+                  "unitsCumulative": 156
+                },
+                {
+                  "type": {
+                    "code": "For GPA",
+                    "description": "Units For GPA"
+                  },
+                  "unitsTaken": 95,
+                  "unitsPassed": 95
+                },
+                {
+                  "type": {
+                    "code": "Not For GPA",
+                    "description": "Units Not For GPA"
+                  },
+                  "unitsTaken": 61,
+                  "unitsPassed": 61
+                }
+              ]
+            }
+          ],
+          "registrations": [
+            {
+              "term": {
+                "id": "2222",
+                "name": "2022 Spring",
+                "category": {
+                  "code": "R",
+                  "description": "Regular Term"
+                },
+                "academicYear": "2022",
+                "beginDate": "2022-01-11",
+                "endDate": "2022-05-13"
+              },
+              "academicCareer": {
+                "code": "GRAD",
+                "description": "Graduate"
+              },
+              "eligibleToRegister": false,
+              "eligibilityStatus": {
+                "code": "C",
+                "description": "Continuing"
+              },
+              "registered": false,
+              "disabled": false,
+              "athlete": false,
+              "intendsToGraduate": false,
+              "academicLevels": [
+                {
+                  "type": {
+                    "code": "BOT",
+                    "description": "Beginning of Term"
+                  },
+                  "level": {
+                    "code": "GR",
+                    "description": "Graduate"
+                  }
+                },
+                {
+                  "type": {
+                    "code": "EOT",
+                    "description": "End of Term"
+                  },
+                  "level": {
+                    "code": "GR",
+                    "description": "Graduate"
+                  }
+                }
+              ],
+              "termUnits": [
+                {
+                  "type": {
+                    "code": "Total",
+                    "description": "Total Units"
+                  },
+                  "unitsMin": 0.5
+                },
+                {
+                  "type": {
+                    "code": "For GPA",
+                    "description": "Units For GPA"
+                  }
+                },
+                {
+                  "type": {
+                    "code": "Not For GPA",
+                    "description": "Units Not For GPA"
+                  },
+                  "unitsMax": 20.5
+                }
+              ],
+              "termGPA": {
+                "type": {
+                  "code": "TGPA",
+                  "description": "Term GPA"
+                },
+                "average": 0,
+                "source": "UCB"
+              },
+              "specialStudyProgram": {
+                "type": {
+                  "code": "BGNNFILING",
+                  "description": "Filing Fee"
+                },
+                "fromDate": "2022-01-11",
+                "toDate": "2022-05-13"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

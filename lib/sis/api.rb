@@ -2,6 +2,8 @@ require 'faraday'
 
 module SIS
   # SIS API module
+
+  # rubocop:disable Metrics/ModuleLength
   module API
 
     #----------------------------------------------------------------#
@@ -76,7 +78,7 @@ module SIS
         req += '&affiliation-status=ALL'
 
         # Max page size is 100 - though API doesn't really stick to it
-        req += '&page-size=100'
+        req += '&page-size=50'
 
         # We'll need to page through the results
         req += "&page-number=#{current_page}"
@@ -86,11 +88,24 @@ module SIS
 
         # https://gateway.api.berkeley.edu/sis/v2/students?term-id=2222&inc-cntc=true&inc-regs=true&page-size=100&page-number=1&as-of-date=2022-02-16
         # Fetch it!
-        res = sis_fetch(req, 'json')
 
-        break loop unless res && res.status == 200
+        response = ''
 
-        response = JSON.parse(res.body)
+        (1..15).each do |i|
+          logger.info "    attempt: #{i}"
+
+          res = sis_fetch(req, 'json')
+
+          break loop unless res && res.status == 200
+
+          # response = JSON.parse(res.body)
+
+          response = parse_body(res)
+
+          break if response
+
+          sleep 2
+        end
 
         # return nil if !response || response == ''
         # return nil unless res.status == 200
@@ -138,6 +153,16 @@ module SIS
 
     private
 
+    def parse_body(res)
+      # return false if res.headers['content-length'] != res.body.length
+      JSON.parse(res.body)
+    rescue JSON::ParserError => e
+      logger.error "JSON PARSING ERROR: #{e}"
+      logger.error "Response headers: #{res.headers.inspect}"
+      logger.error "Body length: #{res.body.length}"
+      false
+    end
+
     def sis_root
       Config.secrets.sis.root
     end
@@ -184,4 +209,5 @@ module SIS
     end
     # rubocop :enable Metrics/MethodLength, Metrics/AbcSize
   end
+  # rubocop:enable Metrics/ModuleLength
 end

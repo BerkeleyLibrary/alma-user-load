@@ -74,8 +74,17 @@ describe SIS::API do
 
   it 'returns empty array after multiple failed attempts' do
     term_id = '2222'
-    stub_request(:get, 'https://gateway.api.berkeley.edu/sis/v2/students?affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=1&page-size=100&term-id=2222')
+    stub_request(:get, 'https://gateway.api.berkeley.edu/sis/v2/students?affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=1&page-size=50&term-id=2222')
       .to_raise('API Error')
+
+    expect { SIS::API.fetch_by_term(term_id) }.to raise_error(StandardError)
+  end
+
+  it 'retries on parser error' do
+    term_id = '2223'
+
+    stub_sis_data(term_id, 1)
+    stub_sis_data(term_id, 2)
 
     expect { SIS::API.fetch_by_term(term_id) }.to raise_error(StandardError)
   end
