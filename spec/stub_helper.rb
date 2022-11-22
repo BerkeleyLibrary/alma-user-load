@@ -92,7 +92,7 @@ def stub_empty_change_log(start_date, end_date)
 end
 
 def stub_past_sis_data(term_id, as_of_date, page_num)
-  sis_fetch_url = "https://gateway.api.berkeley.edu/sis/v2/students?as-of-date=#{as_of_date}&affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=100&term-id=#{term_id}"
+  sis_fetch_url = "https://gateway.api.berkeley.edu/sis/v2/students?as-of-date=#{as_of_date}&affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=50&term-id=#{term_id}"
   stub_request(:get, sis_fetch_url).to_return(
     status: 200,
     body: File.new("spec/data/sis/past_#{term_id}_#{page_num}.json")
@@ -100,7 +100,7 @@ def stub_past_sis_data(term_id, as_of_date, page_num)
 end
 
 def stub_sis_data(term_id, page_num)
-  sis_fetch_url = "https://gateway.api.berkeley.edu/sis/v2/students?affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=100&term-id=#{term_id}"
+  sis_fetch_url = "https://gateway.api.berkeley.edu/sis/v2/students?affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=50&term-id=#{term_id}"
   stub_request(:get, sis_fetch_url).to_return(
     status: 200,
     body: File.new("spec/data/sis/term_#{term_id}_#{page_num}.json")
@@ -108,7 +108,7 @@ def stub_sis_data(term_id, page_num)
 end
 
 def stub_missing_sis_data(term_id, page_num)
-  sis_fetch_url = "https://gateway.api.berkeley.edu/sis/v2/students?affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=100&term-id=#{term_id}"
+  sis_fetch_url = "https://gateway.api.berkeley.edu/sis/v2/students?affiliation-status=ALL&inc-acad=true&inc-cntc=true&inc-regs=true&page-number=#{page_num}&page-size=50&term-id=#{term_id}"
   stub_request(:get, sis_fetch_url).to_return(
     status: 200,
     body: File.new("spec/data/sis/missing_reg_#{term_id}_#{page_num}.json")

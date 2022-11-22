@@ -1,0 +1,99 @@
+{
+  "apiResponse": {
+    "correlationId": "a5543ec6-8bd1-11ec-88bc-0050568de42b",
+    "httpStatus": {
+      "code": "200",
+      "description": "OK"
+    },
+    "responseType": "namespaceURI=\"http://bmeta.berkeley.edu/student/studentV1.xsd\" element=\"students\"",
+    "response": {
+      "students": [
+        {
+          "identifiers": [
+            {
+              "type": "student-id",
+              "id": "10162050",
+              "disclose": false
+            },
+            {
+              "type": "campus-uid",
+              "id": "114278",
+              "disclose": true
+            },
+            {
+              "type": "Social Security Number",
+              "id": "***-**-****",
+              "primary": true,
+              "disclose": false
+            },
+            {
+              "type": "CalNet ID",
+              "id": "deirdra.wilson",
+              "disclose": false,
+              "fromDate": "2021-08-13"
+            },
+            {
+              "type": "DB2",
+              "id": "10162050",
+              "disclose": false,
+              "fromDate": "1902-02-01"
+            }
+          ],
+          "names": [
+            {
+              "type": {
+                "code": "PRF",
+                "description": "Preferred"
+              },
+              "familyName": "Forte",
+              "givenName": "Deirdra",
+              "middleName": "Andre",
+              "formattedName": "Deirdra Andre Forte",
+              "preferred": true,
+              "disclose": false,
+              "uiControl": {
+                "code": "U",
+                "description": "Edit - No Delete"
+              },
+              "fromDate": "1902-02-01"
+            },
+            {
+              "type": {
+                "code": "PRI",
+                "description": "Primary"
+              },
+              "familyName": "Forte",
+              "givenName": "Deirdra",
+              "middleName": "Andre",
+              "formattedName": "Deirdra Andre Forte",
+              "preferred": false,
+              "disclose": false,
+              "uiControl": {
+                "code": "D",
+                "description": "Display Only"
+              },
+              "fromDate": "1902-02-01"
+            }
+          ],
+          "affiliations": [
+            {
+              "type": {
+                "code": "GRADUATE",
+                "description": "Graduate Student",
+                "formalDescription": "An individual with a Graduate-based Career/Program/Plan."
+              },
+              "detail": "Active",
+              "status": {
+                "code": "ACT",
+                "description": "Active",
+                "formalDescription": "Active"
+              },
+              "fromDate": "2015-12-15"
+            }
+          ],
+          "addresses": [
+            {
+              "type": {
+                "code": "HOME",
+                "description": "Home"
+              },
