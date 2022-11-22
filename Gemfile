@@ -2,8 +2,6 @@
 
 source 'https://rubygems.org'
 
-ruby '2.7.2'
-
 # Used to create MD5 to compare SIS recs for changes
 gem 'digest', '~> 3.1'
 
