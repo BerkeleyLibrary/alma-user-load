@@ -55,40 +55,11 @@ module SIS
       loop do
         current_page += 1
 
-        # break loop if current_page > 2
-
         logger.info "  Page: #{current_page}"
 
-        # Build our API Request:
-        req = sis_root
+        req = create_request(term_id, current_page, as_of_date)
 
-        # Add the current term
-        req += "?term-id=#{term_id}"
-
-        # Include Contact Info
-        req += '&inc-cntc=true'
-
-        # Include Registration Info
-        req += '&inc-regs=true'
-
-        # Include Academic Info
-        req += '&inc-acad=true'
-
-        # Make sure we get all users regardless of affiliation-status
-        req += '&affiliation-status=ALL'
-
-        # Max page size is 100 - though API doesn't really stick to it
-        req += '&page-size=50'
-
-        # We'll need to page through the results
-        req += "&page-number=#{current_page}"
-
-        # If we want to run a snapshot for a previous timeframe:
-        req += "&as-of-date=#{as_of_date}" if as_of_date
-
-        # https://gateway.api.berkeley.edu/sis/v2/students?term-id=2222&inc-cntc=true&inc-regs=true&page-size=100&page-number=1&as-of-date=2022-02-16
-        # Fetch it!
-
+        res = ''
         response = ''
 
         (1..15).each do |i|
@@ -96,26 +67,21 @@ module SIS
 
           res = sis_fetch(req, 'json')
 
-          break loop unless res && res.status == 200
-
-          # response = JSON.parse(res.body)
+          next unless res && res.status == 200
 
           response = parse_body(res)
 
+          # Need to break out of this 1..15 loop if we got a full response
           break if response
 
           sleep 2
         end
 
-        # return nil if !response || response == ''
-        # return nil unless res.status == 200
+        break loop unless res && res.status == 200
 
         status = response['apiResponse']['httpStatus']['code']
 
         break loop if status != '200'
-
-        # Remove after dev:
-        # break loop if raw_users.count > 2
 
         # Extract the students array from the response
         students = response['apiResponse']['response']['students'] || 0
@@ -153,10 +119,41 @@ module SIS
 
     private
 
+    def create_request(term_id, current_page, as_of_date)
+      # Build our API Request:
+      req = sis_root
+
+      # Add the current term
+      req += "?term-id=#{term_id}"
+
+      # Include Contact Info
+      req += '&inc-cntc=true'
+
+      # Include Registration Info
+      req += '&inc-regs=true'
+
+      # Include Academic Info
+      req += '&inc-acad=true'
+
+      # Make sure we get all users regardless of affiliation-status
+      req += '&affiliation-status=ALL'
+
+      # Max page size is 100 - though API doesn't really stick to it
+      req += '&page-size=50'
+
+      # We'll need to page through the results
+      req += "&page-number=#{current_page}"
+
+      # If we want to run a snapshot for a previous timeframe:
+      req += "&as-of-date=#{as_of_date}" if as_of_date
+
+      req
+    end
+
     def parse_body(res)
-      # return false if res.headers['content-length'] != res.body.length
       JSON.parse(res.body)
     rescue JSON::ParserError => e
+      # return false if we run into a JSON parsing error
       logger.error "JSON PARSING ERROR: #{e}"
       logger.error "Response headers: #{res.headers.inspect}"
       logger.error "Body length: #{res.body.length}"
