@@ -21,9 +21,13 @@ module SIS
     #----------------------------------------------------------------#
     def current_term
       # Prefix is the year, minus the 2nd digit (WEIRD!)
-      prefix = Date.today.year.to_s
+      prefix = Date.today.year.to_i
+
+      # Remember - if it's December and we're
+      prefix += 1 if Date.today.month == 12
 
       # Remove that digit!
+      prefix = prefix.to_s
       prefix.slice!(1, 1)
 
       # Return the prefix plus the term code for Fall||Spring||Summer
@@ -42,6 +46,33 @@ module SIS
         # Fall
         '8'
       end
+    end
+
+    # Because we change term at the beginning of the month (or in the case of December
+    # the beginning of the prior month) of when the new term actually begins we have
+    # to set an "as-of-date" in the query string beyond the term start date. Here I
+    # set the start date to the last day of the month where the new term begins:
+    # Example:
+    # Spring 2023 term offical start date is January 10th - so I
+    # set to January 31st
+    def as_of_date
+      case Date.today.month
+      when 12
+        # We need to set an as-of-date of January 31st of the FOLLOWING year
+        # Have to do this because the spring term starts the next year.
+        "#{Date.today.year + 1}-01-31"
+      when 1
+        # We need to set an as-of-date of January 31st of the current year
+        "#{Date.today.year}-01-31"
+      when 5
+        # We need to set an as-of-date of May 31st of the current year
+        "#{Date.today.year}-05-31"
+      when 8
+        # We need to set an as-of-date of August 31st of the current year
+        "#{Date.today.year}-08-31"
+      end
+
+      # Otherwise we return nil
     end
 
     # Fetch term by ID - can include as_of_date filter changes by a date

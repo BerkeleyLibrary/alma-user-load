@@ -11,7 +11,9 @@ module SIS
 
   def run_sis(setup)
     term_id = setup.term_id || SIS::API.current_term
-    logger.info "Running SIS\nTerm ID: #{term_id}\nRequest Root: #{sis_root}"
+    as_of_date = SIS::API.as_of_date
+
+    logger.info "Running SIS\nTerm ID: #{term_id}\nRequest Root: #{sis_root} As-of-Date #{as_of_date}"
 
     #----------------------------------------------------------------#
     # Setup our XML file
@@ -19,7 +21,7 @@ module SIS
 
     #----------------------------------------------------------------#
     # Fetch the entire set of users by term
-    raw_users = SIS::API.fetch_by_term(term_id)
+    raw_users = SIS::API.fetch_by_term(term_id, as_of_date)
     raw_users.each do |user|
       writer.write(SIS::Student.new(user))
     end
