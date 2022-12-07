@@ -8,7 +8,7 @@ require 'nokogiri'
 # rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant
 describe SIS do
   it 'runs sis' do
-    allow(Date).to receive(:today).and_return Date.new(2022, 5, 31)
+    allow(Date).to receive(:today).and_return Date.new(2022, 6, 1)
 
     term_id = '2222'
     stub_past_sis_data(term_id, '2022-04-10', 1)
@@ -87,6 +87,40 @@ describe SIS::API do
     stub_sis_data(term_id, 2)
 
     expect { SIS::API.fetch_by_term(term_id) }.to raise_error(StandardError)
+  end
+
+  it 'returns the correct as-of-date for month of December' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 12, 28)
+    expected_date = '2023-01-31'
+    actual_date = SIS::API.as_of_date
+    expect(actual_date).to eq(expected_date)
+  end
+
+  it 'returns the correct as-of-date for month of January' do
+    allow(Date).to receive(:today).and_return Date.new(2023, 1, 1)
+    expected_date = '2023-01-31'
+    actual_date = SIS::API.as_of_date
+    expect(actual_date).to eq(expected_date)
+  end
+
+  it 'returns the correct as-of-date for month of May' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 5, 1)
+    expected_date = '2022-05-31'
+    actual_date = SIS::API.as_of_date
+    expect(actual_date).to eq(expected_date)
+  end
+
+  it 'returns the correct as-of-date for month of August' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 8, 1)
+    expected_date = '2022-08-31'
+    actual_date = SIS::API.as_of_date
+    expect(actual_date).to eq(expected_date)
+  end
+
+  it 'returns nil as-of-date for non Jan, May, Aug, Dec' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 9, 1)
+    actual_date = SIS::API.as_of_date
+    expect(actual_date).to be_nil
   end
 end
 
