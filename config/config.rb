@@ -37,6 +37,10 @@ class Config
   sis_contents = File.read('config/sis_fields.yml')
   @sis_fields = YAML.safe_load(ERB.new(sis_contents).result)
 
+  # Over-ride the LDAP host if we're in CI land... JUST to make 
+  # sure we don't hit the actual host when we're running rspec!
+  @secrets.ldap.host = 'ldap.fake.edu' if ENV['CI']
+
   # Returns ostruct of the secrets yaml file
   class << self
     attr_reader :secrets
