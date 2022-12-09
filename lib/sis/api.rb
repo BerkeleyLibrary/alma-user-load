@@ -93,7 +93,8 @@ module SIS
         res = ''
         response = ''
 
-        (1..15).each do |i|
+        # Now that SIS fixed their jenky
+        (1..5).each do |i|
           logger.info "    attempt: #{i}"
 
           res = sis_fetch(req, 'json')
@@ -102,7 +103,7 @@ module SIS
 
           response = parse_body(res)
 
-          # Need to break out of this 1..15 loop if we got a full response
+          # Need to break out of this 1..5 loop if we got a full response
           break if response
 
           sleep 2

@@ -1,5 +1,3 @@
-# frozen_string_literal: false
-
 require 'spec_helper'
 require 'stub_helper'
 require 'ostruct'
@@ -29,6 +27,9 @@ describe UCPath do
     stub_ucpath_user('10000004')
     stub_ucpath_jobs('10000004')
 
+    # Mock LDAP
+    allow(LDAP::API).to receive('fetch_ldap_rec').with('112823').and_return(nil)
+
     Dir.mktmpdir do |dir|
       outpath = Pathname.new(dir)
 
@@ -52,6 +53,9 @@ describe UCPath do
     id = '10000005'
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
+
+    # Mock LDAP
+    allow(LDAP::API).to receive('fetch_ldap_rec').with('112823').and_return(nil)
 
     Dir.mktmpdir do |dir|
       outpath = Pathname.new(dir)
@@ -100,8 +104,10 @@ describe UCPath::User do
 
   it 'is a ucpath user object' do
     id = '10527060'
+    ldap_id = '1628831'
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
+    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
 
     u = UCPath::User.new(id)
     expect(u).to be_kind_of(User)
@@ -119,7 +125,7 @@ describe UCPath::User do
       auth: { method: :simple,
               password: 'MISSING',
               username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-      host: 'ldap.berkeley.edu',
+      host: 'ldap.fake.edu',
       port: 389
     }
 
@@ -153,7 +159,7 @@ describe UCPath::User do
       auth: { method: :simple,
               password: 'MISSING',
               username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-      host: 'ldap.berkeley.edu',
+      host: 'ldap.fake.edu',
       port: 389
     }
 
@@ -189,7 +195,9 @@ describe UCPath::User do
   # Collapse these into a single array driven test
   it 'sets user group libstaff' do
     ucpath_id = '10527060'
+    ldap_id = '1628831'
     stub_ucpath_user(ucpath_id)
+    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
 
     override_jobs_stub(ucpath_id,
                        {
@@ -205,6 +213,9 @@ describe UCPath::User do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
 
+    ldap_id = '1628831'
+    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
+
     override_jobs_stub(ucpath_id,
                        {
                          'job_code' => 'CWR003'
@@ -218,6 +229,9 @@ describe UCPath::User do
   it 'sets user group UCEXT' do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
+
+    ldap_id = '1628831'
+    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
 
     override_jobs_stub(ucpath_id,
                        {
@@ -234,6 +248,9 @@ describe UCPath::User do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
 
+    ldap_id = '1628831'
+    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
+
     override_jobs_stub(ucpath_id,
                        {
                          'job_code' => '001132'
@@ -246,6 +263,9 @@ describe UCPath::User do
   it 'sets user group EXECUTIVE' do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
+
+    ldap_id = '1628831'
+    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
 
     override_jobs_stub(ucpath_id,
                        {
@@ -261,6 +281,9 @@ describe UCPath::User do
   it 'sets user group NONACAD' do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
+
+    ldap_id = '1628831'
+    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
 
     override_jobs_stub(ucpath_id, {
                          'job_code' => 'dummycode',
@@ -285,7 +308,7 @@ describe UCPath::User do
       auth: { method: :simple,
               password: 'MISSING',
               username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-      host: 'ldap.berkeley.edu',
+      host: 'ldap.fake.edu',
       port: 389
     }
 
@@ -330,7 +353,7 @@ describe UCPath::User do
         auth: { method: :simple,
                 password: 'MISSING',
                 username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-        host: 'ldap.berkeley.edu',
+        host: 'ldap.fake.edu',
         port: 389
       }
 
@@ -367,7 +390,7 @@ describe UCPath::User do
       auth: { method: :simple,
               password: 'MISSING',
               username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-      host: 'ldap.berkeley.edu',
+      host: 'ldap.fake.edu',
       port: 389
     }
 
@@ -402,7 +425,7 @@ describe UCPath::User do
       auth: { method: :simple,
               password: 'MISSING',
               username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-      host: 'ldap.berkeley.edu',
+      host: 'ldap.fake.edu',
       port: 389
     }
 
@@ -437,7 +460,7 @@ describe UCPath::User do
       auth: { method: :simple,
               password: 'MISSING',
               username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-      host: 'ldap.berkeley.edu',
+      host: 'ldap.fake.edu',
       port: 389
     }
 
@@ -477,7 +500,7 @@ describe UCPath::User do
       auth: { method: :simple,
               password: 'MISSING',
               username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-      host: 'ldap.berkeley.edu',
+      host: 'ldap.fake.edu',
       port: 389
     }
 
@@ -518,7 +541,7 @@ describe UCPath::User do
       auth: { method: :simple,
               password: 'MISSING',
               username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' },
-      host: 'ldap.berkeley.edu',
+      host: 'ldap.fake.edu',
       port: 389
     }
 

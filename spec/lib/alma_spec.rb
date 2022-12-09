@@ -64,13 +64,18 @@ describe Alma::XMLBuilder do
     ucpath_id = '10000004'
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
+
+    # Mock LDAP fetch and return nil for this record....
+    ldap_id = '112823'
+    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(nil)
+
     user1 = UCPath::User.new(ucpath_id)
 
     ucpath_id = '10000007'
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # Stub a fake LDAP rec so we make sure we don't have an email/phone
+    # Mock fake LDAP rec to make sure we don't have an email/phone
     # for this record...
     ldap_id = '112823'
     ldap_data = OpenStruct.new
