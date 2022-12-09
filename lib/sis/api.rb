@@ -93,7 +93,7 @@ module SIS
         res = ''
         response = ''
 
-        # Now that SIS fixed their jenky 
+        # Now that SIS fixed their jenky
         (1..5).each do |i|
           logger.info "    attempt: #{i}"
 
