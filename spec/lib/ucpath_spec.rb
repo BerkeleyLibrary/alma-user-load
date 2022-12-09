@@ -30,19 +30,18 @@ describe UCPath do
     # Mock LDAP
     allow(LDAP::API).to receive('fetch_ldap_rec').with('112823').and_return(nil)
 
-    
     Dir.mktmpdir do |dir|
       outpath = Pathname.new(dir)
-      
+
       ARGV = ['--type', 'ucpath', '-s', '2022-04-10', '-e', '2022-04-13', '--outdir', outpath]
       setup = Helpers::Setup.new
       UCPath.run_ucpath setup
-      
+
       # Since the fixture is static but the start date value is dynamic we
       # need to swap that out before we do the comparison
       expected_file = File.read('spec/data/ucpath/expected_xml_1.xml')
       expected_file.gsub!(%r{<start_date>2022-04-19</start_date>}, "<start_date>#{Date.today}</start_date>")
-      
+
       expect(File.exist?(setup.zip_path)).to eq(true)
 
       # TODO: Figure out why disable_net_connect isn't working locally
@@ -213,7 +212,7 @@ describe UCPath::User do
   it 'sets user group UCBVISSCHOL' do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
-    
+
     ldap_id = '1628831'
     allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
 
