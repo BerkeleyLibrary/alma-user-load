@@ -62,10 +62,12 @@ module UCPath
       job_eligible = false if !(!j.expected_end_date || j.expected_end_date == '') && (Date.iso8601(j.expected_end_date) <= Date.today)
 
       # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
-      #    the Visiting Scholar category.
-      if !(!j.org_relationship_code || j.org_relationship_code == '') && (j.org_relationship_code == 'CWR') && !Config.check_ucpath_code(
+      #    the Visiting Scholar category
+      #    or UCB Academic Dept Affiliate Code (per SD-97)
+      if !(!j.org_relationship_code || j.org_relationship_code == '') && j.org_relationship_code == 'CWR' && (!Config.check_ucpath_code(
         'Visiting Scholar Job Code', j.job_code
-      )
+      ) &&
+            !Config.check_ucpath_code('UCB Academic Dept Affiliate Code', j.job_code))
         job_eligible = false
       end
 

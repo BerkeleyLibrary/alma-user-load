@@ -153,6 +153,8 @@ module UCPath
                          'UCB POST'
                        elsif Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
                          'UCBVISSCHOL'
+                       elsif Config.check_ucpath_code('UCB Academic Dept Affiliate Code', j.job_code)
+                         'UCBAFFILI'
                        elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) &&
                               Config.check_ucpath_code('UC Extension Faculty', j.dept_code)
                          'UCEXT'
