@@ -192,6 +192,15 @@ describe UCPath::User do
     expect(u.eligible?).to be(false)
   end
 
+  it 'marks job ineligible if users job has an expected end date in the past' do
+    ucpath_id = '10000006'
+    stub_ucpath_user(ucpath_id)
+    stub_ucpath_jobs(ucpath_id)
+
+    u = UCPath::User.new(ucpath_id)
+    expect(u.eligible?).to be(false)
+  end
+
   # Collapse these into a single array driven test
   it 'sets user group libstaff' do
     ucpath_id = '10527060'
