@@ -34,15 +34,15 @@ SIS:
       status: OPTIONAL
 
     - name: prim_name_familyname
-      jpath: "$.names[?(@.type.code=='PRI')].familyName"
+      jpath: "$.names[?(@.type.code=='PRF')].familyName"
       status: OPTIONAL
 
     - name: prim_name_givenname
-      jpath: "$.names[?(@.type.code=='PRI')].givenName"
+      jpath: "$.names[?(@.type.code=='PRF')].givenName"
       status: OPTIONAL
 
     - name: prim_name_middlename
-      jpath: "$.names[?(@.type.code=='PRI')].middleName"
+      jpath: "$.names[?(@.type.code=='PRF')].middleName"
       status: OPTIONAL
 
     - name: locl_address_address1

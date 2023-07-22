@@ -126,13 +126,13 @@ module Alma
           #   }
           # end
 
-          # PREFERRED NAME if we be hav'in it!
-          if r.preferred_name
-            xml.pref_first_name   r.pref_name_givenname
-            xml.pref_middle_name  r.pref_name_middlename
-            xml.pref_last_name    r.pref_name_familyname
-            xml.pref_full_name    r.pref_name_fullname
-          end
+          # AP-0182 : Use preferred names above and don't populate here
+          # if r.preferred_name
+          #   xml.pref_first_name   r.pref_name_givenname
+          #   xml.pref_middle_name  r.pref_name_middlename
+          #   xml.pref_last_name    r.pref_name_familyname
+          #   xml.pref_full_name    r.pref_name_fullname
+          # end
         end
       end
       # rubocop :enable Metrics/BlockLength

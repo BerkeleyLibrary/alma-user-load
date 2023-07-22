@@ -120,19 +120,6 @@ module UCPath
       rec.full_name += " #{rec.middle_name}" if rec.middle_name
       rec.full_name += " #{rec.last_name}"
 
-      # preferred names: (if present in UCPath)
-      rec.pref_name_givenname = ucpath_rec.pref_name_givenname unless ucpath_rec.pref_name_givenname.empty?
-      rec.pref_name_familyname = ucpath_rec.pref_name_familyname unless ucpath_rec.pref_name_familyname.empty?
-      rec.pref_name_middlename = ucpath_rec.pref_name_middlename unless ucpath_rec.pref_name_middlename.empty?
-
-      # Set the Full Name:
-      if rec.pref_name_givenname && rec.pref_name_familyname
-        rec.preferred_name = true
-        rec.pref_name_fullname = rec.pref_name_givenname
-        rec.pref_name_fullname += " #{rec.pref_name_middlename}" unless rec.pref_name_middlename.nil?
-        rec.pref_name_fullname += " #{rec.pref_name_familyname}"
-      end
-
       # USER_GROUP - Probably spin this off to a separate function!
       rec.user_group = nil
 
