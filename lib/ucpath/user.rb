@@ -71,6 +71,16 @@ module UCPath
       create_user_record
 
       #----------------------------------------------------------------#
+      # Do not have email??? Then do not pass go, do not collect two hundred dollars!!!
+      #
+      # Note - we cannot use the "REQUIRED" status from the config fields in order to set
+      #        eligibility since we can get the email address from either UCPath OR LDAP
+      if eligible? && !email?
+        logger.info "#{id} - Ineligible: No email address found"
+        @eligible = false
+      end
+
+      #----------------------------------------------------------------#
       # CLEANUP - recover some memory
       # At this point I need @rec, @eligible, @id
       # I don't need: @jobs, @user, @ldap, @ucpath_rec
@@ -234,6 +244,14 @@ module UCPath
     end
 
     private
+
+    def email?
+      return false if rec.contact_info.emails.nil?
+      return false if rec.contact_info.emails.email_address.nil?
+      return false if rec.contact_info.emails.email_address.empty?
+
+      true
+    end
 
     def create_addresses(job)
       create_address(job)

@@ -89,7 +89,7 @@ SIS:
 
     - name: email_emailaddress
       jpath: "$.emails[?(@.primary==true)].emailAddress"
-      status: OPTIONAL
+      status: REQUIRED
 
     - name: phone_number
       jpath: "$.phones[?(@.primary==true)].number"
