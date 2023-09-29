@@ -71,6 +71,16 @@ module UCPath
       create_user_record
 
       #----------------------------------------------------------------#
+      # Do not have email??? Then do not pass go, do not collect two hundred dollars!!!
+      #
+      # Note - we cannot use the "REQUIRED" status from the config fields in order to set
+      #        eligibility since we can get the email address from either UCPath OR LDAP
+      if eligible? && !email?
+        logger.info "#{id} - Ineligible: No email address found"
+        @eligible = false
+      end
+
+      #----------------------------------------------------------------#
       # CLEANUP - recover some memory
       # At this point I need @rec, @eligible, @id
       # I don't need: @jobs, @user, @ldap, @ucpath_rec
@@ -119,19 +129,6 @@ module UCPath
       rec.full_name = rec.first_name
       rec.full_name += " #{rec.middle_name}" if rec.middle_name
       rec.full_name += " #{rec.last_name}"
-
-      # preferred names: (if present in UCPath)
-      rec.pref_name_givenname = ucpath_rec.pref_name_givenname unless ucpath_rec.pref_name_givenname.empty?
-      rec.pref_name_familyname = ucpath_rec.pref_name_familyname unless ucpath_rec.pref_name_familyname.empty?
-      rec.pref_name_middlename = ucpath_rec.pref_name_middlename unless ucpath_rec.pref_name_middlename.empty?
-
-      # Set the Full Name:
-      if rec.pref_name_givenname && rec.pref_name_familyname
-        rec.preferred_name = true
-        rec.pref_name_fullname = rec.pref_name_givenname
-        rec.pref_name_fullname += " #{rec.pref_name_middlename}" unless rec.pref_name_middlename.nil?
-        rec.pref_name_fullname += " #{rec.pref_name_familyname}"
-      end
 
       # USER_GROUP - Probably spin this off to a separate function!
       rec.user_group = nil
@@ -247,6 +244,14 @@ module UCPath
     end
 
     private
+
+    def email?
+      return false if rec.contact_info.emails.nil?
+      return false if rec.contact_info.emails.email_address.nil?
+      return false if rec.contact_info.emails.email_address.empty?
+
+      true
+    end
 
     def create_addresses(job)
       create_address(job)

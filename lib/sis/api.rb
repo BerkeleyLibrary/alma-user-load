@@ -93,7 +93,8 @@ module SIS
         res = ''
         response = ''
 
-        # Now that SIS fixed their jenky
+        # We should give it 4 or 5 tries when hitting the API
+        # since they've sort of hosed their API in the past.
         (1..5).each do |i|
           logger.info "    attempt: #{i}"
 

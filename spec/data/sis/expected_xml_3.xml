@@ -3,9 +3,9 @@
 <user>
   <record_type>PUBLIC</record_type>
   <primary_id>10162050</primary_id>
-  <first_name>Deirdra</first_name>
-  <middle_name>Andre</middle_name>
-  <last_name>Forte</last_name>
+  <first_name>Givenname1</first_name>
+  <middle_name>Middlename1</middle_name>
+  <last_name>Familyname1</last_name>
   <full_name/>
   <job_description>Epidemiology PhD</job_description>
   <user_group>GRADSTUD</user_group>
@@ -69,17 +69,13 @@
       <status>ACTIVE</status>
     </user_identifier>
   </user_identifiers>
-  <pref_first_name>Deirdra</pref_first_name>
-  <pref_middle_name>Andre</pref_middle_name>
-  <pref_last_name>Forte</pref_last_name>
-  <pref_full_name/>
 </user>
 <user>
   <record_type>PUBLIC</record_type>
   <primary_id>10162000</primary_id>
-  <first_name>Fake</first_name>
-  <middle_name>D</middle_name>
-  <last_name>Person</last_name>
+  <first_name>PreferredGiven2</first_name>
+  <middle_name>PreferredMiddle2</middle_name>
+  <last_name>PreferredFamily2</last_name>
   <full_name/>
   <job_description>Epidemiology PhD</job_description>
   <user_group>GRADSTUD</user_group>
@@ -143,9 +139,5 @@
       <status>ACTIVE</status>
     </user_identifier>
   </user_identifiers>
-  <pref_first_name>Fake</pref_first_name>
-  <pref_middle_name>Dude</pref_middle_name>
-  <pref_last_name>Person</pref_last_name>
-  <pref_full_name/>
 </user>
 </users>

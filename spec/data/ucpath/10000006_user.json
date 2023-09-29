@@ -29,8 +29,8 @@
       "names": [
         {
           "type": {
-            "code": "PRI",
-            "description": "Primary"
+            "code": "PRF",
+            "description": "Preferred"
           },
           "givenName": "Mahsa",
           "lastChangedBy": {
