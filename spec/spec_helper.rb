@@ -1,18 +1,7 @@
-# frozen_string_literal: true
-
+require 'simplecov'
 require 'webmock/rspec'
 
-# require 'simplecov'
 # SimpleCov.start
-
-# TODO: setup environment so simplecov runs in dev but not prod
-# if ENV['ALMAUSERLOAD_ENV'] == 'test'
-# rubocop:disable Lint/BinaryOperatorWithIdenticalOperands
-if 1 == 1
-  require 'simplecov'
-  SimpleCov.start
-end
-# rubocop:enable Lint/BinaryOperatorWithIdenticalOperands
 
 require_relative '../config/config'
 require_relative '../lib/sis'

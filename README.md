@@ -94,3 +94,4 @@ ___
 - SIS - add run by user id (similar to how I setup ucpath)
 - Move 'create_user_record' from user.rb to a separate class
 - Add a check to make sure all necessary config settings are set!
+- Add run by campus-uid to ucpath

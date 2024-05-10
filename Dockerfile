@@ -42,6 +42,7 @@ WORKDIR /opt/app
 # Run as the application user to minimize risk to the host.
 USER $APP_USER
 
+
 # Add binstubs to the path.
 ENV PATH="/opt/app/bin:$PATH"
 
@@ -76,7 +77,7 @@ RUN apt-get install -y --no-install-recommends \
 USER $APP_USER
 
 # Base image ships with an older version of bundler
-RUN gem install bundler --version 2.2.33
+RUN gem install bundler --version 2.3.25
 
 # Install gems. We don't enforce the validity of the Gemfile.lock until the
 # final (production) stage.
