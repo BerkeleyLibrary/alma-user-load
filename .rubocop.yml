@@ -92,3 +92,7 @@ Style/SingleLineBlockParams:
 # For now allowing my obsesive use of OpenStructs
 Style/OpenStructUse:
   Enabled: false
+
+# Rubocop hates it, but Docker is forcing the issue...
+Style/HashSyntax:
+  Enabled: false
