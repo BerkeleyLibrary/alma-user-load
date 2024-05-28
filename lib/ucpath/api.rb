@@ -7,6 +7,9 @@ module UCPath
   module API
     def fetch_ucpath_rec(id)
       req = url_root + "employees/#{id}?id-type=hr-employee-id"
+      
+      # Use Campus UID
+      # req = url_root + "employees/#{id}?id-type=campus-uid"
 
       # Fetch the Users Record
       res = managed_fetch("#{id} - UCPath User", req, 'json')
@@ -27,6 +30,9 @@ module UCPath
 
     def fetch_ucpath_jobs(id)
       req = url_root + "employees/#{id}/jobs?id-type=hr-employee-id"
+      
+      # Use Campus UID
+      # req = url_root + "employees/#{id}/jobs?id-type=campus-uid"
 
       # Fetch the Users Jobs
       res = managed_fetch("#{id} - UCPath Job", req, 'json')
