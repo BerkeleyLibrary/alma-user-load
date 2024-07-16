@@ -310,7 +310,7 @@ describe UCPath::User do
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] },
       { 'telephonenumber' => ['925-555-1234'] },
-      { 'berkeleyeduofficialemail' => ['fake@email.edu'] }
+      { 'berkeleyedualternateid' => ['fake@email.edu'] }
     ]
 
     allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)

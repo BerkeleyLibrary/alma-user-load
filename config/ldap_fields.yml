@@ -23,6 +23,7 @@ Attributes:
   - postalAddress
   - postalCode
   - telephoneNumber
+  - mail
 
 Student Affiliation:
   - "STUDENT-TYPE-REGISTERED"

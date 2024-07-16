@@ -300,10 +300,15 @@ module UCPath
     # then if not found use the primary email address from the       #
     # Employee record if it exists, otherwise use any other email    #
     # address from the record.                                       #
+    #                                                                #
+    # UPDATE: 2024-05-20 (DP-1058)                                   #
+    # No longer use the 'berkeleyEduOfficialEmail' that has been     #
+    # deprecated by CalNet. Instead use the 'berkeleyedualternateid' #
+    # which will always be the official '@berkeley.edu' address      #
     #----------------------------------------------------------------#
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def create_email
-      if ldap.nil? || !ldap.berkeleyeduofficialemail || ldap.berkeleyeduofficialemail.first == ''
+      if ldap.nil? || !ldap.berkeleyedualternateid || ldap.berkeleyedualternateid.first == ''
         # return nil if ucpath_rec.email.blank?
         return nil unless ucpath_rec.email
 
@@ -313,7 +318,7 @@ module UCPath
       else
         e = Email.new
         e.preferred = 'true'
-        e.email_address = ldap.berkeleyeduofficialemail.first
+        e.email_address = ldap.berkeleyedualternateid.first
       end
 
       e.email_types = 'work'

@@ -8,7 +8,6 @@ module LDAP
   module API
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def fetch_ldap_rec(id)
-      logger.info '  starting LDAP fetch'
       ldap_rec = OpenStruct.new
       filter = Net::LDAP::Filter.eq('uid', id)
 
@@ -20,7 +19,6 @@ module LDAP
         ldap = ldap_connection
         attempts += 1
         sleep(5) if attempts > 1
-        logger.info "  Attempt: #{attempts}" if attempts > 1
 
         ldap.bind
         ldap.search(base: base, filter: filter) do |entry|
@@ -35,7 +33,6 @@ module LDAP
         return nil
       end
       logger.info '  LDAP Error: Recovered from LDAP Error!' if attempts > 1
-      logger.info '  finished LDAP fetch'
       ldap_rec
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
