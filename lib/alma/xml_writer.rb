@@ -40,7 +40,10 @@ module Alma
     end
 
     def prolog_and_opening_tag
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<users>\n"
+      tag = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      tag += "<!-- GIT_COMMIT:#{ENV['GIT_COMMIT']} -->\n"
+      tag += "<users>\n"
+      tag
     end
 
     def ensure_io(file)
