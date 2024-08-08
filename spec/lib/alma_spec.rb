@@ -37,7 +37,7 @@ describe Alma::XMLWriter do
       Alma::XMLWriter.open(out) { |w| w.write(@student_rec) }
       actual = File.read(out)
       xml = Alma::XMLBuilder.new(@student_rec).build
-      expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<users>\n#{xml}\n</users>"
+      expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!-- GIT_COMMIT:LOCAL_TESTING -->\n<users>\n#{xml}\n</users>"
       expect(actual).to eq(expected)
     end
   end
@@ -51,7 +51,7 @@ describe Alma::XMLWriter do
       actual = File.read(out)
 
       xml = Alma::XMLBuilder.new(@student_rec).build
-      expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<users>\n#{xml}\n</users>"
+      expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!-- GIT_COMMIT:LOCAL_TESTING -->\n<users>\n#{xml}\n</users>"
 
       expect(actual).to eq(expected)
     end
