@@ -42,6 +42,8 @@ module Alma
     def prolog_and_opening_tag
       tag = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       tag += "<!-- GIT_COMMIT:#{ENV['GIT_COMMIT']} -->\n"
+      tag += "<!-- DOCKER_TAG:#{ENV['DOCKER_TAG']} -->\n"
+      tag += "<!-- VERSION: 1.5.4 -->\n"
       tag += "<users>\n"
       tag
     end
