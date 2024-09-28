@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- GIT_COMMIT:LOCAL_TESTING -->
+<!-- DOCKER_TAG:DEV -->
+<!-- VERSION: 1.5.4 -->
 <users>
 <user>
   <record_type>PUBLIC</record_type>

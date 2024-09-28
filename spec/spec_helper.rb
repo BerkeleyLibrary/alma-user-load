@@ -39,6 +39,7 @@ RSpec.configure do |config|
   # Mock ENVs for testing
   config.before(:each) do
     ENV['GIT_COMMIT'] = 'LOCAL_TESTING'
+    ENV['DOCKER_TAG'] = 'DEV'
   end
 
   config.color = true
