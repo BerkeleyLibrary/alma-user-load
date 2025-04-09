@@ -7,7 +7,7 @@ Ex Libris pulls the XML files from our SFTP server.
 UCPath: upload.lib.berkeley.edu/alma/patron_employees
 SIS: upload.lib.berkeley.edu/alma/patron_students
 
-Additional documentation can be found on B-Drive: [link](https://drive.google.com/drive/folders/1pOEKi2d5SQ4VZpwjQzUwuArwBbUJzvcF)
+Additional documentation can be found on B-Drive: [link](https://drive.google.com/drive/folders/1qO_7oD4tzDO9H4UMHrms7-ONzHdQ4gU2)
 
 ___
 
