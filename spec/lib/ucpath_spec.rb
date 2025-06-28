@@ -30,6 +30,7 @@ describe UCPath do
 
     # Mock LDAP
     allow(LDAP::API).to receive('fetch_ldap_rec').with('112823').and_return(nil)
+    allow(LDAP::API).to receive('fetch_ldap_rec').with('1628831').and_return(nil)
 
     Dir.mktmpdir do |dir|
       outpath = Pathname.new(dir)
@@ -44,9 +45,6 @@ describe UCPath do
       expected_file.gsub!(%r{<start_date>2022-04-19</start_date>}, "<start_date>#{Date.today}</start_date>")
 
       expect(File.exist?(setup.zip_path)).to eq(true)
-
-      # TODO: Figure out why disable_net_connect isn't working locally
-      # expect(File.read(setup.xml_path)).to eq(expected_file)
     end
   end
 
@@ -155,24 +153,6 @@ describe UCPath::User do
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.first_name).to eq('test_first_name')
     expect(u.rec.last_name).to eq('test_last_name')
-  end
-
-  it 'marks job ineligible if hr_status_code is not "A"' do
-    ucpath_id = '10000003'
-    stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
-
-    u = UCPath::User.new(ucpath_id)
-    expect(u.eligible?).to be(false)
-  end
-
-  it 'marks job ineligible if users job has an expected end date in the past' do
-    ucpath_id = '10000006'
-    stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
-
-    u = UCPath::User.new(ucpath_id)
-    expect(u.eligible?).to be(false)
   end
 
   # Collapse these into a single array driven test
@@ -469,6 +449,18 @@ describe UCPath::User do
     id = '10000006'
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
+
+    # Stub our LDAP
+    ldap_id = '1628831'
+    ldap_stub = stub_ldap(ldap_id)
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
+    expect(ldap_stub['connection']).to receive(:bind)
+    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1])
 
     u = UCPath::User.new(id)
     expect(u.errors).to include("#{id} - Missing required field: ucpath_employee_id")

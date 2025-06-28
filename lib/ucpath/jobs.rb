@@ -7,7 +7,22 @@ require_relative '../alma'
 
 module UCPath
   class Jobs
-    attr_accessor :job
+    attr_accessor :job, :first_job
+
+    class << self
+      # We're no longer skipping users who do not have an eligible job.
+      # But we still need a "job record" quick and dirty to create a dummy job
+      # and set the expiration date (expected_end_date) to today.
+      def dummy_job
+        OpenStruct.new(
+          hr_status_code: 'I',
+          expected_end_date: Date.today.to_s,
+          org_relationship_code: nil,
+          dept_desc: '',
+          job_code: nil
+        )
+      end
+    end
 
     def initialize(id)
       # Fetch the raw job data
@@ -16,10 +31,10 @@ module UCPath
       return if job_data.nil?
 
       # Break the jobs data into an array using jsonpath
-      raw_jobs = JsonPath.on(job_data, '$..response[*].jobs')
-      return unless raw_jobs.count.positive?
+      job_list = JsonPath.on(job_data, '$..response[*].jobs')
+      return unless job_list.count.positive?
 
-      @job = find_eligible_job(raw_jobs)
+      @job = find_eligible_job(job_list)
     end
 
     def eligible_job?
@@ -30,23 +45,20 @@ module UCPath
     private
 
     # Extract the data from the raw jobs into the fields we need
+    # config/ucpath_fields.yml contains the fields/jpath we want to extract
     def find_eligible_job(raw_jobs)
       raw_jobs.first.each do |job_hash|
-        j = job_hash.to_json
+        job = OpenStruct.new(
+          Config.ucpath_job_fields.to_h do |field|
+            [field['name'], JsonPath.on(job_hash, field['jpath']).first || '']
+          end
+        )
 
-        job = OpenStruct.new
-
-        # config/ucpath_fields.yml contains the fields/jpath we need
-        Config.ucpath_job_fields.each do |field|
-          value = JsonPath.on(j, field['jpath']).first || ''
-          job[field['name']] = value if value
-        end
-
-        # Return this job struct if it's eligible
+        # First one - save it incase we don't find any eligible jobs!
+        @first_job ||= job
         return job if check_if_eligible(job)
       end
 
-      # No eligible jobs found, return nil
       nil
     end
 

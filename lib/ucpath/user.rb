@@ -51,14 +51,21 @@ module UCPath
       @jobs = Jobs.new(id)
 
       #----------------------------------------------------------------#
-      # NO ELIGIBLE JOB - NO REASON TO PROCEED!
+      # NO ELIGIBLE JOB
+      # This used to mean we'd just skip this user and move on
+      # now what we need to do is update the user's expiration date
+      # to the current date so that they will get purged from Alma
       unless @jobs.eligible_job?
-        @user = nil
-        @jobs = nil
-        @rec = nil
-        @ucpath_rec = nil
-        logger.info "#{id} - No eligible job, skipping LDAP search"
-        return
+
+        if @jobs.first_job
+          logger.info "#{id} - No eligible job found, using first job"
+          @jobs.job = @jobs.first_job
+
+          @jobs.job.expected_end_date = Date.today.to_s
+        else
+          logger.info "#{id} - No jobs found using dummy job"
+          @jobs.job = Jobs.dummy_job
+        end
       end
 
       #----------------------------------------------------------------#
