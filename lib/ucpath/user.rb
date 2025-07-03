@@ -19,7 +19,7 @@ module UCPath
     Email = Struct.new(:preferred, :email_address, :email_types)
     Phone = Struct.new(:preferred, :preferred_sms, :phone_number, :phone_types)
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def initialize(id)
       @id = id
       logger.info "#{id} - Processing record..."
@@ -52,20 +52,33 @@ module UCPath
 
       #----------------------------------------------------------------#
       # NO ELIGIBLE JOB
-      # This used to mean we'd just skip this user and move on
-      # now what we need to do is update the user's expiration date
-      # to the current date so that they will get purged from Alma
+      # AP-345: Changed this logic
+      # If we could not find an "eligible" job we'd just skip this user
+      # and move on. Now what we need to do is update the user's expiration
+      # date to the current date so that they will get purged from Alma.
+      # We'll either use the first job found (which is the users most recent job)
+      # or we'll create a dummy job with the expected_end_date set to today.
       unless @jobs.eligible_job?
-
         if @jobs.first_job
           logger.info "#{id} - No eligible job found, using first job"
           @jobs.job = @jobs.first_job
 
           @jobs.job.expected_end_date = Date.today.to_s
         else
-          logger.info "#{id} - No jobs found using dummy job"
+          logger.info "#{id} - No job found, using a dummy job"
           @jobs.job = Jobs.dummy_job
         end
+      end
+
+      #----------------------------------------------------------------#
+      # If we have a termination date that is before the last Alma
+      # purge date, then we can skip this user
+      term_date = @jobs.job.termination_date
+
+      if term_date && term_date != '' && Date.iso8601(term_date) < Date.parse(Config.setting('last_alma_purge'))
+        logger.info "#{id} - Ineligible: Termination date before #{Config.setting('last_alma_purge')}"
+        @eligible = false
+        return
       end
 
       #----------------------------------------------------------------#
@@ -98,7 +111,7 @@ module UCPath
 
       logger.info "#{id} - Eligible: #{eligible?}"
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def eligible?
       eligible
@@ -114,7 +127,7 @@ module UCPath
       if ldap&.berkeleyeduaffiliations
         ldap.berkeleyeduaffiliations.each do |affiliation|
           if Config.student_affiated? affiliation
-            logger.info "#{id} - Ineligible - ldap student affiliation: #{affiliation}"
+            logger.info "#{id} - Ineligible: ldap student affiliation: #{affiliation}"
             return nil
           end
         end

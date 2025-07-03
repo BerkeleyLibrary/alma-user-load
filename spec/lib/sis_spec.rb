@@ -8,7 +8,14 @@ require 'nokogiri'
 # rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant
 describe SIS do
   it 'runs sis' do
+    # Make VERSION dynamic:
+    # Note - applicaiton_version is set in config/settings.yml: applicaiton_version
+    expected_version = (ENV['VERSION'] || '1.0.0').to_s
+
+    expected_file = File.read('spec/data/sis/expected_xml_3.xml')
+
     allow(Date).to receive(:today).and_return Date.new(2022, 6, 1)
+    expected_file.gsub!(/<!-- VERSION: .+? -->/, "<!-- VERSION: #{expected_version} -->")
 
     term_id = '2222'
     stub_past_sis_data(term_id, '2022-04-10', 1)
@@ -24,7 +31,7 @@ describe SIS do
       SIS.run_sis setup
 
       expect(File.exist?(setup.zip_path)).to eq(true)
-      expect(File.read(setup.xml_path)).to eq(File.read('spec/data/sis/expected_xml_3.xml'))
+      expect(File.read(setup.xml_path)).to eq(expected_file)
     end
   end
 end

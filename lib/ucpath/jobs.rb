@@ -18,7 +18,7 @@ module UCPath
           hr_status_code: 'I',
           expected_end_date: Date.today.to_s,
           org_relationship_code: nil,
-          dept_desc: '',
+          dept_desc: 'NO_JOB_FOUND',
           job_code: nil
         )
       end

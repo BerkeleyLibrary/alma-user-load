@@ -136,8 +136,8 @@ Note - to run the test suite you need to change the LDAP setting in your `.env` 
 ## Future Improvements:
 - Replace fixtures w/some sort of factory (VCR)
 - DRY things up (UCPath vs. SIS --> phone, email, address, names, etc...)
-- SIS - add run by user id (similar to how I setup ucpath)
+- SIS - add run by user id (similar to how I setup ucpath)...if possible
 - Move 'create_user_record' from user.rb to a separate class
 - Add a check to make sure all necessary config settings are set!
-- Fix LDAP tests to override the 
 - Setup a rake command to run the test suite
+- Reduce some of the complexity in the complexity so I can remove some of the rubocop disables

@@ -1,0 +1,74 @@
+{
+  "source": "UCB-HR-PATH-DB",
+  "correlationId": "e78cf53c-5bc2-4262-bd32-5971307a0c14",
+  "timeStamp": "2022-01-21",
+  "httpStatus": {
+    "code": "200",
+    "description": "OK"
+  },
+  "response": [
+    {
+      "identifiers": [
+        {
+          "type": "hr-employee-id",
+          "id": "123454321"
+        },
+        {
+          "type": "campus-uid",
+          "id": "1628831"
+        },
+        {
+          "type": "calnet-id",
+          "id": "derakhshan"
+        },
+        {
+          "type": "campus-solutions-id",
+          "id": "3034389843"
+        },
+        {
+          "type": "legacy-hr-employee-id",
+          "id": "013139999"
+        }
+      ],
+      "names": [
+        {
+          "type": {
+            "code": "PRF",
+            "description": "Preferred"
+          },
+          "familyName": "Derakhshan",
+          "givenName": "Mahsa",
+          "lastChangedBy": {
+            "id": "10003424"
+          },
+          "fromDate": "2021-11-29"
+        }
+      ],
+      "addresses": [],
+      "phones": [],
+      "emails": [
+        {
+          "type": {
+            "code": "BUSN",
+            "description": "Business"
+          },
+          "emailAddress": "",
+          "primary": true
+        }
+      ],
+      "ethnicities": [],
+      "usaCountry": {
+        "citizenshipStatus": {
+          "code": "2",
+          "description": "US Permanent Resident"
+        }
+      },
+      "education": {
+        "highestLevel": {
+          "code": "A",
+          "description": "A-Not Indicated"
+        }
+      }
+    }
+  ]
+}

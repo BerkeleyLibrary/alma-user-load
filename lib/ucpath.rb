@@ -15,7 +15,7 @@ module UCPath
     process_list = setup.users || UCPath::API.change_log(setup.start_date, setup.end_date)
 
     if process_list
-      writer = Alma::XMLWriter.new(setup.xml_path)
+      writer = Alma::XMLWriter.new(setup.xml_path, process_list.count)
 
       process_list.each_with_index do |id, idx|
         logger.info "#{idx} - #{id}"

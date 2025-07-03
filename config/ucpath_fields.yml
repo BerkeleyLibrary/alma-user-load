@@ -206,6 +206,11 @@ Job:
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
+    - name: termination_date
+      jpath: "$.actions.terminationDate"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
+
 EmployeeIDs:
   employee_rootnode: "//ar:response/emp:employees/emp:employee"
   total_records_xpath: "//ar:offset/ar:total"

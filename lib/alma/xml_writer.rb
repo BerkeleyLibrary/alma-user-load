@@ -3,10 +3,11 @@ require_relative 'xml_builder'
 
 module Alma
   class XMLWriter
-    attr_reader :out
+    attr_reader :out, :change_log_count
 
-    def initialize(outfile)
+    def initialize(outfile, change_log_count = nil)
       @out = ensure_io(outfile)
+      @change_log_count = change_log_count
     end
 
     def write(record)
@@ -43,7 +44,8 @@ module Alma
       tag = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       tag += "<!-- GIT_COMMIT:#{ENV['GIT_COMMIT']} -->\n"
       tag += "<!-- DOCKER_TAG:#{ENV['DOCKER_TAG']} -->\n"
-      tag += "<!-- VERSION: 1.5.4 -->\n"
+      tag += "<!-- VERSION: #{ENV['VERSION']} -->\n"
+      tag += "<!-- CHANGE_LOG_COUNT: #{change_log_count} -->\n"
       tag += "<users>\n"
       tag
     end

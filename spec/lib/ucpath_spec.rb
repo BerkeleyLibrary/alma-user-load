@@ -3,7 +3,7 @@ require 'stub_helper'
 require 'ldap_helper'
 require 'ostruct'
 
-# rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength
+# rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength:
 describe UCPath do
   it 'does not create a file if changelog returns zero records' do
     stub_empty_change_log('2022-04-10', '2022-04-13')
@@ -67,7 +67,7 @@ describe UCPath do
     end
   end
 end
-# rubocop :enable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength
+# rubocop :enable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength:
 
 describe UCPath::API do
   it 'creates a change log' do
@@ -128,6 +128,27 @@ describe UCPath::User do
     allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
     expect(ldap_stub['connection']).to receive(:bind)
     expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0])
+
+    u = UCPath::User.new(ucpath_id)
+    expect(u.eligible?).to be(false)
+  end
+
+  it 'weeds out users without an email address' do
+    ucpath_id = '123454321'
+    stub_ucpath_user(ucpath_id)
+    stub_ucpath_jobs(ucpath_id)
+
+    # Stub LDAP
+    ldap_id = '1628831'
+    ldap_stub = stub_ldap(ldap_id)
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] },
+      { 'berkeleyedualternateid' => [''] } # No email address
+    ]
+    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
+    expect(ldap_stub['connection']).to receive(:bind)
+    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1]).and_yield(entries[2])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.eligible?).to be(false)
@@ -480,6 +501,59 @@ describe UCPath::User do
     allow(Net::LDAP).to receive(:new).and_raise(StandardError.new('error'))
     u = UCPath::User.new(ucpath_id)
     expect(u.ldap).to be_nil
+  end
+
+  it 'returns the first job if no eligible jobs are found' do
+    id = '10145074'
+    stub_ucpath_user(id)
+    stub_ucpath_jobs(id)
+
+    # Stub our LDAP
+    ldap_id = '7165'
+    ldap_stub = stub_ldap(ldap_id)
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
+    expect(ldap_stub['connection']).to receive(:bind)
+    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1])
+
+    u = UCPath::User.new(id)
+    expect(u.rec.job_description).to eq('FIRST_JOB_DESCRIPTION')
+  end
+
+  it 'uses a dummy job if no jobs are found' do
+    id = '999999999'
+    stub_ucpath_user(id)
+    stub_ucpath_jobs(id)
+
+    # Stub our LDAP
+    ldap_id = '0000'
+    ldap_stub = stub_ldap(ldap_id)
+    entries = [
+      { 'sn' => ['test_last_name'] },
+      { 'givenname' => ['test_first_name'] }
+    ]
+
+    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
+    expect(ldap_stub['connection']).to receive(:bind)
+    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1])
+
+    u = UCPath::User.new(id)
+
+    expect(u.rec.job_description).to eq('NO_JOB_FOUND')
+  end
+
+  it 'skips users that have a termination date before the last Alma purge date' do
+    id = '888888888'
+    stub_ucpath_user(id)
+    stub_ucpath_jobs(id)
+
+    u = UCPath::User.new(id)
+
+    expect(u.eligible?).to be(false)
   end
 
 end

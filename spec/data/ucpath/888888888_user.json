@@ -1,0 +1,97 @@
+{
+	"source": "UCB-HR-PATH-DB",
+	"correlationId": "f0ee64e6-598b-4419-800a-3d69305ccfe4",
+	"timeStamp": "2025-07-02",
+	"httpStatus": {
+		"code": "200",
+		"description": "OK"
+	},
+	"response": [
+		{
+			"identifiers": [
+				{
+					"type": "hr-employee-id",
+					"id": "10145074"
+				},
+				{
+					"type": "campus-uid",
+					"id": "7165"
+				},
+				{
+					"type": "calnet-id",
+					"id": "lweber"
+				},
+				{
+					"type": "campus-solutions-id",
+					"id": "3030464516"
+				},
+				{
+					"type": "legacy-hr-employee-id",
+					"id": "010523427"
+				}
+			],
+			"names": [
+				{
+					"type": {
+						"code": "PRF",
+						"description": "Preferred"
+					},
+					"familyName": "Weber",
+					"givenName": "Lisa",
+					"middleName": "J",
+					"fromDate": "1988-11-07"
+				},
+				{
+					"type": {
+						"code": "PRI",
+						"description": "Primary"
+					},
+					"familyName": "Weber",
+					"givenName": "Lisa",
+					"middleName": "J",
+					"fromDate": "1988-11-07"
+				}
+			],
+			"pronouns": {
+				"code": "G1",
+				"description": "She/Her/Hers"
+			},
+			"addresses": [
+			],
+			"phones": [
+				{
+					"type": {
+						"code": "BUSN",
+						"description": "Business - Primary"
+					},
+					"number": "510/296-4332",
+					"primary": false
+				}
+			],
+			"emails": [
+				{
+					"type": {
+						"code": "BUSN",
+						"description": "Business"
+					},
+					"emailAddress": "lweber@berkeley.edu",
+					"primary": true
+				}
+			],
+			"ethnicities": [
+			],
+			"usaCountry": {
+				"citizenshipStatus": {
+					"code": "1",
+					"description": "US Citizen"
+				}
+			},
+			"education": {
+				"highestLevel": {
+					"code": "G",
+					"description": "G-Bachelor's Level Degree"
+				}
+			}
+		}
+	]
+}
