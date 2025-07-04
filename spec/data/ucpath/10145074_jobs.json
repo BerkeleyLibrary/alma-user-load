@@ -633,15 +633,15 @@
 							}
 						},
 						"rate": {
-							"base": 27.38,
+							"base": 0.004166,
 							"baseFrequency": {
 								"code": "H",
 								"description": "Hourly"
 							},
-							"hourly": 27.38,
-							"daily": 219.04,
-							"monthly": 4764.12,
-							"annually": 57169.44
+							"hourly": 0.004166,
+							"daily": 0.03,
+							"monthly": 1,
+							"annually": 12
 						},
 						"payGroup": {
 							"code": "1B7",
