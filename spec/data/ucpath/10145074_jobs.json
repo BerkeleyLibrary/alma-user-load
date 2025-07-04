@@ -267,15 +267,15 @@
 							}
 						},
 						"rate": {
-							"base": 9528,
+							"base": 1,
 							"baseFrequency": {
 								"code": "M",
 								"description": "Monthly"
 							},
-							"hourly": 54.758621,
-							"daily": 438.069,
-							"monthly": 9528,
-							"annually": 114336
+							"hourly": 0.00416,
+							"daily": 0.03,
+							"monthly": 1,
+							"annually": 12
 						},
 						"payGroup": {
 							"code": "1ME",
