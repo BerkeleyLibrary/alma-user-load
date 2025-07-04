@@ -289,7 +289,7 @@
 							{
 								"rate": {
 									"code": "UCANNL",
-									"base": 114336,
+									"base": 12,
 									"baseFrequency": {
 										"code": "A",
 										"description": "Annual",
