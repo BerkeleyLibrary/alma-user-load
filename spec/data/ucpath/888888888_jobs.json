@@ -290,7 +290,7 @@
 							{
 								"rate": {
 									"code": "UCHRLY",
-									"base": 27.38,
+									"base": 0.004166,
 									"baseFrequency": {
 										"code": "H",
 										"description": "Hourly",
