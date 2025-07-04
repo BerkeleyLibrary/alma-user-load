@@ -82,14 +82,14 @@
 			],
 			"usaCountry": {
 				"citizenshipStatus": {
-					"code": "1",
-					"description": "US Citizen"
+					"code": "T",
+					"description": "Test Data - Not Valid"
 				}
 			},
 			"education": {
 				"highestLevel": {
-					"code": "G",
-					"description": "G-Bachelor's Level Degree"
+					"code": "T",
+					"description": "T-Test Data - Not Valid"
 				}
 			}
 		}
