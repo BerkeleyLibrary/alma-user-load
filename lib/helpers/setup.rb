@@ -5,6 +5,9 @@ require 'getoptlong'
 
 module Helpers
   class Setup
+    # Set the version of the application
+    ENV['VERSION'] = Config.setting('application_version')
+
     # Command Line Args:
     attr_reader :type, :users, :start_date, :end_date, :num_days, :term_id, :outdir
 

@@ -1,0 +1,36 @@
+{
+	"source": "UCB-HR-PATH-DB",
+	"correlationId": "b5474d05-65d5-4581-bf99-b9983fea3806",
+	"timeStamp": "2025-07-02",
+	"httpStatus": {
+		"code": "200",
+		"description": "OK"
+	},
+	"response": [
+		{
+			"identifiers": [
+				{
+					"type": "hr-employee-id",
+					"id": "99999999"
+				},
+				{
+					"type": "campus-uid",
+					"id": "0000"
+				},
+				{
+					"type": "calnet-id",
+					"id": "lweber"
+				},
+				{
+					"type": "campus-solutions-id",
+					"id": "3030464516"
+				},
+				{
+					"type": "legacy-hr-employee-id",
+					"id": "010523427"
+				}
+			],
+			"jobs": []
+		}
+	]
+}

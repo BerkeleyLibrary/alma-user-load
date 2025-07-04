@@ -1,0 +1,403 @@
+{
+	"source": "UCB-HR-PATH-DB",
+	"correlationId": "b5474d05-65d5-4581-bf99-b9983fea3806",
+	"timeStamp": "2025-07-02",
+	"httpStatus": {
+		"code": "200",
+		"description": "OK"
+	},
+	"response": [
+		{
+			"identifiers": [
+				{
+					"type": "hr-employee-id",
+					"id": "10145074"
+				},
+				{
+					"type": "campus-uid",
+					"id": "7165"
+				},
+				{
+					"type": "calnet-id",
+					"id": "lweber"
+				},
+				{
+					"type": "campus-solutions-id",
+					"id": "3030464516"
+				},
+				{
+					"type": "legacy-hr-employee-id",
+					"id": "010523427"
+				}
+			],
+			"jobs": [
+                {
+					"number": 0,
+					"sequence": 0,
+					"type": {
+						"code": "2",
+						"description": "Staff: Career"
+					},
+					"classification": {
+						"code": "1",
+						"description": "Professional & Support Staff"
+					},
+					"position": {
+						"number": "40167526",
+						"department": {
+							"code": "ZZZZZ",
+							"description": "22222"
+						},
+						"description": "LIBRARY AST 3",
+						"pool": {
+						},
+						"percentOfFullTime": 1.000000,
+						"employeeRelationship": {
+							"code": "E",
+							"description": "All Others, Not Confidential"
+						},
+						"jobCode": {
+							"code": {
+								"code": "006760",
+								"description": "LIBRARY AST 3"
+							},
+							"status": {
+								"code": "A",
+								"description": "Active"
+							},
+							"family": {
+								"code": "J092",
+								"description": "Library Services"
+							},
+							"function": {
+								"code": "442",
+								"description": "Library"
+							},
+							"flsaEligibilty": {
+							},
+							"representation": {
+								"union": {
+									"code": "CX",
+									"description": "Clerical & Allied Services"
+								}
+							}
+						},
+						"reportsTo": {
+							"position": {
+								"number": "40148696"
+							}
+						},
+						"status": {
+							"code": "A",
+							"description": "Approved"
+						},
+						"headCount": {
+							"active": 1,
+							"maximum": 1,
+							"status": {
+								"code": "F",
+								"description": "Filled"
+							}
+						},
+						"active": {
+							"code": "A",
+							"description": "Active"
+						},
+						"fromDate": "2024-11-13"
+					},
+					"organizationRelationship": {
+						"code": "EMP",
+						"description": "Employee"
+					},
+					"flsaEligibilty": {
+						"code": "N",
+						"description": "Nonexempt"
+					},
+					"percentOfFullTime": 1.000000,
+					"fullTimeStatus": {
+						"code": "X",
+						"description": "Fixed"
+					},
+					"permanent": {
+						"code": "R",
+						"description": "Not Applicable"
+					},
+					"primary": {
+						"code": "P",
+						"description": "Primary Job"
+					},
+					"department": {
+						"code": "zzzz",
+						"description": "444444"
+					},
+					"location": {
+						"code": "10458",
+						"description": "David Gardner Stacks-FA-94704"
+					},
+					"reportsTo": {
+						"position": {
+							"number": "40148696",
+							"department": {
+								"code": "KPADM",
+								"description": "33333"
+							},
+							"description": "LIBRARY MGR 2",
+							"pool": {
+							},
+							"employeeRelationship": {
+								"code": "A",
+								"description": "Manager, Not Confidential"
+							},
+							"jobCode": {
+								"code": {
+									"code": "000542",
+									"description": "LIBRARY MGR 2"
+								},
+								"status": {
+									"code": "A",
+									"description": "Active"
+								},
+								"family": {
+									"code": "J092",
+									"description": "Library Services"
+								},
+								"function": {
+									"code": "442",
+									"description": "Library"
+								},
+								"representation": {
+									"union": {
+										"code": "99",
+										"description": "Non-Represented"
+									}
+								}
+							},
+							"reportsTo": {
+								"position": {
+									"number": "40147101"
+								}
+							},
+							"status": {
+								"code": "A",
+								"description": "Approved"
+							},
+							"headCount": {
+								"maximum": 1
+							},
+							"active": {
+								"code": "A",
+								"description": "Active"
+							},
+							"fromDate": "2023-10-01"
+						},
+						"supervisor": {
+							"identifiers": [
+								{
+									"type": "hr-employee-id",
+									"id": "10148332"
+								},
+								{
+									"type": "campus-uid",
+									"id": "304353"
+								},
+								{
+									"type": "calnet-id",
+									"id": "mamarrow"
+								},
+								{
+									"type": "campus-solutions-id",
+									"id": "3030431379"
+								},
+								{
+									"type": "legacy-hr-employee-id",
+									"id": "011922469"
+								}
+							],
+							"names": [
+								{
+									"type": {
+										"code": "PRF",
+										"description": "Preferred"
+									},
+									"familyName": "Marrow",
+									"givenName": "Mark",
+									"middleName": "A",
+									"fromDate": "2023-06-14"
+								}
+							]
+						}
+					},
+					"status": {
+						"hrStatus": {
+							"code": "I",
+							"description": "Inactive"
+						},
+						"employmentStatus": {
+							"code": "T",
+							"description": "Terminated"
+						},
+						"benefitsStatus": {
+							"code": "T",
+							"description": "Terminated"
+						}
+					},
+					"compensation": {
+						"standardHours": {
+							"hours": 40,
+							"frequency": {
+								"code": "W",
+								"description": "Weekly"
+							}
+						},
+						"salary": {
+							"administrationPlan": {
+								"code": "UCCX",
+								"description": "CX Salary Plan",
+								"active": true,
+								"fromDate": "1910-01-01"
+							},
+							"grade": {
+								"code": "128",
+								"description": "006760",
+								"active": true,
+								"fromDate": "2023-10-16"
+							},
+							"step": {
+								"code": "2",
+								"fromDate": "2024-03-18"
+							}
+						},
+						"rate": {
+							"base": 0.004166,
+							"baseFrequency": {
+								"code": "H",
+								"description": "Hourly"
+							},
+							"hourly": 0.004166,
+							"daily": 0.03,
+							"monthly": 1,
+							"annually": 12
+						},
+						"payGroup": {
+							"code": "1B7",
+							"description": "UCB 7/40 Non-Exempt Biweekly"
+						},
+						"payType": {
+							"code": "H",
+							"description": "Hourly"
+						},
+						"components": [
+							{
+								"rate": {
+									"code": "UCHRLY",
+									"base": 0.004166,
+									"baseFrequency": {
+										"code": "H",
+										"description": "Hourly",
+										"annualFactor": 2088
+									}
+								},
+								"percent": 0
+							}
+						]
+					},
+					"earningsDistribution": {
+						"distributions": [
+							{
+								"sequence": 1,
+								"department": {
+									"code": "zzzz",
+									"description": "zzz",
+									"active": true,
+									"fromDate": "1910-01-01"
+								},
+								"account": {
+									"code": "000102445",
+									"description": "TBD",
+									"glAccount": {
+										"businessUnit": {
+											"code": "10000",
+											"description": "UC Berkeley",
+											"active": true,
+											"fromDate": "1900-01-01"
+										},
+										"account": {
+											"code": "010000",
+											"description": "010000"
+										},
+										"fund": {
+											"code": "19900",
+											"description": "GENERAL FUNDS",
+											"active": true,
+											"fromDate": "2007-10-01"
+										},
+										"department": {
+											"code": "15863",
+											"description": "KTEDU Access Services Admin",
+											"active": true,
+											"fromDate": "2023-03-15"
+										},
+										"program": {
+											"code": "60",
+											"description": "Libraries",
+											"active": true,
+											"fromDate": "1900-01-02"
+										},
+										"chartField1": {
+										},
+										"chartField2": {
+										},
+										"chartField3": {
+											"code": "BKFIN",
+											"description": "Berkeley Financial",
+											"active": true,
+											"fromDate": "1901-01-01"
+										},
+										"project": {
+										},
+										"pcProject": {
+										},
+										"pcProduct": {
+										},
+										"pcClass": {
+										},
+										"chartString": "10000-010000-19900-15863-60--"
+									}
+								},
+								"earningsType": {
+								},
+								"percentage": 100.000000,
+								"fiscalYear": "2026",
+								"effectiveSequence": 0,
+								"fromDate": "2025-07-01"
+							}
+						]
+					},
+					"actions": {
+						"lastAction": {
+							"code": "TER",
+							"description": "Termination",
+							"fromDate": "2024-10-31"
+						},
+						"lastActionReason": {
+							"code": "PER",
+							"description": "Resign - Personal Reasons"
+						},
+						"lastChangedBy": {
+							"id": "10021499"
+						},
+						"initialHireDate": "2022-01-11",
+						"lastHireDate": "2023-10-16",
+						"jobAssignedDate": "2023-10-16",
+						"positionAssignedDate": "2024-03-18",
+						"endAutomatically": false,
+						"terminationDate": "1996-04-13"
+					},
+					"benefits": {
+					},
+					"fromDate": "2024-11-02"
+				}
+			]
+		}
+	]
+}
