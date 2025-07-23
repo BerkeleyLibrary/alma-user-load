@@ -67,7 +67,6 @@ module UCPath
 
           @jobs.job.expected_end_date = Date.today.to_s
         else
-          logger.info "#{id} - No job found - skipping user"
           @eligible = false
           @jobs = nil
           @user = nil
