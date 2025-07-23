@@ -524,26 +524,14 @@ describe UCPath::User do
     expect(u.rec.job_description).to eq('FIRST_JOB_DESCRIPTION')
   end
 
-  it 'uses a dummy job if no jobs are found' do
+  it 'skips a user if no jobs are found' do
     id = '999999999'
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
 
-    # Stub our LDAP
-    ldap_id = '0000'
-    ldap_stub = stub_ldap(ldap_id)
-    entries = [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
-    expect(ldap_stub['connection']).to receive(:bind)
-    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1])
-
     u = UCPath::User.new(id)
 
-    expect(u.rec.job_description).to eq('NO_JOB_FOUND')
+    expect(u.eligible?).to be(false)
   end
 
   it 'skips users that have a termination date before the last Alma purge date' do

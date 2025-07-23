@@ -58,6 +58,8 @@ module UCPath
       # date to the current date so that they will get purged from Alma.
       # We'll either use the first job found (which is the users most recent job)
       # or we'll create a dummy job with the expected_end_date set to today.
+      # AP-359: Update, if there is no job (elgible or otherwise) then, like
+      # Gandalf said: YOU SHALL NOT PASS!
       unless @jobs.eligible_job?
         if @jobs.first_job
           logger.info "#{id} - No eligible job found, using first job"
@@ -65,8 +67,13 @@ module UCPath
 
           @jobs.job.expected_end_date = Date.today.to_s
         else
-          logger.info "#{id} - No job found, using a dummy job"
-          @jobs.job = Jobs.dummy_job
+          @eligible = false
+          @jobs = nil
+          @user = nil
+          @ucpath_rec = nil
+
+          logger.info "#{id} - Eligible: #{eligible?}"
+          return
         end
       end
 

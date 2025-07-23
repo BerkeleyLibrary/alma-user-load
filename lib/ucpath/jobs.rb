@@ -9,21 +9,6 @@ module UCPath
   class Jobs
     attr_accessor :job, :first_job
 
-    class << self
-      # We're no longer skipping users who do not have an eligible job.
-      # But we still need a "job record" quick and dirty to create a dummy job
-      # and set the expiration date (expected_end_date) to today.
-      def dummy_job
-        OpenStruct.new(
-          hr_status_code: 'I',
-          expected_end_date: Date.today.to_s,
-          org_relationship_code: nil,
-          dept_desc: 'NO_JOB_FOUND',
-          job_code: nil
-        )
-      end
-    end
-
     def initialize(id)
       # Fetch the raw job data
       job_data = fetch_jobs(id)
