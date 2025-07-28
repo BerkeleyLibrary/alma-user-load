@@ -1,0 +1,108 @@
+{
+  "source": "UCB-HR-PATH-DB",
+  "correlationId": "6f6406e9-7ebd-4f74-b6f8-e29162f72822",
+  "timeStamp": "2022-02-07",
+  "httpStatus": {
+    "code": "200",
+    "description": "OK"
+  },
+  "response": [
+    {
+      "identifiers": [
+        {
+          "type": "hr-employee-id",
+          "id": "10160843"
+        },
+        {
+          "type": "campus-uid",
+          "id": "112823"
+        },
+        {
+          "type": "calnet-id",
+          "id": "SKYWALKER"
+        },
+        {
+          "type": "campus-solutions-id",
+          "id": "3030582907"
+        },
+        {
+          "type": "legacy-hr-employee-id",
+          "id": "011251010"
+        }
+      ],
+      "names": [
+        {
+          "type": {
+            "code": "FRM",
+            "description": "Former"
+          },
+          "familyName": "SKYWALKER",
+          "givenName": "LUKE",
+          "lastChangedBy": {
+            "id": "10021499"
+          },
+          "fromDate": "2018-10-19"
+        },
+        {
+          "type": {
+            "code": "PRF",
+            "description": "Preferred"
+          },
+          "familyName": "SKYWALKER",
+          "givenName": "LUKE",
+          "lastChangedBy": {
+            "id": "10160843"
+          },
+          "fromDate": "2021-10-24"
+        },
+        {
+          "type": {
+            "code": "PRI",
+            "description": "Primary"
+          },
+          "familyName": "SKYWALKER",
+          "givenName": "James",
+          "middleName": "D",
+          "lastChangedBy": {
+            "id": "10021499"
+          },
+          "fromDate": "2021-10-25"
+        }
+      ],
+      "addresses": [],
+      "phones": [
+        {
+          "type": {
+            "code": "BUSN",
+            "description": "Business - Primary"
+          },
+          "number": "510/555-1234",
+          "primary": true
+        }
+      ],
+      "emails": [
+        {
+          "type": {
+            "code": "BUSN",
+            "description": "Business"
+          },
+          "emailAddress": "jSKYWALKER@berkeley.edu",
+          "primary": true
+        }
+      ],
+      "ethnicities": [],
+      "usaCountry": {
+        "citizenshipStatus": {
+          "code": "1",
+          "description": "US Citizen"
+        }
+      },
+      "education": {
+        "highestLevel": {
+          "code": "I",
+          "description": "I-Master's Level Degree"
+        }
+      }
+    }
+  ]
+}

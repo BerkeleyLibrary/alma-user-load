@@ -140,6 +140,14 @@ module UCPath
         end
       end
 
+      # CONTINGENT WORKER CHECK
+      # AP-361: Thou Shalt not pass if the user has a Contingent Worker Job Code!
+      job_code = jobs.job.job_code || nil
+      if job_code && Config.check_ucpath_code('Contingent Worker Job Code', job_code)
+        logger.info "#{id} - Ineligible: Contingent Worker Job Code: #{job_code}"
+        return nil
+      end
+
       # NAMES
       # Get first_name, middle_name, last_name from the primary UCPath Employee record
       # If the UCPath lacks first_name and last_name, use LDAP record
