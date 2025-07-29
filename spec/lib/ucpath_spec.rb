@@ -544,5 +544,18 @@ describe UCPath::User do
     expect(u.eligible?).to be(false)
   end
 
+  it 'skips users with a contingent worker job code' do
+    id = '10000008'
+    stub_ucpath_user(id)
+    stub_ucpath_jobs(id)
+
+    # Mock LDAP
+    ldap_id = '112823'
+    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
+
+    u = UCPath::User.new(id)
+    expect(u.eligible?).to be(false)
+  end
+
 end
 # rubocop:enable Metrics/BlockLength

@@ -1,0 +1,411 @@
+{
+  "source": "UCB-HR-PATH-DB",
+  "correlationId": "b5ed8244-47fe-421b-b509-94ac016e69a4",
+  "timeStamp": "2022-02-07",
+  "httpStatus": {
+    "code": "200",
+    "description": "OK"
+  },
+  "response": [
+    {
+      "identifiers": [
+        {
+          "type": "hr-employee-id",
+          "id": "10160843"
+        },
+        {
+          "type": "campus-uid",
+          "id": "112823"
+        },
+        {
+          "type": "calnet-id",
+          "id": "jpatterson"
+        },
+        {
+          "type": "campus-solutions-id",
+          "id": "3030582907"
+        },
+        {
+          "type": "legacy-hr-employee-id",
+          "id": "011251010"
+        }
+      ],
+      "jobs": [
+        {
+          "number": 0,
+          "sequence": 0,
+          "type": {
+            "code": "4",
+            "description": "Staff: Limited"
+          },
+          "classification": {
+            "code": "1",
+            "description": "Professional & Support Staff"
+          },
+          "position": {
+            "number": "40144705",
+            "department": {
+              "code": "UGARS",
+              "description": "Undergraduate Admissions"
+            },
+            "description": "ADMISSIONS EVALUATOR 3",
+            "pool": {},
+            "percentOfFullTime": 0.500000,
+            "employeeRelationship": {
+              "code": "E",
+              "description": "All Others, Not Confidential"
+            },
+            "jobCode": {
+              "code": {
+                "code": "CWR005",
+                "description": "CONGTINGENT WORKER PERSON"
+              },
+              "status": {
+                "code": "A",
+                "description": "Active"
+              },
+              "family": {
+                "code": "J172",
+                "description": "Student Services"
+              },
+              "function": {
+                "code": "118",
+                "description": "Admissions and Recruitment"
+              },
+              "flsaEligibilty": {},
+              "representation": {
+                "union": {
+                  "code": "99",
+                  "description": "Non-Represented"
+                }
+              }
+            },
+            "reportsTo": {
+              "position": {
+                "number": "40196662"
+              }
+            },
+            "status": {
+              "code": "A",
+              "description": "Approved"
+            },
+            "headCount": {
+              "active": 173,
+              "maximum": 180,
+              "status": {
+                "code": "P",
+                "description": "Partially Filled"
+              }
+            },
+            "active": {
+              "code": "A",
+              "description": "Active"
+            },
+            "fromDate": "2021-09-01"
+          },
+          "organizationRelationship": {
+            "code": "EMP",
+            "description": "Employee"
+          },
+          "flsaEligibilty": {
+            "code": "N",
+            "description": "Nonexempt"
+          },
+          "percentOfFullTime": 0.500000,
+          "fullTimeStatus": {
+            "code": "V",
+            "description": "Variable"
+          },
+          "permanent": {
+            "code": "R",
+            "description": "Not Applicable"
+          },
+          "primary": {
+            "code": "P",
+            "description": "Primary Job"
+          },
+          "department": {
+            "code": "UGARS",
+            "description": "Undergraduate Admissions"
+          },
+          "location": {
+            "code": "10270",
+            "description": "Sproul Hall-F01-94726"
+          },
+          "reportsTo": {
+            "position": {
+              "number": "40196662",
+              "department": {
+                "code": "UGARS",
+                "description": "Undergraduate Admissions"
+              },
+              "description": "ADMISSIONS RECRMT MGR 2",
+              "pool": {},
+              "employeeRelationship": {
+                "code": "A",
+                "description": "Manager, Not Confidential"
+              },
+              "jobCode": {
+                "code": {
+                  "code": "000303",
+                  "description": "ADMISSIONS RECRMT MGR 2"
+                },
+                "status": {
+                  "code": "A",
+                  "description": "Active"
+                },
+                "family": {
+                  "code": "J172",
+                  "description": "Student Services"
+                },
+                "function": {
+                  "code": "118",
+                  "description": "Admissions and Recruitment"
+                },
+                "representation": {
+                  "union": {
+                    "code": "99",
+                    "description": "Non-Represented"
+                  }
+                }
+              },
+              "reportsTo": {
+                "position": {
+                  "number": "40160283"
+                }
+              },
+              "status": {
+                "code": "A",
+                "description": "Approved"
+              },
+              "headCount": {
+                "maximum": 1
+              },
+              "active": {
+                "code": "A",
+                "description": "Active"
+              },
+              "fromDate": "2020-07-01"
+            },
+            "supervisor": {
+              "identifiers": [
+                {
+                  "type": "hr-employee-id",
+                  "id": "10260827"
+                },
+                {
+                  "type": "campus-uid",
+                  "id": "1694900"
+                },
+                {
+                  "type": "calnet-id",
+                  "id": "abjones"
+                },
+                {
+                  "type": "campus-solutions-id",
+                  "id": "3035471418"
+                }
+              ],
+              "names": [
+                {
+                  "type": {
+                    "code": "PRI",
+                    "description": "Primary"
+                  },
+                  "familyName": "Jones",
+                  "givenName": "Abby",
+                  "middleName": "L",
+                  "fromDate": "2019-09-30"
+                }
+              ]
+            }
+          },
+          "status": {
+            "hrStatus": {
+              "code": "A",
+              "description": "Active"
+            },
+            "employmentStatus": {
+              "code": "A",
+              "description": "Active"
+            },
+            "benefitsStatus": {
+              "code": "A",
+              "description": "Active"
+            }
+          },
+          "compensation": {
+            "standardHours": {
+              "hours": 20,
+              "frequency": {
+                "code": "W",
+                "description": "Weekly"
+              }
+            },
+            "salary": {
+              "administrationPlan": {
+                "code": "BYA",
+                "description": "By Agreement Salary Plan",
+                "active": true,
+                "fromDate": "1910-01-01"
+              },
+              "grade": {
+                "code": "BYA",
+                "description": "By Agreement Job Codes",
+                "active": true,
+                "fromDate": "2021-10-25"
+              },
+              "step": {
+                "code": "0"
+              }
+            },
+            "rate": {
+              "base": 24,
+              "baseFrequency": {
+                "code": "H",
+                "description": "Hourly"
+              },
+              "hourly": 24,
+              "daily": 100,
+              "monthly": 2000,
+              "annually": 200000
+            },
+            "payGroup": {
+              "code": "1B7",
+              "description": "UCB 7/40 Non-Exempt Biweekly"
+            },
+            "payType": {
+              "code": "H",
+              "description": "Hourly"
+            },
+            "components": [
+              {
+                "rate": {
+                  "code": "UCHRLY",
+                  "base": 24,
+                  "baseFrequency": {
+                    "code": "H",
+                    "description": "Hourly",
+                    "annualFactor": 2088
+                  }
+                },
+                "percent": 0
+              }
+            ]
+          },
+          "earningsDistribution": {
+            "distributions": [
+              {
+                "sequence": 1,
+                "department": {
+                  "code": "UGARS",
+                  "description": "Undergraduate Admissions",
+                  "active": true,
+                  "fromDate": "2021-11-01"
+                },
+                "account": {
+                  "code": "000096901",
+                  "description": "TBD",
+                  "glAccount": {
+                    "businessUnit": {
+                      "code": "10000",
+                      "description": "UC Berkeley",
+                      "active": true,
+                      "fromDate": "1900-01-01"
+                    },
+                    "account": {
+                      "code": "010000",
+                      "description": "010000"
+                    },
+                    "fund": {
+                      "code": "68600",
+                      "description": "Campus General Funds",
+                      "active": true,
+                      "fromDate": "2014-09-01"
+                    },
+                    "department": {
+                      "code": "17817",
+                      "description": "UGARS Admissions & Reading",
+                      "active": true,
+                      "fromDate": "2021-11-01"
+                    },
+                    "program": {
+                      "code": "68",
+                      "description": "Student Services",
+                      "active": true,
+                      "fromDate": "1900-01-02"
+                    },
+                    "chartField1": {
+                      "code": "UGAPRD",
+                      "description": "Application Readers",
+                      "active": true,
+                      "fromDate": "2018-07-01"
+                    },
+                    "chartField2": {
+                      "code": "UGRDF",
+                      "description": "App Reading-Freshman",
+                      "active": true,
+                      "fromDate": "2001-07-01"
+                    },
+                    "chartField3": {
+                      "code": "BKFIN",
+                      "description": "Berkeley Financial",
+                      "active": true,
+                      "fromDate": "1901-01-01"
+                    },
+                    "project": {
+                      "code": "UGAPRD",
+                      "description": "Application Readers",
+                      "active": true,
+                      "fromDate": "2018-07-01"
+                    },
+                    "pcProject": {},
+                    "pcProduct": {},
+                    "pcClass": {},
+                    "chartString": "10000-010000-68600-17817-68-UGAPRD-UGRDF"
+                  }
+                },
+                "earningsType": {},
+                "percentage": 100.000000,
+                "fiscalYear": "2022",
+                "effectiveSequence": 0,
+                "fromDate": "2021-07-01"
+              }
+            ]
+          },
+          "actions": {
+            "lastAction": {
+              "code": "REH",
+              "description": "Rehire",
+              "fromDate": "2021-10-23"
+            },
+            "lastActionReason": {
+              "code": "REH",
+              "description": "Rehire, > or = 120 days break"
+            },
+            "lastChangedBy": {
+              "id": "UC_BATCH"
+            },
+            "initialHireDate": "2018-10-19",
+            "lastHireDate": "2021-10-25",
+            "jobAssignedDate": "2021-10-25",
+            "positionAssignedDate": "2021-10-25",
+            "endAutomatically": true
+          },
+          "benefits": {
+            "compositeBenefitRates": [
+              {
+                "earningsType": {
+                  "code": "REG",
+                  "description": "Regular Pay"
+                },
+                "rate": 0.144
+              }
+            ]
+          },
+          "fromDate": "2021-10-25"
+        }
+      ]
+    }
+  ]
+}

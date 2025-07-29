@@ -28,3 +28,4 @@ Attributes:
 Student Affiliation:
   - "STUDENT-TYPE-REGISTERED"
   - "STUDENT-TYPE-NOT REGISTERED"
+  - "FORMER-STUDENT-IN-GRACE"
