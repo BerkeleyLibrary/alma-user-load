@@ -3,7 +3,7 @@
 
 Application for fetching patron records for both studens and employees and formatting those records into XML to be loaded by Ex Libris into Alma using their sync process. 
 
-Additional documentation can be found on B-Drive: [link](https://drive.google.com/drive/folders/1pOEKi2d5SQ4VZpwjQzUwuArwBbUJzvcF)
+Additional documentation can be found on B-Drive: [link](https://drive.google.com/drive/folders/1qO_7oD4tzDO9H4UMHrms7-ONzHdQ4gU2)
 
 ### Important Note
 Because of differences in the two APIs (SIS and UCPath), these do not operate exactly the same. UCPath's API is driven by a "change log". When it runs, it looks back 7 days from the current date for any recods that have been added or updated and then processes those. SIS does not have a change log. Instead we pull the entire collection of users for the current semester everytime we run SIS.
