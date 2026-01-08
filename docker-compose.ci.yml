@@ -3,8 +3,8 @@ services:
     build: !reset
     image: ${DOCKER_APP_IMAGE}
     environment: !override
-      LDAP_HOST: ldap.fake.edu
-      LDAP_PASS: FAKEPW
+      - LDAP_HOST=ldap.fake.edu
+      - LDAP_PASS=FAKEPW
     entrypoint: ["tail", "-f", "/dev/null"] 
     volumes: !override
       - artifacts:/opt/app/artifacts
