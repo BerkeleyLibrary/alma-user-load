@@ -38,7 +38,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 RSpec.configure do |config|
   # Mock ENVs for testing
   config.before(:each) do
-    ENV['GIT_COMMIT'] = 'LOCAL_TESTING'
+    ENV['GIT_SHA'] = 'LOCAL_TESTING'
     ENV['DOCKER_TAG'] = 'DEV'
   end
 
