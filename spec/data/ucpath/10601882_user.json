@@ -1,0 +1,75 @@
+{
+	"source": "UCB-HR-PATH-DB",
+	"correlationId": "adcca51b-d8d7-4ec6-a531-f24c598186d0",
+	"timeStamp": "2026-02-06",
+	"httpStatus": {
+		"code": "200",
+		"description": "OK"
+	},
+	"response": [
+		{
+			"identifiers": [
+				{
+					"type": "hr-employee-id",
+					"id": "10601882"
+				},
+				{
+					"type": "campus-uid",
+					"id": "1772216"
+				}
+			],
+			"names": [
+				{
+					"type": {
+						"code": "PRF",
+						"description": "Preferred"
+					},
+					"familyName": "FamilyName",
+					"givenName": "GivenName",
+					"fromDate": "2025-09-08"
+				},
+				{
+					"type": {
+						"code": "PRI",
+						"description": "Primary"
+					},
+					"familyName": "FamilyName",
+					"givenName": "GivenName",
+					"fromDate": "2025-09-08"
+				}
+			],
+			"pronouns": {
+				"code": "G1",
+				"description": "She/Her/Hers"
+			},
+			"addresses": [
+			],
+			"phones": [
+			],
+			"emails": [
+				{
+					"type": {
+						"code": "BUSN",
+						"description": "Business"
+					},
+					"emailAddress": "email@berkeley.edu",
+					"primary": true
+				}
+			],
+			"ethnicities": [
+			],
+			"usaCountry": {
+				"citizenshipStatus": {
+					"code": "1",
+					"description": "US Citizen"
+				}
+			},
+			"education": {
+				"highestLevel": {
+					"code": "G",
+					"description": "G-Bachelor's Level Degree"
+				}
+			}
+		}
+	]
+}

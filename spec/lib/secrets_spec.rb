@@ -22,7 +22,7 @@ describe Docker::Secret do
       prefix = Time.now.to_i.to_s
       random = Random.new
       @expected_secrets = {}
-      (0..8).each do |i|
+      9.times do |i|
         secret_name = "secret_#{prefix}_#{i}"
         secret = Base64.strict_encode64(random.bytes(128))
         expected_secrets[secret_name] = secret
@@ -38,7 +38,7 @@ describe Docker::Secret do
       fileglob = "#{tmpdir_path}/*"
       Docker::Secret.setup_environment!(fileglob)
       expected_secrets.each do |secret_name, secret_value|
-        expect(ENV[secret_name]).to eq(secret_value)
+        expect(ENV.fetch(secret_name)).to eq(secret_value)
       end
     end
   end

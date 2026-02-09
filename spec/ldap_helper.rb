@@ -11,21 +11,18 @@ def ldap_base(filter)
   }
 end
 
-# rubocop:disable Metrics/MethodLength
 def ldap_params
   {
     host: 'ldap.fake.edu',
     port: 636,
     encryption: {
-      method: :simple_tls,
-      tls_options: OpenSSL::SSL::SSLContext::DEFAULT_PARAMS
+      method: :simple_tls
     },
     auth: { method: :simple,
             password: 'MISSING',
             username: 'uid=library-hrms-epl,ou=applications,dc=berkeley,dc=edu' }
   }
 end
-# rubocop:enable Metrics/MethodLength
 
 def stub_ldap(id)
   ldap_rec = {}

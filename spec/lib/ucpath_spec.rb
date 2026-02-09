@@ -557,5 +557,27 @@ describe UCPath::User do
     expect(u.eligible?).to be(false)
   end
 
+  it 'eligibility should be true for priority jobs even if the user has a student affiliation' do
+    id = '10601882'
+
+    # Stub our LDAP
+    ldap_id = '1772216'
+    ldap_stub = stub_ldap(ldap_id)
+    entries = [
+      { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
+    ]
+
+    stub_ucpath_user(id)
+    stub_ucpath_jobs(id)
+
+    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
+    expect(ldap_stub['connection']).to receive(:bind)
+    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0])
+
+    u = UCPath::User.new(id)
+
+    expect(u.eligible?).to be(true)
+  end
+
 end
 # rubocop:enable Metrics/BlockLength

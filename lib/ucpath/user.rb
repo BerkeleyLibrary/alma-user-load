@@ -130,8 +130,11 @@ module UCPath
     def create_user_record
       rec.primary_id = ucpath_rec.ucpath_employee_id
 
+      job_code = jobs.job.job_code || nil
+      priority_job = Config.check_ucpath_code('Priority Job Codes', job_code)
+
       # STUDENT CHECK - berkeleyeduaffiliations in Student Affiliation (ldap_fields.yml)
-      if ldap&.berkeleyeduaffiliations
+      if !priority_job && ldap&.berkeleyeduaffiliations
         ldap.berkeleyeduaffiliations.each do |affiliation|
           if Config.student_affiated? affiliation
             logger.info "#{id} - Ineligible: ldap student affiliation: #{affiliation}"
@@ -142,7 +145,6 @@ module UCPath
 
       # CONTINGENT WORKER CHECK
       # AP-361: Thou Shalt not pass if the user has a Contingent Worker Job Code!
-      job_code = jobs.job.job_code || nil
       if job_code && Config.check_ucpath_code('Contingent Worker Job Code', job_code)
         logger.info "#{id} - Ineligible: Contingent Worker Job Code: #{job_code}"
         return nil
@@ -222,7 +224,7 @@ module UCPath
       rec.identifiers = create_identifiers
 
       # USER_ROLES - DROP (according to D.Rez, Alma should assign)
-      # USER_STATISTICS - TBD (addording to J.Gosselar these have yet to be determined)
+      # USER_STATISTICS - TBD (according to J.Gosselar these have yet to be determined)
 
       # SET USER ELIGIBILITY
       self.eligible = true

@@ -1,0 +1,351 @@
+{
+	"source": "UCB-HR-PATH-DB",
+	"correlationId": "8c37994b-3132-4f04-98b0-5ecdc96aec79",
+	"timeStamp": "2026-02-03",
+	"httpStatus": {
+		"code": "200",
+		"description": "OK"
+	},
+	"response": [
+		{
+			"identifiers": [
+				{
+					"type": "hr-employee-id",
+					"id": "10601882"
+				},
+				{
+					"type": "campus-uid",
+					"id": "1772216"
+				}
+			],
+			"jobs": [
+				{
+					"number": 0,
+					"sequence": 0,
+					"type": {
+						"code": "4",
+						"description": "Staff: Limited"
+					},
+					"classification": {
+						"code": "1",
+						"description": "Professional & Support Staff"
+					},
+					"position": {
+						"number": "41195443",
+						"department": {
+							"code": "KPADM",
+							"description": "Library Administration"
+						},
+						"description": "LIBRARY AST 2",
+						"pool": {
+						},
+						"percentOfFullTime": 1.000000,
+						"employeeRelationship": {
+							"code": "E",
+							"description": "All Others, Not Confidential"
+						},
+						"jobCode": {
+							"code": {
+								"code": "006761",
+								"description": "LIBRARY AST 2"
+							},
+							"status": {
+								"code": "A",
+								"description": "Active"
+							},
+							"family": {
+								"code": "J092",
+								"description": "Library Services"
+							},
+							"function": {
+								"code": "442",
+								"description": "Library"
+							},
+							"flsaEligibilty": {
+							},
+							"representation": {
+								"union": {
+									"code": "CX",
+									"description": "Clerical & Allied Services"
+								}
+							}
+						},
+						"reportsTo": {
+							"position": {
+								"number": "40145569"
+							}
+						},
+						"status": {
+							"code": "A",
+							"description": "Approved"
+						},
+						"headCount": {
+							"active": 1,
+							"maximum": 1,
+							"status": {
+								"code": "F",
+								"description": "Filled"
+							}
+						},
+						"active": {
+							"code": "A",
+							"description": "Active"
+						},
+						"fromDate": "2025-08-22"
+					},
+					"organizationRelationship": {
+						"code": "EMP",
+						"description": "Employee"
+					},
+					"flsaEligibilty": {
+						"code": "N",
+						"description": "Nonexempt"
+					},
+					"percentOfFullTime": 1.000000,
+					"fullTimeStatus": {
+						"code": "X",
+						"description": "Fixed"
+					},
+					"permanent": {
+						"code": "R",
+						"description": "Not Applicable"
+					},
+					"primary": {
+						"code": "P",
+						"description": "Primary Job"
+					},
+					"department": {
+						"code": "KPADM",
+						"description": "Library Administration"
+					},
+					"location": {
+						"code": "10467",
+						"description": "Bancroft Lib (Doe Anx)-F03-94704"
+					},
+					"status": {
+						"hrStatus": {
+							"code": "A",
+							"description": "Active"
+						},
+						"employmentStatus": {
+							"code": "A",
+							"description": "Active"
+						},
+						"benefitsStatus": {
+							"code": "A",
+							"description": "Active"
+						}
+					},
+					"fromDate": "2025-10-28"
+				},
+				{
+					"number": 1,
+					"sequence": 0,
+					"type": {
+						"code": "5",
+						"description": "Student: Casual/Restricted"
+					},
+					"classification": {
+						"code": "1",
+						"description": "Professional & Support Staff"
+					},
+					"position": {
+						"number": "41191284",
+						"department": {
+							"code": "MIRES",
+							"description": "School of Info Research"
+						},
+						"description": "STDT 2",
+						"pool": {
+						},
+						"percentOfFullTime": 0.500000,
+						"employeeRelationship": {
+							"code": "E",
+							"description": "All Others, Not Confidential"
+						},
+						"jobCode": {
+							"code": {
+								"code": "004921",
+								"description": "STDT 2"
+							},
+							"status": {
+								"code": "A",
+								"description": "Active"
+							},
+							"family": {
+								"code": "J172",
+								"description": "Student Services"
+							},
+							"function": {
+								"code": "742",
+								"description": "Student Employment"
+							},
+							"flsaEligibilty": {
+							},
+							"representation": {
+								"union": {
+									"code": "99",
+									"description": "Non-Represented"
+								}
+							}
+						},
+						"reportsTo": {
+							"position": {
+								"number": "40154292"
+							}
+						},
+						"status": {
+							"code": "A",
+							"description": "Approved"
+						},
+						"headCount": {
+							"active": 0,
+							"maximum": 1,
+							"status": {
+								"code": "O",
+								"description": "Open"
+							}
+						},
+						"active": {
+							"code": "A",
+							"description": "Active"
+						},
+						"fromDate": "2025-05-29"
+					},
+					"organizationRelationship": {
+						"code": "EMP",
+						"description": "Employee"
+					},
+					"flsaEligibilty": {
+						"code": "N",
+						"description": "Nonexempt"
+					},
+					"percentOfFullTime": 0.500000,
+					"fullTimeStatus": {
+						"code": "V",
+						"description": "Variable"
+					},
+					"permanent": {
+						"code": "R",
+						"description": "Not Applicable"
+					},
+					"primary": {
+						"code": "S",
+						"description": "Secondary Job"
+					},
+					"department": {
+						"code": "MIRES",
+						"description": "School of Info Research"
+					},
+					"location": {
+						"code": "10768",
+						"description": "South Hall-SITE-94704"
+					},
+					"reportsTo": {
+						"position": {
+							"number": "40154292",
+							"department": {
+								"code": "MMIMS",
+								"description": "School of Info Operations"
+							},
+							"description": "ASSOC PROF-AY",
+							"pool": {
+							},
+							"employeeRelationship": {
+								"code": "E",
+								"description": "All Others, Not Confidential"
+							},
+							"jobCode": {
+								"code": {
+									"code": "001200",
+									"description": "ASSOC PROF-AY"
+								},
+								"status": {
+									"code": "A",
+									"description": "Active"
+								},
+								"family": {
+								},
+								"function": {
+								},
+								"representation": {
+									"union": {
+										"code": "A1",
+										"description": "Academic Senate - Berkeley"
+									}
+								}
+							},
+							"reportsTo": {
+								"position": {
+									"number": "41097328"
+								}
+							},
+							"status": {
+								"code": "A",
+								"description": "Approved"
+							},
+							"headCount": {
+								"maximum": 1
+							},
+							"active": {
+								"code": "A",
+								"description": "Active"
+							},
+							"fromDate": "2024-08-01"
+						},
+						"supervisor": {
+							"identifiers": [
+								{
+									"type": "hr-employee-id",
+									"id": "10152597"
+								},
+								{
+									"type": "campus-uid",
+									"id": "1112270"
+								},
+								{
+									"type": "calnet-id",
+									"id": "dbamman"
+								},
+								{
+									"type": "campus-solutions-id",
+									"id": "3030482300"
+								},
+								{
+									"type": "legacy-hr-employee-id",
+									"id": "012789950"
+								}
+							],
+							"names": [
+								{
+									"type": {
+										"code": "PRF",
+										"description": "Preferred"
+									},
+									"familyName": "Bamman",
+									"givenName": "David",
+									"fromDate": "2025-01-21"
+								}
+							]
+						}
+					},
+					"status": {
+						"hrStatus": {
+							"code": "I",
+							"description": "Inactive"
+						},
+						"employmentStatus": {
+							"code": "T",
+							"description": "Terminated"
+						},
+						"benefitsStatus": {
+							"code": "T",
+							"description": "Terminated"
+						}
+					},
+					"fromDate": "2025-08-20"
+				}
+			]
+		}
+	]
+}

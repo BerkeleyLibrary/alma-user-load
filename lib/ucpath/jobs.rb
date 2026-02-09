@@ -31,13 +31,13 @@ module UCPath
 
     # Extract the data from the raw jobs into the fields we need
     # config/ucpath_fields.yml contains the fields/jpath we want to extract
-    def find_eligible_job(raw_jobs)
-      raw_jobs.first.each do |job_hash|
-        job = OpenStruct.new(
-          Config.ucpath_job_fields.to_h do |field|
-            [field['name'], JsonPath.on(job_hash, field['jpath']).first || '']
-          end
-        )
+    def find_eligible_job(job_list)
+      priority_job_hash = find_priority_jobs(job_list)
+
+      return map_job_to_struct(priority_job_hash) if priority_job_hash
+
+      job_list.first.each do |job_hash|
+        job = map_job_to_struct(job_hash)
 
         # First one - save it incase we don't find any eligible jobs!
         @first_job ||= job
@@ -72,6 +72,23 @@ module UCPath
       job_eligible
     end
     # rubocop :enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
+    def find_priority_jobs(job_list)
+      job_list.flatten.find do |jh|
+        job_code = jh.dig('position', 'jobCode', 'code', 'code')
+        status = jh.dig('position', 'active', 'code')
+
+        Config.check_ucpath_code('Priority Job Codes', job_code) && status == 'A'
+      end
+    end
+
+    def map_job_to_struct(job_hash)
+      OpenStruct.new(
+        Config.ucpath_job_fields.to_h do |field|
+          [field['name'], JsonPath.on(job_hash, field['jpath']).first || '']
+        end
+      )
+    end
 
     def fetch_jobs(id)
       logger.info "#{id} - Fetching ucpath jobs data"
