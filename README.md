@@ -140,4 +140,4 @@ Note - to run the test suite you need to change the LDAP setting in your `.env` 
 - Move 'create_user_record' from user.rb to a separate class
 - Add a check to make sure all necessary config settings are set!
 - Setup a rake command to run the test suite
-- Reduce some of the complexity in the complexity so I can remove some of the rubocop disables
+- Reduce some of the complexity so I can remove some of the rubocop disables

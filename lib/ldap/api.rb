@@ -39,13 +39,11 @@ module LDAP
 
     private
 
-    # rubocop:disable Metrics/MethodLength
     def ldap_connection
       Net::LDAP.new host: host,
                     port: 636,
                     encryption: {
-                      method: :simple_tls,
-                      tls_options: OpenSSL::SSL::SSLContext::DEFAULT_PARAMS
+                      method: :simple_tls
                     },
                     auth: {
                       method: :simple,
@@ -53,7 +51,6 @@ module LDAP
                       password: pass
                     }
     end
-    # rubocop:enable Metrics/MethodLength
 
     def host
       Config.secrets.ldap.host

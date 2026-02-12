@@ -137,3 +137,8 @@ EmployeeIDs Overlap With Inactive StudentIDs:
   - "10152922"
   - "10159568"
   - "10162123"
+
+# These jobs will always be considered "eligible" regardless
+# of any student affiliations
+Priority Job Codes:
+  - "006761"
