@@ -46,18 +46,8 @@ class Config
     attr_reader :secrets
   end
 
-  # Returns ostruct of settings yaml file
-  # def self.settings
-  #   @settings
-  # end
-
-  # def self.load_secrets!
-  #   @secrets = JSON.parse(YAML.safe_load(ERB.new(File.read('config/secrets.yml')).result).to_json,
-  #     object_class: OpenStruct)
-  # end
-
   def self.ucpath_employee_fields
-    @ucpath_fields['Employee']['fields']
+    @ucpath_fields['employee']['fields']
   end
 
   def self.sis_fields
@@ -65,20 +55,12 @@ class Config
   end
 
   def self.ucpath_job_fields
-    @ucpath_fields['Job']['fields']
+    @ucpath_fields['job']['fields']
   end
-
-  # def self.ldap_fields
-  #   @ldap_fields
-  # end
 
   def self.student_affiated?(affiliation)
-    @ldap_fields['Student Affiliation'].include? affiliation
+    @ldap_fields['student_affiliation'].include? affiliation
   end
-
-  # def self.ucpath_codes(type)
-  #   @ucpath_codes[type]
-  # end
 
   def self.check_ucpath_code(type, value)
     @ucpath_codes[type].include? value
@@ -86,10 +68,10 @@ class Config
 
   # Returns specified field value from settings.yml
   def self.setting(field)
-    @settings.Settings[field] || nil
+    @settings.settings[field] || nil
   end
 
   def self.help
-    @settings.Help
+    @settings.help
   end
 end

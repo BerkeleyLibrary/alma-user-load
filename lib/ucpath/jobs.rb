@@ -32,23 +32,45 @@ module UCPath
     # Extract the data from the raw jobs into the fields we need
     # config/ucpath_fields.yml contains the fields/jpath we want to extract
     def find_eligible_job(job_list)
+      # Return priority job (see ucpath_codes.yml for list) if we have one
       priority_job_hash = find_priority_jobs(job_list)
-
       return map_job_to_struct(priority_job_hash) if priority_job_hash
 
-      job_list.first.each do |job_hash|
+      # No priority job so find the "best" eligible job!
+      select_best_eligible_job(job_list.first)
+    end
+
+    def select_best_eligible_job(job_hashes)
+      # Admission: I was using a long drawn out loop to go over the jobs
+      # ChatGPT suggested I try using reduce to, well, reduce the number of lines!
+      job_hashes.reduce(nil) do |best, job_hash|
         job = map_job_to_struct(job_hash)
 
-        # First one - save it incase we don't find any eligible jobs!
+        # Store the first job in case we can't find any eligible jobs
+        # This can then be used to set a new expiry date.
         @first_job ||= job
-        return job if check_if_eligible(job)
-      end
 
-      nil
+        next best unless eligible?(job)
+
+        best ? choose_job(best, job) : job
+      end
+    end
+
+    def choose_job(job1, job2)
+      # If either job has no expected end date....use it!
+      return job1 if job1.expected_end_date.to_s.empty?
+      return job2 if job2.expected_end_date.to_s.empty?
+
+      # If both jobs have an expected end date, return the one
+      # that is furthest into the future
+      date1 = Date.parse(job1.expected_end_date)
+      date2 = Date.parse(job2.expected_end_date)
+
+      date1 > date2 ? job1 : job2
     end
 
     # rubocop :disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def check_if_eligible(j)
+    def eligible?(j)
       # Assume this job is eligible - this is based on the 3 criteria below
       job_eligible = true
 
@@ -62,9 +84,9 @@ module UCPath
       #    the Visiting Scholar category
       #    or UCB Academic Dept Affiliate Code (per SD-97)
       if !(!j.org_relationship_code || j.org_relationship_code == '') && j.org_relationship_code == 'CWR' && (!Config.check_ucpath_code(
-        'Visiting Scholar Job Code', j.job_code
+        'visiting_scholar_job_code', j.job_code
       ) &&
-            !Config.check_ucpath_code('UCB Academic Dept Affiliate Code', j.job_code))
+            !Config.check_ucpath_code('ucb_academic_dept_affiliate_code', j.job_code))
         job_eligible = false
       end
 
@@ -76,9 +98,9 @@ module UCPath
     def find_priority_jobs(job_list)
       job_list.flatten.find do |jh|
         job_code = jh.dig('position', 'jobCode', 'code', 'code')
-        status = jh.dig('position', 'active', 'code')
+        status = jh.dig('status', 'hrStatus', 'code')
 
-        Config.check_ucpath_code('Priority Job Codes', job_code) && status == 'A'
+        Config.check_ucpath_code('priority_job_codes', job_code) && status == 'A'
       end
     end
 

@@ -1,4 +1,4 @@
-Settings:
+settings:
   change_log_days: 7
   sis_look_back: 7
   sis_upload_path: "/alma/patron_students/"
@@ -6,11 +6,11 @@ Settings:
   upload_host: "upload.lib.berkeley.edu"
   upload_user: "ssullivan"
   last_alma_purge: "2023-06-30"
-  application_version: "1.6.2"
+  application_version: "1.6.3"
 
 # TODO - flesh this out
 # http://docopt.org/
-Help: >
+help: >
   Alma User Load
   Usage:
       ruby alma_user_load.rb -t <ucpath|sis>

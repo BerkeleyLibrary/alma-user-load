@@ -579,5 +579,48 @@ describe UCPath::User do
     expect(u.eligible?).to be(true)
   end
 
+  it 'skips with VOID in first and last name fields' do
+    id = '10725309'
+    stub_ucpath_user(id)
+    stub_ucpath_jobs(id)
+
+    u = UCPath::User.new(id)
+    expect(u.eligible?).to be(false)
+  end
 end
+
+describe UCPath::Jobs do
+  let(:job_class) { Struct.new(:expected_end_date) }
+  subject(:jobs)  { described_class.allocate }
+
+  describe '#choose_job' do
+    context 'when job1 has no expected end date' do
+      let(:job1) { job_class.new('') }
+      let(:job2) { job_class.new('2026-01-01') }
+
+      it 'returns job1' do
+        expect(jobs.send(:choose_job, job1, job2)).to be(job1)
+      end
+    end
+
+    context 'when job2 has no expected end date' do
+      let(:job1) { job_class.new('2026-01-01') }
+      let(:job2) { job_class.new('') }
+
+      it 'returns job2' do
+        expect(jobs.send(:choose_job, job1, job2)).to be(job2)
+      end
+    end
+
+    context 'when both have dates' do
+      let(:job1) { job_class.new('2026-01-01') }
+      let(:job2) { job_class.new('2026-06-01') }
+
+      it 'returns the later job' do
+        expect(jobs.send(:choose_job, job1, job2)).to be(job2)
+      end
+    end
+  end
+end
+
 # rubocop:enable Metrics/BlockLength

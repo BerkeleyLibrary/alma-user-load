@@ -58,8 +58,8 @@ module UCPath
       # date to the current date so that they will get purged from Alma.
       # We'll either use the first job found (which is the users most recent job)
       # or we'll create a dummy job with the expected_end_date set to today.
-      # AP-359: Update, if there is no job (elgible or otherwise) then, like
-      # Gandalf said: YOU SHALL NOT PASS!
+      # AP-359: Update, do not create a dummy job if there is no job, those are
+      # ineligible
       unless @jobs.eligible_job?
         if @jobs.first_job
           logger.info "#{id} - No eligible job found, using first job"
@@ -131,7 +131,7 @@ module UCPath
       rec.primary_id = ucpath_rec.ucpath_employee_id
 
       job_code = jobs.job.job_code || nil
-      priority_job = Config.check_ucpath_code('Priority Job Codes', job_code)
+      priority_job = Config.check_ucpath_code('priority_job_codes', job_code)
 
       # STUDENT CHECK - berkeleyeduaffiliations in Student Affiliation (ldap_fields.yml)
       if !priority_job && ldap&.berkeleyeduaffiliations
@@ -145,8 +145,15 @@ module UCPath
 
       # CONTINGENT WORKER CHECK
       # AP-361: Thou Shalt not pass if the user has a Contingent Worker Job Code!
-      if job_code && Config.check_ucpath_code('Contingent Worker Job Code', job_code)
+      if job_code && Config.check_ucpath_code('contingent_worker_job_code', job_code)
         logger.info "#{id} - Ineligible: Contingent Worker Job Code: #{job_code}"
+        return nil
+      end
+
+      # VOIDED ACCOUNT CHECK
+      # AP-463: If first and last name are "VOID" skip user!
+      if ucpath_rec.last_name == 'VOID' && ucpath_rec.first_name == 'VOID'
+        logger.info "#{id} - Ineligible: Account is VOID"
         return nil
       end
 
@@ -180,22 +187,22 @@ module UCPath
       rec.job_description = j.dept_desc || nil
 
       # USER_GROUP
-      rec.user_group = if Config.check_ucpath_code('Library Staff Dept Code Prefix', j.dept_code) ||
-                          Config.check_ucpath_code('Library Staff Job Code', j.job_code)
+      rec.user_group = if Config.check_ucpath_code('library_staff_dept_code_prefix', j.dept_code) ||
+                          Config.check_ucpath_code('library_staff_job_code', j.job_code)
                          'LIBSTAFF'
-                       elsif Config.check_ucpath_code('Postdoc Job Code', j.job_code)
+                       elsif Config.check_ucpath_code('postdoc_job_code', j.job_code)
                          'UCB POST'
-                       elsif Config.check_ucpath_code('Visiting Scholar Job Code', j.job_code)
+                       elsif Config.check_ucpath_code('visiting_scholar_job_code', j.job_code)
                          'UCBVISSCHOL'
-                       elsif Config.check_ucpath_code('UCB Academic Dept Affiliate Code', j.job_code)
+                       elsif Config.check_ucpath_code('ucb_academic_dept_affiliate_code', j.job_code)
                          'UCBAFFILI'
-                       elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) &&
-                              Config.check_ucpath_code('UC Extension Faculty', j.dept_code)
+                       elsif Config.check_ucpath_code('academic_classification_indic', j.classification_indc) &&
+                              Config.check_ucpath_code('uc_extension_faculty', j.dept_code)
                          'UCEXT'
-                       elsif Config.check_ucpath_code('Academic Classification Indic', j.classification_indc) ||
-                              Config.check_ucpath_code('Emeritus Job Code', j.job_code)
+                       elsif Config.check_ucpath_code('academic_classification_indic', j.classification_indc) ||
+                              Config.check_ucpath_code('emeritus_job_code', j.job_code)
                          'FACULTY'
-                       elsif Config.check_ucpath_code('Executive Classification Indic', j.classification_indc)
+                       elsif Config.check_ucpath_code('executive_classification_indic', j.classification_indc)
                          'EXECUTIVE'
                        else
                          'NONACAD'
