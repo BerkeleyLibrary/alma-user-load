@@ -75,10 +75,10 @@ module UCPath
       job_eligible = true
 
       # 1. hrStatus/code = A
-      job_eligible = false unless j.hr_status_code == 'A'
+      return false unless j.hr_status_code == 'A'
 
       # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
-      job_eligible = false if !(!j.expected_end_date || j.expected_end_date == '') && (Date.iso8601(j.expected_end_date) <= Date.today)
+      return false if !(!j.expected_end_date || j.expected_end_date == '') && (Date.iso8601(j.expected_end_date) <= Date.today)
 
       # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
       #    the Visiting Scholar category
@@ -87,7 +87,7 @@ module UCPath
         'visiting_scholar_job_code', j.job_code
       ) &&
             !Config.check_ucpath_code('ucb_academic_dept_affiliate_code', j.job_code))
-        job_eligible = false
+        return false
       end
 
       # return if the job is eligible or not
