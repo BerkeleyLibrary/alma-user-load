@@ -590,37 +590,169 @@ describe UCPath::User do
 end
 
 describe UCPath::Jobs do
-  let(:job_class) { Struct.new(:expected_end_date) }
-  subject(:jobs)  { described_class.allocate }
+  subject(:jobs) { described_class.allocate }
+
+  # Small helper wrappers so specs read cleanly even though methods are private
+  def choose_job(job1, job2)
+    jobs.send(:choose_job, job1, job2)
+  end
+
+  def eligible(job)
+    jobs.send(:eligible?, job)
+  end
+
+  # Minimal structs to stand in for your “job” objects
+  let(:choose_job_struct) { Struct.new(:expected_end_date) }
+  let(:eligible_job_struct) do
+    Struct.new(:hr_status_code, :expected_end_date, :org_relationship_code, :job_code)
+  end
 
   describe '#choose_job' do
     context 'when job1 has no expected end date' do
-      let(:job1) { job_class.new('') }
-      let(:job2) { job_class.new('2026-01-01') }
+      let(:job1) { choose_job_struct.new('') }
+      let(:job2) { choose_job_struct.new('2026-01-01') }
 
       it 'returns job1' do
-        expect(jobs.send(:choose_job, job1, job2)).to be(job1)
+        expect(choose_job(job1, job2)).to be(job1)
       end
     end
 
     context 'when job2 has no expected end date' do
-      let(:job1) { job_class.new('2026-01-01') }
-      let(:job2) { job_class.new('') }
+      let(:job1) { choose_job_struct.new('2026-01-01') }
+      let(:job2) { choose_job_struct.new('') }
 
       it 'returns job2' do
-        expect(jobs.send(:choose_job, job1, job2)).to be(job2)
+        expect(choose_job(job1, job2)).to be(job2)
       end
     end
 
-    context 'when both have dates' do
-      let(:job1) { job_class.new('2026-01-01') }
-      let(:job2) { job_class.new('2026-06-01') }
+    context 'when both have expected end dates' do
+      let(:job1) { choose_job_struct.new('2026-01-01') }
+      let(:job2) { choose_job_struct.new('2026-06-01') }
 
-      it 'returns the later job' do
-        expect(jobs.send(:choose_job, job1, job2)).to be(job2)
+      it 'returns the job with the later date' do
+        expect(choose_job(job1, job2)).to be(job2)
+      end
+    end
+
+    context 'when dates are equal' do
+      let(:job1) { choose_job_struct.new('2026-01-01') }
+      let(:job2) { choose_job_struct.new('2026-01-01') }
+
+      it 'returns job2 (tie goes to second arg)' do
+        expect(choose_job(job1, job2)).to be(job2)
+      end
+    end
+  end
+
+  describe '#eligible?' do
+    let(:today) { Date.new(2026, 2, 23) }
+
+    before do
+      allow(Date).to receive(:today).and_return(today)
+    end
+
+    context "when hr_status_code is not 'A'" do
+      let(:job) { eligible_job_struct.new('I', '', '', 'ANY') }
+
+      it 'returns false' do
+        expect(eligible(job)).to be(false)
+      end
+    end
+
+    context "when hr_status_code is 'A' and expected_end_date is blank" do
+      let(:job) { eligible_job_struct.new('A', '', '', 'ANY') }
+
+      it 'returns true' do
+        expect(eligible(job)).to be(true)
+      end
+    end
+
+    context "when hr_status_code is 'A' and expected_end_date is after today" do
+      let(:job) { eligible_job_struct.new('A', '2026-03-01', '', 'ANY') }
+
+      it 'returns true' do
+        expect(eligible(job)).to be(true)
+      end
+    end
+
+    context "when hr_status_code is 'A' and expected_end_date is today" do
+      let(:job) { eligible_job_struct.new('A', '2026-02-23', '', 'ANY') }
+
+      it 'returns false (<= today is not eligible per implementation)' do
+        expect(eligible(job)).to be(false)
+      end
+    end
+
+    context "when hr_status_code is 'A' and expected_end_date is before today" do
+      let(:job) { eligible_job_struct.new('A', '2026-02-01', '', 'ANY') }
+
+      it 'returns false' do
+        expect(eligible(job)).to be(false)
+      end
+    end
+
+    context 'when org_relationship_code is blank and other conditions pass' do
+      let(:job) { eligible_job_struct.new('A', '', '', 'ANY') }
+
+      it 'returns true' do
+        expect(eligible(job)).to be(true)
+      end
+    end
+
+    context "when org_relationship_code is 'CWR' and job_code is NOT in either allowlist" do
+      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'NOT_ALLOWED') }
+
+      before do
+        allow(Config).to receive(:check_ucpath_code)
+          .with('visiting_scholar_job_code', 'NOT_ALLOWED')
+          .and_return(false)
+
+        allow(Config).to receive(:check_ucpath_code)
+          .with('ucb_academic_dept_affiliate_code', 'NOT_ALLOWED')
+          .and_return(false)
+      end
+
+      it 'returns false' do
+        expect(eligible(job)).to be(false)
+      end
+    end
+
+    context "when org_relationship_code is 'CWR' and job_code IS in visiting_scholar_job_code" do
+      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'ALLOWED') }
+
+      before do
+        allow(Config).to receive(:check_ucpath_code)
+          .with('visiting_scholar_job_code', 'ALLOWED')
+          .and_return(true)
+
+        allow(Config).to receive(:check_ucpath_code)
+          .with('ucb_academic_dept_affiliate_code', 'ALLOWED')
+          .and_return(false)
+      end
+
+      it 'returns true' do
+        expect(eligible(job)).to be(true)
+      end
+    end
+
+    context "when org_relationship_code is 'CWR' and job_code IS in ucb_academic_dept_affiliate_code" do
+      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'ALLOWED') }
+
+      before do
+        allow(Config).to receive(:check_ucpath_code)
+          .with('visiting_scholar_job_code', 'ALLOWED')
+          .and_return(false)
+
+        allow(Config).to receive(:check_ucpath_code)
+          .with('ucb_academic_dept_affiliate_code', 'ALLOWED')
+          .and_return(true)
+      end
+
+      it 'returns true' do
+        expect(eligible(job)).to be(true)
       end
     end
   end
 end
-
 # rubocop:enable Metrics/BlockLength

@@ -69,7 +69,7 @@ module UCPath
       date1 > date2 ? job1 : job2
     end
 
-    # rubocop :disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop :disable Metrics/AbcSize, Metrics/CyclomaticComplexity
     def eligible?(j)
       # Assume this job is eligible - this is based on the 3 criteria below
       job_eligible = true
@@ -83,17 +83,17 @@ module UCPath
       # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
       #    the Visiting Scholar category
       #    or UCB Academic Dept Affiliate Code (per SD-97)
-      if !(!j.org_relationship_code || j.org_relationship_code == '') && j.org_relationship_code == 'CWR' && (!Config.check_ucpath_code(
-        'visiting_scholar_job_code', j.job_code
-      ) &&
-            !Config.check_ucpath_code('ucb_academic_dept_affiliate_code', j.job_code))
-        return false
+      if j.org_relationship_code == 'CWR'
+        visiting_scholar = Config.check_ucpath_code('visiting_scholar_job_code', j.job_code)
+        academic_affiliate = Config.check_ucpath_code('ucb_academic_dept_affiliate_code', j.job_code)
+
+        return false unless visiting_scholar || academic_affiliate
       end
 
       # return if the job is eligible or not
       job_eligible
     end
-    # rubocop :enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop :enable Metrics/AbcSize, Metrics/CyclomaticComplexity
 
     def find_priority_jobs(job_list)
       job_list.flatten.find do |jh|
