@@ -69,16 +69,14 @@ module UCPath
       date1 > date2 ? job1 : job2
     end
 
-    # rubocop :disable Metrics/AbcSize, Metrics/CyclomaticComplexity
     def eligible?(j)
-      # Assume this job is eligible - this is based on the 3 criteria below
-      job_eligible = true
-
+      # There are 3 conditions that determine if a job is "not eligible":
       # 1. hrStatus/code = A
       return false unless j.hr_status_code == 'A'
 
       # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
-      return false if !(!j.expected_end_date || j.expected_end_date == '') && (Date.iso8601(j.expected_end_date) <= Date.today)
+      end_date_str = j.expected_end_date.to_s
+      return false if end_date_str != '' && Date.iso8601(end_date_str) <= Date.today
 
       # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
       #    the Visiting Scholar category
@@ -90,10 +88,9 @@ module UCPath
         return false unless visiting_scholar || academic_affiliate
       end
 
-      # return if the job is eligible or not
-      job_eligible
+      # If we got this far the job is eligible - hooray!
+      true
     end
-    # rubocop :enable Metrics/AbcSize, Metrics/CyclomaticComplexity
 
     def find_priority_jobs(job_list)
       job_list.flatten.find do |jh|
