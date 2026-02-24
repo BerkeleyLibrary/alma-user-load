@@ -1,4 +1,4 @@
-Library Staff Job Code:
+library_staff_job_code:
   - "000118"
   - "000541"
   - "000542"
@@ -37,20 +37,20 @@ Library Staff Job Code:
   - "006776"
   - "004445"
 
-Postdoc Job Code:
+postdoc_job_code:
   - "003252"
   - "003253"
   - "003254"
 
-Visiting Scholar Job Code:
+visiting_scholar_job_code:
   - "CWR003"
   - "CWR015"
   - "CWR016"
 
-UCB Academic Dept Affiliate Code:
+ucb_academic_dept_affiliate_code:
   - "CWR022"
 
-Emeritus Job Code:
+emeritus_job_code:
   - "001132"
   - "001620"
   - "001621"
@@ -58,87 +58,34 @@ Emeritus Job Code:
   - "003800"
   - "009902"
 
-Contingent Worker Job Code:
+# Users with these job codes are NOT eligible and are skipped
+# AP-402: Added codes
+contingent_worker_job_code:
   - "CWR005"
   - "CWR006"
   - "CWR011"
   - "CWR017"
+  - "CWR002"
+  - "CWR014"
+  - "CWR019"
+  - "CWR021"
 
-Library Staff Dept Code Prefix:
+library_staff_dept_code_prefix:
   - "KPADM"
   - "KSBAN"
 
-Academic Classification Indic:
+academic_classification_indic:
   - "A"
 
-Executive Classification Indic:
+executive_classification_indic:
   - "2"
   - "3"
 
-UC Extension Faculty:
+uc_extension_faculty:
   - "EXADM"
   - "HYACD"
 
-User Groups:
-  LIBSTAFF: "Library Staff"
-  UCB POST: "UCB Post-doc"
-  UCBVISSCHOL: "UC Visiting Scholar/Post-doc"
-  UCEXT: "UC Extension Faculty"
-  FACULTY: "Faculty/Academic Staff"
-  EXECUTIVE: "Executive/Management"
-  NONACAD: "Non-Academic Staff"
-
-EmployeeIDs Overlap With Active StudentIDs:
-  - "10292578"
-  - "10253436"
-  - "10196637"
-  - "10287044"
-  - "10222713"
-  - "10271501"
-
-EmployeeIDs Overlap With Inactive StudentIDs:
-  - "10152606"
-  - "10144416"
-  - "10148747"
-  - "10166423"
-  - "10167296"
-  - "10151482"
-  - "10149503"
-  - "10145130"
-  - "10155093"
-  - "10148094"
-  - "10179984"
-  - "10171800"
-  - "10156819"
-  - "10158566"
-  - "10163229"
-  - "10162567"
-  - "10164981"
-  - "10151079"
-  - "10170868"
-  - "10145630"
-  - "10162470"
-  - "10165174"
-  - "10168069"
-  - "10169189"
-  - "10178840"
-  - "10151753"
-  - "10152040"
-  - "10149596"
-  - "10147429"
-  - "10150275"
-  - "10148150"
-  - "10157311"
-  - "10147894"
-  - "10144961"
-  - "10145758"
-  - "10151166"
-  - "10152311"
-  - "10152922"
-  - "10159568"
-  - "10162123"
-
 # These jobs will always be considered "eligible" regardless
 # of any student affiliations
-Priority Job Codes:
+priority_job_codes:
   - "006761"
