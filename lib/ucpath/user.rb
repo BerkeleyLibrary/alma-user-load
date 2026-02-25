@@ -143,10 +143,11 @@ module UCPath
         end
       end
 
-      # CONTINGENT WORKER CHECK
+      # EXCLUDE JOB CODE CHECK
       # AP-361: Thou Shalt not pass if the user has a Contingent Worker Job Code!
-      if job_code && Config.check_ucpath_code('contingent_worker_job_code', job_code)
-        logger.info "#{id} - Ineligible: Contingent Worker Job Code: #{job_code}"
+      # AP-576: Change list name and log message since this expanded beyond "contingent workers"
+      if job_code && Config.check_ucpath_code('exclude_job_code', job_code)
+        logger.info "#{id} - Ineligible: job code in exclude_job_code list: #{job_code}"
         return nil
       end
 

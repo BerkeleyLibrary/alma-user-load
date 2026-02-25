@@ -6,7 +6,7 @@ settings:
   upload_host: "upload.lib.berkeley.edu"
   upload_user: "ssullivan"
   last_alma_purge: "2023-06-30"
-  application_version: "1.6.3"
+  application_version: "1.6.4"
 
 # TODO - flesh this out
 # http://docopt.org/
