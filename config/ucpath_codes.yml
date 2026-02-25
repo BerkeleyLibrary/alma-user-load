@@ -60,7 +60,8 @@ emeritus_job_code:
 
 # Users with these job codes are NOT eligible and are skipped
 # AP-402: Added codes
-contingent_worker_job_code:
+# AP-576 & AP-590: Added some student job codes and renamed list
+exclude_job_code:
   - "CWR005"
   - "CWR006"
   - "CWR011"
@@ -69,6 +70,10 @@ contingent_worker_job_code:
   - "CWR014"
   - "CWR019"
   - "CWR021"
+  - "002320"
+  - "003282"
+  - "004919"
+  - "002851"
 
 library_staff_dept_code_prefix:
   - "KPADM"
