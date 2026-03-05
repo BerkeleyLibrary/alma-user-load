@@ -1,28 +1,28 @@
 attributes:
-  - berkeleyEduExpDate
-  - berkeleyEduHCMID
-  - berkeleyEduAffID
-  - berkeleyEduAffiliations
-  - berkeleyEduBirthDay
-  - berkeleyEduBirthMonth
-  - berkeleyEduBirthYear
-  - berkeleyEduAlternateID
-  - berkeleyEduCSID
-  - berkeleyEduEmpTitleCode
-  - berkeleyEduEmpDeptUnitTitleCode
-  - berkeleyEduKerberosPrincipalString
-  - berkeleyEduStuID
-  - employeeNumber
-  - employeeType
+  - berkeleyeduexpdate
+  - berkeleyeduhcmid
+  - berkeleyeduaffid
+  - berkeleyeduaffiliations
+  - berkeleyedubirthday
+  - berkeleyedubirthmonth
+  - berkeleyedubirthyear
+  - berkeleyedualternateid
+  - berkeleyeducsid
+  - berkeleyeduemptitlecode
+  - berkeleyeduempdeptunittitlecode
+  - berkeleyedukerberosprincipalstring
+  - berkeleyedustuid
+  - employeenumber
+  - employeetype
   - uid
-  - berkeleyEduUnitHRDeptName
-  - givenName
+  - berkeleyeduunithrdeptname
+  - givenname
   - sn
-  - berkeleyEduOfficialEmail
-  - berkeleyEduPrimaryDeptUnit
-  - postalAddress
-  - postalCode
-  - telephoneNumber
+  - berkeleyeduofficialemail
+  - berkeleyeduprimarydeptunit
+  - postaladdress
+  - postalcode
+  - telephonenumber
   - mail
 
 student_affiliation:

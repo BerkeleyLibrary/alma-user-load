@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'ostruct'
 require 'net/ldap'
 
 module LDAP
-  # Fetches an LDAP record by UID returns an ostruct
+  # Fetches an LDAP record by UID returns an struct
   module API
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def fetch_ldap_rec(id)
-      ldap_rec = OpenStruct.new
+      ldap_rec = ldap_struct_class.new
+
       filter = Net::LDAP::Filter.eq('uid', id)
 
       # Track number of attempts incase of a timeout or other temporary glitch
@@ -23,7 +23,12 @@ module LDAP
         ldap.bind
         ldap.search(base: base, filter: filter) do |entry|
           entry.each do |attribute, values|
-            ldap_rec[attribute] = values
+
+            # Only grab the LDAP fields we care about....
+            attr_sym = attribute.to_sym
+            next unless ldap_rec.members.include?(attr_sym)
+
+            ldap_rec[attr_sym] = values
           end
         end
       rescue StandardError => e
@@ -62,6 +67,14 @@ module LDAP
 
     def pass
       Config.secrets.ldap.pass
+    end
+
+    # Define the LDAP Struct from the attributes we have in config > ldap_fields.yml[attributes]
+    def ldap_struct_class
+      return self.class::Ldap if self.class.const_defined?(:Ldap, false)
+
+      attribute_symbols = Config.ldap_attributes.map(&:to_sym)
+      self.class.const_set(:Ldap, Struct.new(*attribute_symbols, keyword_init: true))
     end
   end
 end

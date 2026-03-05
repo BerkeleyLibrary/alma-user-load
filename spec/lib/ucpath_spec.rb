@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'stub_helper'
 require 'ldap_helper'
-require 'ostruct'
 
 # rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength:
 describe UCPath do

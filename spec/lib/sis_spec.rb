@@ -2,7 +2,6 @@
 
 require 'spec_helper'
 require 'stub_helper'
-require 'ostruct'
 require 'nokogiri'
 
 # rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant

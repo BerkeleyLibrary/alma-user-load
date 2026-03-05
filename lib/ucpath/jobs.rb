@@ -1,6 +1,5 @@
 require 'date'
 require 'json'
-require 'ostruct'
 require 'jsonpath'
 require 'nokogiri'
 require_relative '../alma'
@@ -101,12 +100,26 @@ module UCPath
       end
     end
 
+    # Return the Job Struct class, creating it once using the
+    # field names defined in ucpath_fields.yml if it does not already exist.
+    def job_struct_class
+      return self.class::Job if self.class.const_defined?(:Job, false)
+
+      keys = Config.ucpath_job_fields.map { |f| f['name'].to_sym }
+      self.class.const_set(:Job, Struct.new(*keys, keyword_init: true))
+    end
+
+    # Extract the configured fields from the raw job JSON and
+    # instantiate a Job struct with the resulting values.
     def map_job_to_struct(job_hash)
-      OpenStruct.new(
-        Config.ucpath_job_fields.to_h do |field|
-          [field['name'], JsonPath.on(job_hash, field['jpath']).first || '']
-        end
-      )
+      attrs = Config.ucpath_job_fields.to_h do |field|
+        [
+          field['name'].to_sym,
+          JsonPath.on(job_hash, field['jpath']).first || ''
+        ]
+      end
+
+      job_struct_class.new(**attrs)
     end
 
     def fetch_jobs(id)

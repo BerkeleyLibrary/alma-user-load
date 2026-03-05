@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'ostruct'
 require 'date'
 
 # rubocop:disable Metrics/ClassLength
@@ -18,9 +17,15 @@ module SIS
     Email = Struct.new(:preferred, :email_address, :email_types)
     Phone = Struct.new(:preferred, :preferred_sms, :phone_number, :phone_types)
 
+    Rec = Struct.new(:primary_id, :job_description, :expiry_date, :purge_date, :contact_info,
+                     :identifiers, :user_group, :full_name, :first_name, :middle_name, :last_name,
+                     :preferred_name, :pref_name_givenname, :pref_name_middlename, :pref_name_familyname,
+                     :campus_code, :account_type, :status,
+                     keyword_init: true)
+
     def initialize(user)
       @user = user
-      @rec = OpenStruct.new
+      @rec = Rec.new
       create_user_record
     end
 

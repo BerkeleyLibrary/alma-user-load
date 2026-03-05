@@ -2,7 +2,6 @@
 
 require 'spec_helper'
 require 'stub_helper'
-require 'ostruct'
 require 'tempfile'
 
 # rubocop :disable Metrics/BlockLength
@@ -78,9 +77,8 @@ describe Alma::XMLBuilder do
     # Mock fake LDAP rec to make sure we don't have an email/phone
     # for this record...
     ldap_id = '112823'
-    ldap_data = OpenStruct.new
-    ldap_data['sn'] = ['test_last_name']
-    ldap_data['givenname'] = ['test_first_name']
+    ldap_data = Struct.new(:sn, :givenname, :berkeleyeduaffiliations, :berkeleyedualternateid, :telephonenumber, keyword_init: true)
+      .new(sn: ['test_last_name'], givenname: ['test_first_name'])
     allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(ldap_data)
     user2 = UCPath::User.new(ucpath_id)
 
