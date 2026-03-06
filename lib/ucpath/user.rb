@@ -1,6 +1,5 @@
 require 'date'
 require 'json'
-require 'ostruct'
 require 'jsonpath'
 require 'nokogiri'
 require_relative 'jobs'
@@ -19,6 +18,11 @@ module UCPath
     Email = Struct.new(:preferred, :email_address, :email_types)
     Phone = Struct.new(:preferred, :preferred_sms, :phone_number, :phone_types)
 
+    Rec = Struct.new(:primary_id, :first_name, :last_name, :middle_name, :full_name,
+                     :user_group, :job_description, :expiry_date, :purge_date, :contact_info,
+                     :campus_code, :account_type, :status, :identifiers,
+                     keyword_init: true)
+
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def initialize(id)
       @id = id
@@ -30,9 +34,9 @@ module UCPath
       @eligible = false
 
       #----------------------------------------------------------------#
-      # THESE RECORDS ARE A BIT MORE FLEXIBLE AND THUS USING OPENSTRUCTS
-      @rec = OpenStruct.new
-      @ucpath_rec = OpenStruct.new
+      # Death to OpenStructs... long live Structs!!!
+      @rec = Rec.new
+      @ucpath_rec = ucpath_record_struct_class.new
 
       #----------------------------------------------------------------#
       # FETCH & PARSE UCPATH USER AND JOBS
@@ -119,6 +123,13 @@ module UCPath
       logger.info "#{id} - Eligible: #{eligible?}"
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
+    def ucpath_record_struct_class
+      return self.class::UcpathRecord if self.class.const_defined?(:UcpathRecord, false)
+
+      keys = Config.ucpath_employee_fields.map { |f| f['name'].to_sym }
+      self.class.const_set(:UcpathRecord, Struct.new(*keys, keyword_init: true))
+    end
 
     def eligible?
       eligible
@@ -465,6 +476,7 @@ module UCPath
 
     # First load all UCPath Employee Data into obj
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+    #
     def parse_user
       Config.ucpath_employee_fields.each do |f|
         name = f['name']

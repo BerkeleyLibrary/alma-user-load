@@ -91,16 +91,6 @@ job:
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
-    - name: job_code
-      jpath: "$.position.jobCode.code.code"
-      dbdef: "VARCHAR(16)"
-      status: OPTIONAL
-
-    - name: dept_code
-      jpath: "$.department.code"
-      dbdef: "VARCHAR(16)"
-      status: OPTIONAL
-
     - name: dept_desc
       jpath: "$.department.description"
       dbdef: "VARCHAR(64)"
