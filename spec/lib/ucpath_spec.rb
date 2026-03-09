@@ -603,7 +603,7 @@ describe UCPath::Jobs do
   # Minimal structs to stand in for your “job” objects
   let(:choose_job_struct) { Struct.new(:expected_end_date) }
   let(:eligible_job_struct) do
-    Struct.new(:hr_status_code, :expected_end_date, :org_relationship_code, :job_code)
+    Struct.new(:hr_status_code, :expected_end_date, :org_relationship_code, :job_code, :percent_of_fulltime)
   end
 
   describe '#choose_job' do
@@ -652,7 +652,7 @@ describe UCPath::Jobs do
     end
 
     context "when hr_status_code is not 'A'" do
-      let(:job) { eligible_job_struct.new('I', '', '', 'ANY') }
+      let(:job) { eligible_job_struct.new('I', '', '', 'ANY', 1.0) }
 
       it 'returns false' do
         expect(eligible(job)).to be(false)
@@ -660,7 +660,7 @@ describe UCPath::Jobs do
     end
 
     context "when hr_status_code is 'A' and expected_end_date is blank" do
-      let(:job) { eligible_job_struct.new('A', '', '', 'ANY') }
+      let(:job) { eligible_job_struct.new('A', '', '', 'ANY', 1.0) }
 
       it 'returns true' do
         expect(eligible(job)).to be(true)
@@ -668,7 +668,7 @@ describe UCPath::Jobs do
     end
 
     context "when hr_status_code is 'A' and expected_end_date is after today" do
-      let(:job) { eligible_job_struct.new('A', '2026-03-01', '', 'ANY') }
+      let(:job) { eligible_job_struct.new('A', '2026-03-01', '', 'ANY', 1.0) }
 
       it 'returns true' do
         expect(eligible(job)).to be(true)
@@ -676,7 +676,7 @@ describe UCPath::Jobs do
     end
 
     context "when hr_status_code is 'A' and expected_end_date is today" do
-      let(:job) { eligible_job_struct.new('A', '2026-02-23', '', 'ANY') }
+      let(:job) { eligible_job_struct.new('A', '2026-02-23', '', 'ANY', 1.0) }
 
       it 'returns false (<= today is not eligible per implementation)' do
         expect(eligible(job)).to be(false)
@@ -684,7 +684,7 @@ describe UCPath::Jobs do
     end
 
     context "when hr_status_code is 'A' and expected_end_date is before today" do
-      let(:job) { eligible_job_struct.new('A', '2026-02-01', '', 'ANY') }
+      let(:job) { eligible_job_struct.new('A', '2026-02-01', '', 'ANY', 1.0) }
 
       it 'returns false' do
         expect(eligible(job)).to be(false)
@@ -692,7 +692,7 @@ describe UCPath::Jobs do
     end
 
     context 'when org_relationship_code is blank and other conditions pass' do
-      let(:job) { eligible_job_struct.new('A', '', '', 'ANY') }
+      let(:job) { eligible_job_struct.new('A', '', '', 'ANY', 1.0) }
 
       it 'returns true' do
         expect(eligible(job)).to be(true)
@@ -700,7 +700,7 @@ describe UCPath::Jobs do
     end
 
     context "when org_relationship_code is 'CWR' and job_code is NOT in either allowlist" do
-      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'NOT_ALLOWED') }
+      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'NOT_ALLOWED', 1.0) }
 
       before do
         allow(Config).to receive(:check_ucpath_code)
@@ -718,7 +718,7 @@ describe UCPath::Jobs do
     end
 
     context "when org_relationship_code is 'CWR' and job_code IS in visiting_scholar_job_code" do
-      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'ALLOWED') }
+      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'ALLOWED', 1.0) }
 
       before do
         allow(Config).to receive(:check_ucpath_code)
@@ -736,7 +736,7 @@ describe UCPath::Jobs do
     end
 
     context "when org_relationship_code is 'CWR' and job_code IS in ucb_academic_dept_affiliate_code" do
-      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'ALLOWED') }
+      let(:job) { eligible_job_struct.new('A', '', 'CWR', 'ALLOWED', 1.0) }
 
       before do
         allow(Config).to receive(:check_ucpath_code)
@@ -750,6 +750,17 @@ describe UCPath::Jobs do
 
       it 'returns true' do
         expect(eligible(job)).to be(true)
+      end
+    end
+
+    context 'when percent_of_fulltime does not exist' do
+      let(:job_without_percent) do
+        Struct.new(:hr_status_code, :expected_end_date, :org_relationship_code, :job_code)
+          .new('A', '', '', 'ANY')
+      end
+
+      it 'returns false' do
+        expect(eligible(job_without_percent)).to be(false)
       end
     end
   end

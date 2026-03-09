@@ -18,6 +18,7 @@
               "code": "SMTOC",
               "description": "Simons Institute TOC"
             },
+            "percentOfFullTime": 1.000000,
             "jobCode": {
               "code": {
                 "code": "003252",

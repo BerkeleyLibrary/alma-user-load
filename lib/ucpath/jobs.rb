@@ -69,26 +69,51 @@ module UCPath
     end
 
     def eligible?(j)
-      # There are 3 conditions that determine if a job is "not eligible":
-      # 1. hrStatus/code = A
-      return false unless j.hr_status_code == 'A'
-
-      # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
-      end_date_str = j.expected_end_date.to_s
-      return false if end_date_str != '' && Date.iso8601(end_date_str) <= Date.today
-
-      # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
-      #    the Visiting Scholar category
-      #    or UCB Academic Dept Affiliate Code (per SD-97)
-      if j.org_relationship_code == 'CWR'
-        visiting_scholar = Config.check_ucpath_code('visiting_scholar_job_code', j.job_code)
-        academic_affiliate = Config.check_ucpath_code('ucb_academic_dept_affiliate_code', j.job_code)
-
-        return false unless visiting_scholar || academic_affiliate
-      end
+      # There are 4 conditions that determine if a job is "not eligible":
+      return false unless active_job?(j)
+      return false unless valid_expected_end_date?(j)
+      return false unless valid_org_relationship?(j)
+      return false unless positive_full_time?(j)
 
       # If we got this far the job is eligible - hooray!
       true
+    end
+
+    # 1. hrStatus/code = A
+    def active_job?(j)
+      j.hr_status_code == 'A'
+    end
+
+    # 2. If their Job record has an expectedEndDate, it must be on or after today's date.
+    def valid_expected_end_date?(j)
+      end_date_str = j.expected_end_date.to_s
+      return true if end_date_str.empty?
+
+      Date.iso8601(end_date_str) > Date.today
+    end
+
+    # 3. If their organizationRelationship/code = 'CWR' their jobCode must be within
+    #    the Visiting Scholar category
+    #    or UCB Academic Dept Affiliate Code (per SD-97)
+    def valid_org_relationship?(j)
+      return true unless j.org_relationship_code == 'CWR'
+
+      visiting_scholar = Config.check_ucpath_code('visiting_scholar_job_code', j.job_code)
+      academic_affiliate = Config.check_ucpath_code('ucb_academic_dept_affiliate_code', j.job_code)
+
+      visiting_scholar || academic_affiliate
+    end
+
+    # 4. The job will be ineligible if the percentage of full time is zero
+    def positive_full_time?(j)
+      percent_fulltime =
+        if j.respond_to?(:percent_of_fulltime)
+          j.percent_of_fulltime.to_f
+        else
+          0.0
+        end
+
+      percent_fulltime.positive?
     end
 
     def find_priority_jobs(job_list)
