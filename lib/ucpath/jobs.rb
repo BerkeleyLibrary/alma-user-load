@@ -106,14 +106,7 @@ module UCPath
 
     # 4. The job will be ineligible if the percentage of full time is zero
     def positive_full_time?(j)
-      percent_fulltime =
-        if j.respond_to?(:percent_of_fulltime)
-          j.percent_of_fulltime.to_f
-        else
-          0.0
-        end
-
-      percent_fulltime.positive?
+      j.percent_of_fulltime.to_f.positive?
     end
 
     def find_priority_jobs(job_list)

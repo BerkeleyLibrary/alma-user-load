@@ -752,17 +752,6 @@ describe UCPath::Jobs do
         expect(eligible(job)).to be(true)
       end
     end
-
-    context 'when percent_of_fulltime does not exist' do
-      let(:job_without_percent) do
-        Struct.new(:hr_status_code, :expected_end_date, :org_relationship_code, :job_code)
-          .new('A', '', '', 'ANY')
-      end
-
-      it 'returns false' do
-        expect(eligible(job_without_percent)).to be(false)
-      end
-    end
   end
 end
 # rubocop:enable Metrics/BlockLength
