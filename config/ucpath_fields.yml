@@ -201,11 +201,7 @@ job:
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
 
-# Needed....?
-# EmployeeIDs:
-#   employee_rootnode: "//ar:response/emp:employees/emp:employee"
-#   total_records_xpath: "//ar:offset/ar:total"
-#   remaining_records_xpath: "//ar:offset/ar:remaining"
-#   next_records_xpath: "//ar:offset/ar:next"
-#   previous_records_xpath: "//ar:offset/ar:previous"
-#   employee_id_xpath: "./p:identifiers/r:identifier[r:type/text()='hr-employee-id']/r:id"
+    - name: percent_of_fulltime
+      jpath: "$.position.percentOfFullTime"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
