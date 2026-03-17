@@ -34,3 +34,16 @@ def stub_ldap(id)
 
   ldap_rec
 end
+
+def stub_ldap_entries(ldap_id, entries)
+  ldap_stub = stub_ldap(ldap_id)
+  ldap_conn = ldap_stub['connection']
+
+  allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_conn)
+  expect(ldap_conn).to receive(:bind)
+  expect(ldap_conn).to receive(:search).with(ldap_stub['base']) do |_, &block|
+    entries.each { |entry| block.call(entry) }
+  end
+
+  ldap_stub
+end

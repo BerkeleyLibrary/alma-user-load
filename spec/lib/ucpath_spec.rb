@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'stub_helper'
 require 'ldap_helper'
 
-# rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength:
+# rubocop:disable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength
 describe UCPath do
   it 'does not create a file if changelog returns zero records' do
     stub_empty_change_log('2022-04-10', '2022-04-13')
@@ -15,8 +15,8 @@ describe UCPath do
 
       UCPath.run_ucpath setup
 
-      expect(File.exist?(setup.zip_path)).to eq(false)
-      expect(File.exist?(setup.xml_path)).to eq(false)
+      expect(File.exist?(setup.zip_path)).to be(false)
+      expect(File.exist?(setup.xml_path)).to be(false)
     end
   end
 
@@ -28,8 +28,8 @@ describe UCPath do
     stub_ucpath_jobs('10000004')
 
     # Mock LDAP
-    allow(LDAP::API).to receive('fetch_ldap_rec').with('112823').and_return(nil)
-    allow(LDAP::API).to receive('fetch_ldap_rec').with('1628831').and_return(nil)
+    allow(LDAP::API).to receive(:fetch_ldap_rec).with('112823').and_return(nil)
+    allow(LDAP::API).to receive(:fetch_ldap_rec).with('1628831').and_return(nil)
 
     Dir.mktmpdir do |dir|
       outpath = Pathname.new(dir)
@@ -43,7 +43,7 @@ describe UCPath do
       expected_file = File.read('spec/data/ucpath/expected_xml_1.xml')
       expected_file.gsub!(%r{<start_date>2022-04-19</start_date>}, "<start_date>#{Date.today}</start_date>")
 
-      expect(File.exist?(setup.zip_path)).to eq(true)
+      expect(File.exist?(setup.zip_path)).to be(true)
     end
   end
 
@@ -53,7 +53,7 @@ describe UCPath do
     stub_ucpath_jobs(id)
 
     # Mock LDAP
-    allow(LDAP::API).to receive('fetch_ldap_rec').with('112823').and_return(nil)
+    allow(LDAP::API).to receive(:fetch_ldap_rec).with('112823').and_return(nil)
 
     Dir.mktmpdir do |dir|
       outpath = Pathname.new(dir)
@@ -62,11 +62,11 @@ describe UCPath do
       setup = Helpers::Setup.new
       UCPath.run_ucpath setup
 
-      expect(File.exist?(setup.zip_path)).to eq(true)
+      expect(File.exist?(setup.zip_path)).to be(true)
     end
   end
 end
-# rubocop :enable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength:
+# rubocop:enable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength
 
 describe UCPath::API do
   it 'creates a change log' do
@@ -90,13 +90,13 @@ describe UCPath::API do
     stub_ucpath_user(id)
     stub_ucpath_jobs_rate(id)
     u = UCPath::User.new(id)
-    expect(u.jobs).to eq(nil)
+    expect(u.jobs).to be_nil
   end
 end
 
 # rubocop:disable Metrics/BlockLength
 describe UCPath::User do
-  before(:each) do
+  before do
     allow(Config.secrets.ldap).to receive(:pass).and_return('MISSING')
   end
 
@@ -105,28 +105,22 @@ describe UCPath::User do
     ldap_id = '1628831'
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
+    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(nil)
 
     u = UCPath::User.new(id)
     expect(u).to be_kind_of(User)
   end
 
-  it 'weeds out student affliated users' do
+  it 'weeds out student affiliated users' do
     ucpath_id = '10527060'
-
-    # Stub our LDAP
     ldap_id = '1628831'
-    ldap_stub = stub_ldap(ldap_id)
-    entries = [
-      { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
-    ]
 
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
-    expect(ldap_stub['connection']).to receive(:bind)
-    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0])
+    stub_ldap_entries(ldap_id, [
+      { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
+    ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.eligible?).to be(false)
@@ -134,20 +128,16 @@ describe UCPath::User do
 
   it 'weeds out users without an email address' do
     ucpath_id = '123454321'
+    ldap_id = '1628831'
+
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # Stub LDAP
-    ldap_id = '1628831'
-    ldap_stub = stub_ldap(ldap_id)
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] },
       { 'berkeleyedualternateid' => [''] } # No email address
-    ]
-    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
-    expect(ldap_stub['connection']).to receive(:bind)
-    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1]).and_yield(entries[2])
+    ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.eligible?).to be(false)
@@ -155,173 +145,115 @@ describe UCPath::User do
 
   it 'uses names from ldap if missing names in ucpath record' do
     ucpath_id = '12345678'
+    ldap_id = '1628831'
+
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # Stub our LDAP
-    ldap_id = '1628831'
-    ldap_stub = stub_ldap(ldap_id)
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
-    expect(ldap_stub['connection']).to receive(:bind)
-    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1])
+    ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.first_name).to eq('test_first_name')
     expect(u.rec.last_name).to eq('test_last_name')
   end
 
-  # Collapse these into a single array driven test
-  it 'sets user group libstaff' do
-    ucpath_id = '10527060'
-    ldap_id = '1628831'
-    stub_ucpath_user(ucpath_id)
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
+  describe 'user group assignment' do
+    let(:ucpath_id) { '10527060' }
+    let(:ldap_id) { '1628831' }
 
-    override_jobs_stub(ucpath_id,
-                       {
-                         'job_code' => '000118'
-                       })
+    before do
+      stub_ucpath_user(ucpath_id)
+      allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(nil)
+    end
 
-    u = UCPath::User.new(ucpath_id)
+    [
+      {
+        description: 'LIBSTAFF',
+        overrides: { job_code: '000118' },
+        expected_group: 'LIBSTAFF'
+      },
+      {
+        description: 'UCBVISSCHOL',
+        overrides: { job_code: 'CWR003' },
+        expected_group: 'UCBVISSCHOL'
+      },
+      {
+        description: 'UCBAFFILI',
+        overrides: { job_code: 'CWR022' },
+        expected_group: 'UCBAFFILI'
+      },
+      {
+        description: 'UCEXT',
+        overrides: {
+          job_code: 'dummycode',
+          dept_code: 'EXADM',
+          classification_indc: 'A'
+        },
+        expected_group: 'UCEXT'
+      },
+      {
+        description: 'FACULTY',
+        overrides: { job_code: '001132' },
+        expected_group: 'FACULTY'
+      },
+      {
+        description: 'EXECUTIVE',
+        overrides: {
+          job_code: 'dummycode',
+          dept_code: 'dummycode',
+          classification_indc: '2'
+        },
+        expected_group: 'EXECUTIVE'
+      },
+      {
+        description: 'NONACAD',
+        overrides: {
+          job_code: 'dummycode',
+          dept_code: 'dummycode',
+          classification_indc: 'dummycode'
+        },
+        expected_group: 'NONACAD'
+      }
+    ].each do |row|
+      it "sets user group #{row[:description]}" do
+        stub_ucpath_jobs(
+          ucpath_id,
+          fixture: 'generic_jobs_2.json',
+          overrides: row[:overrides]
+        )
 
-    expect(u.rec.user_group).to eq('LIBSTAFF')
-  end
+        u = UCPath::User.new(ucpath_id)
 
-  it 'sets user group UCBVISSCHOL' do
-    ucpath_id = '10527060'
-    stub_ucpath_user(ucpath_id)
-
-    ldap_id = '1628831'
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
-
-    override_jobs_stub(ucpath_id,
-                       {
-                         'job_code' => 'CWR003'
-                       })
-
-    u = UCPath::User.new(ucpath_id)
-
-    expect(u.rec.user_group).to eq('UCBVISSCHOL')
-  end
-
-  it 'sets user group UCBAFFILI' do
-    ucpath_id = '10527060'
-    stub_ucpath_user(ucpath_id)
-
-    ldap_id = '1628831'
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
-
-    override_jobs_stub(ucpath_id,
-                       {
-                         'job_code' => 'CWR022'
-                       })
-
-    u = UCPath::User.new(ucpath_id)
-
-    expect(u.rec.user_group).to eq('UCBAFFILI')
-  end
-
-  it 'sets user group UCEXT' do
-    ucpath_id = '10527060'
-    stub_ucpath_user(ucpath_id)
-
-    ldap_id = '1628831'
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
-
-    override_jobs_stub(ucpath_id,
-                       {
-                         'job_code' => 'dummycode',
-                         'dept_code' => 'EXADM',
-                         'classification_indc' => 'A'
-                       })
-
-    u = UCPath::User.new(ucpath_id)
-    expect(u.rec.user_group).to eq('UCEXT')
-  end
-
-  it 'sets user group FACULTY' do
-    ucpath_id = '10527060'
-    stub_ucpath_user(ucpath_id)
-
-    ldap_id = '1628831'
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
-
-    override_jobs_stub(ucpath_id,
-                       {
-                         'job_code' => '001132'
-                       })
-
-    u = UCPath::User.new(ucpath_id)
-    expect(u.rec.user_group).to eq('FACULTY')
-  end
-
-  it 'sets user group EXECUTIVE' do
-    ucpath_id = '10527060'
-    stub_ucpath_user(ucpath_id)
-
-    ldap_id = '1628831'
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
-
-    override_jobs_stub(ucpath_id,
-                       {
-                         'job_code' => 'dummycode',
-                         'dept_code' => 'dummycode',
-                         'classification_indc' => '2'
-                       })
-
-    u = UCPath::User.new(ucpath_id)
-    expect(u.rec.user_group).to eq('EXECUTIVE')
-  end
-
-  it 'sets user group NONACAD' do
-    ucpath_id = '10527060'
-    stub_ucpath_user(ucpath_id)
-
-    ldap_id = '1628831'
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
-
-    override_jobs_stub(ucpath_id, {
-                         'job_code' => 'dummycode',
-                         'dept_code' => 'dummycode',
-                         'classification_indc' => 'dummycode'
-                       })
-
-    u = UCPath::User.new(ucpath_id)
-    expect(u.rec.user_group).to eq('NONACAD')
+        expect(u.rec.user_group).to eq(row[:expected_group])
+      end
+    end
   end
 
   it 'uses the ldap phone number' do
     ucpath_id = '12345678'
     ldap_id = '1628831'
+
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # Stub LDAP
-    ldap_stub = stub_ldap(ldap_id)
-    ldap_params = ldap_stub['params']
-    ldap_conn = ldap_stub['connection']
-    ldap_base = ldap_stub['base']
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] },
       { 'telephonenumber' => ['925-555-1234'] },
       { 'berkeleyedualternateid' => ['fake@email.edu'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
-    expect(ldap_conn).to receive(:bind)
-    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1]).and_yield(entries[2]).and_yield(entries[3])
+    ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.phone_number).to eq('925-555-1234')
   end
 
   it 'handles all known mangled telephone formats' do
+    ucpath_id = '12345678'
+    ldap_id = '1628831'
+
     known_phone_formats = [
       '510 645-1234',
       '5106451234',
@@ -330,25 +262,14 @@ describe UCPath::User do
     ]
 
     known_phone_formats.each do |number|
-      ucpath_id = '12345678'
       stub_ucpath_user(ucpath_id)
       stub_ucpath_jobs(ucpath_id)
 
-      # Stub LDAP
-      ldap_stub = stub_ldap('1628831')
-      ldap_params = ldap_stub['params']
-      ldap_conn = ldap_stub['connection']
-      ldap_base = ldap_stub['base']
-
-      entries = [
+      stub_ldap_entries(ldap_id, [
         { 'sn' => ['test_last_name'] },
         { 'givenname' => ['test_first_name'] },
-        { 'telephonenumber' => [number.to_s] }
-      ]
-
-      allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
-      expect(ldap_conn).to receive(:bind)
-      expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1]).and_yield(entries[2])
+        { 'telephonenumber' => [number] }
+      ])
 
       u = UCPath::User.new(ucpath_id)
       expect(u.rec.contact_info.phones.phone_number).to eq('510-645-1234')
@@ -361,20 +282,10 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # Stub LDAP
-    ldap_stub = stub_ldap(ldap_id)
-    ldap_params = ldap_stub['params']
-    ldap_conn = ldap_stub['connection']
-    ldap_base = ldap_stub['base']
-
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
-    expect(ldap_conn).to receive(:bind)
-    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
+    ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.preferred).to eq('false')
@@ -383,23 +294,14 @@ describe UCPath::User do
   it 'handles primary phone number preferred attribute' do
     ucpath_id = '10000005'
     ldap_id = '112823'
+
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # Stub LDAP
-    ldap_stub = stub_ldap(ldap_id)
-    ldap_params = ldap_stub['params']
-    ldap_conn = ldap_stub['connection']
-    ldap_base = ldap_stub['base']
-
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
-    expect(ldap_conn).to receive(:bind)
-    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
+    ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.preferred).to eq('true')
@@ -411,20 +313,10 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # Stub LDAP
-    ldap_stub = stub_ldap(ldap_id)
-    ldap_params = ldap_stub['params']
-    ldap_conn = ldap_stub['connection']
-    ldap_base = ldap_stub['base']
-
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
-    expect(ldap_conn).to receive(:bind)
-    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
+    ])
 
     current_year = Date.today.year
     expiration_year = current_year + 1
@@ -441,20 +333,10 @@ describe UCPath::User do
     stub_ucpath_user(ucpath_id)
     stub_ucpath_jobs(ucpath_id)
 
-    # Stub LDAP
-    ldap_stub = stub_ldap(ldap_id)
-    ldap_params = ldap_stub['params']
-    ldap_conn = ldap_stub['connection']
-    ldap_base = ldap_stub['base']
-
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_params).and_return(ldap_conn)
-    expect(ldap_conn).to receive(:bind)
-    expect(ldap_conn).to receive(:search).with(ldap_base).and_yield(entries[0]).and_yield(entries[1])
+    ])
 
     current_year = Date.today.year
     expiration_year = current_year + 2
@@ -467,20 +349,15 @@ describe UCPath::User do
 
   it 'logs an error if the ucpath record is missing a required field' do
     id = '10000006'
+    ldap_id = '1628831'
+
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
 
-    # Stub our LDAP
-    ldap_id = '1628831'
-    ldap_stub = stub_ldap(ldap_id)
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
-    expect(ldap_stub['connection']).to receive(:bind)
-    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1])
+    ])
 
     u = UCPath::User.new(id)
     expect(u.errors).to include("#{id} - Missing required field: ucpath_employee_id")
@@ -504,20 +381,15 @@ describe UCPath::User do
 
   it 'returns the first job if no eligible jobs are found' do
     id = '10145074'
+    ldap_id = '7165'
+
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
 
-    # Stub our LDAP
-    ldap_id = '7165'
-    ldap_stub = stub_ldap(ldap_id)
-    entries = [
+    stub_ldap_entries(ldap_id, [
       { 'sn' => ['test_last_name'] },
       { 'givenname' => ['test_first_name'] }
-    ]
-
-    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
-    expect(ldap_stub['connection']).to receive(:bind)
-    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0]).and_yield(entries[1])
+    ])
 
     u = UCPath::User.new(id)
     expect(u.rec.job_description).to eq('FIRST_JOB_DESCRIPTION')
@@ -550,7 +422,7 @@ describe UCPath::User do
 
     # Mock LDAP
     ldap_id = '112823'
-    allow(LDAP::API).to receive('fetch_ldap_rec').with(ldap_id).and_return(nil)
+    allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(nil)
 
     u = UCPath::User.new(id)
     expect(u.eligible?).to be(false)
@@ -558,23 +430,16 @@ describe UCPath::User do
 
   it 'eligibility should be true for priority jobs even if the user has a student affiliation' do
     id = '10601882'
-
-    # Stub our LDAP
     ldap_id = '1772216'
-    ldap_stub = stub_ldap(ldap_id)
-    entries = [
-      { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
-    ]
 
     stub_ucpath_user(id)
     stub_ucpath_jobs(id)
 
-    allow(Net::LDAP).to receive(:new).with(ldap_stub['params']).and_return(ldap_stub['connection'])
-    expect(ldap_stub['connection']).to receive(:bind)
-    expect(ldap_stub['connection']).to receive(:search).with(ldap_stub['base']).and_yield(entries[0])
+    stub_ldap_entries(ldap_id, [
+      { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
+    ])
 
     u = UCPath::User.new(id)
-
     expect(u.eligible?).to be(true)
   end
 
