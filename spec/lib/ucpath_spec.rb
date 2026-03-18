@@ -119,8 +119,8 @@ describe UCPath::User do
     stub_ucpath_jobs(ucpath_id)
 
     stub_ldap_entries(ldap_id, [
-      { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
-    ])
+                        { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
+                      ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.eligible?).to be(false)
@@ -134,10 +134,10 @@ describe UCPath::User do
     stub_ucpath_jobs(ucpath_id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] },
-      { 'berkeleyedualternateid' => [''] } # No email address
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] },
+                        { 'berkeleyedualternateid' => [''] } # No email address
+                      ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.eligible?).to be(false)
@@ -151,9 +151,9 @@ describe UCPath::User do
     stub_ucpath_jobs(ucpath_id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] }
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] }
+                      ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.first_name).to eq('test_first_name')
@@ -240,11 +240,11 @@ describe UCPath::User do
     stub_ucpath_jobs(ucpath_id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] },
-      { 'telephonenumber' => ['925-555-1234'] },
-      { 'berkeleyedualternateid' => ['fake@email.edu'] }
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] },
+                        { 'telephonenumber' => ['925-555-1234'] },
+                        { 'berkeleyedualternateid' => ['fake@email.edu'] }
+                      ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.phone_number).to eq('925-555-1234')
@@ -266,10 +266,10 @@ describe UCPath::User do
       stub_ucpath_jobs(ucpath_id)
 
       stub_ldap_entries(ldap_id, [
-        { 'sn' => ['test_last_name'] },
-        { 'givenname' => ['test_first_name'] },
-        { 'telephonenumber' => [number] }
-      ])
+                          { 'sn' => ['test_last_name'] },
+                          { 'givenname' => ['test_first_name'] },
+                          { 'telephonenumber' => [number] }
+                        ])
 
       u = UCPath::User.new(ucpath_id)
       expect(u.rec.contact_info.phones.phone_number).to eq('510-645-1234')
@@ -283,9 +283,9 @@ describe UCPath::User do
     stub_ucpath_jobs(ucpath_id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] }
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] }
+                      ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.preferred).to eq('false')
@@ -299,9 +299,9 @@ describe UCPath::User do
     stub_ucpath_jobs(ucpath_id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] }
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] }
+                      ])
 
     u = UCPath::User.new(ucpath_id)
     expect(u.rec.contact_info.phones.preferred).to eq('true')
@@ -314,9 +314,9 @@ describe UCPath::User do
     stub_ucpath_jobs(ucpath_id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] }
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] }
+                      ])
 
     current_year = Date.today.year
     expiration_year = current_year + 1
@@ -334,9 +334,9 @@ describe UCPath::User do
     stub_ucpath_jobs(ucpath_id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] }
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] }
+                      ])
 
     current_year = Date.today.year
     expiration_year = current_year + 2
@@ -355,9 +355,9 @@ describe UCPath::User do
     stub_ucpath_jobs(id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] }
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] }
+                      ])
 
     u = UCPath::User.new(id)
     expect(u.errors).to include("#{id} - Missing required field: ucpath_employee_id")
@@ -387,9 +387,9 @@ describe UCPath::User do
     stub_ucpath_jobs(id)
 
     stub_ldap_entries(ldap_id, [
-      { 'sn' => ['test_last_name'] },
-      { 'givenname' => ['test_first_name'] }
-    ])
+                        { 'sn' => ['test_last_name'] },
+                        { 'givenname' => ['test_first_name'] }
+                      ])
 
     u = UCPath::User.new(id)
     expect(u.rec.job_description).to eq('FIRST_JOB_DESCRIPTION')
@@ -436,8 +436,8 @@ describe UCPath::User do
     stub_ucpath_jobs(id)
 
     stub_ldap_entries(ldap_id, [
-      { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
-    ])
+                        { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
+                      ])
 
     u = UCPath::User.new(id)
     expect(u.eligible?).to be(true)
