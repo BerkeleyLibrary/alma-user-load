@@ -144,12 +144,13 @@ module UCPath
       job_code = jobs.job.job_code || nil
       priority_job = Config.check_ucpath_code('priority_job_codes', job_code)
       percent_of_fulltime = jobs.job.percent_of_fulltime.to_f
+      percent_of_fulltime_job = jobs.job.percent_of_fulltime_job.to_f
 
       # PERCENT OF FULL TIME CHECK
       # AP-559 If an employee is in a position that is 0 FTE,
       # their record should should be filtered out from the UCPath files.
-      if percent_of_fulltime.zero?
-        logger.info "#{id} - Ineligible: Percentage of Full Time Check: #{percent_of_fulltime}"
+      if percent_of_fulltime.zero? && percent_of_fulltime_job.zero?
+        logger.info "#{id} - Ineligible: Percentage of Full Time Check"
         return nil
       end
 

@@ -1,0 +1,144 @@
+{
+	"source": "UCB-HR-PATH-DB",
+	"correlationId": "8c37994b-3132-4f04-98b0-5ecdc96aec79",
+	"timeStamp": "2026-02-03",
+	"httpStatus": {
+		"code": "200",
+		"description": "OK"
+	},
+	"response": [
+		{
+			"identifiers": [
+				{
+					"type": "hr-employee-id",
+					"id": "10725310"
+				},
+				{
+					"type": "campus-uid",
+					"id": "10725310"
+				}
+			],
+			"jobs": [
+				{
+					"number": 0,
+					"sequence": 0,
+					"type": {
+						"code": "4",
+						"description": "Staff: Limited"
+					},
+					"classification": {
+						"code": "1",
+						"description": "Professional & Support Staff"
+					},
+					"position": {
+						"number": "41195443",
+						"department": {
+							"code": "KPADM",
+							"description": "Library Administration"
+						},
+						"description": "LIBRARY AST 2",
+						"pool": {
+						},
+						"percentOfFullTime": 0.000000,
+						"employeeRelationship": {
+							"code": "E",
+							"description": "All Others, Not Confidential"
+						},
+						"jobCode": {
+							"code": {
+								"code": "006760",
+								"description": "LIBRARY AST 2"
+							},
+							"status": {
+								"code": "A",
+								"description": "Active"
+							},
+							"family": {
+								"code": "J092",
+								"description": "Library Services"
+							},
+							"function": {
+								"code": "442",
+								"description": "Library"
+							},
+							"flsaEligibilty": {
+							},
+							"representation": {
+								"union": {
+									"code": "CX",
+									"description": "Clerical & Allied Services"
+								}
+							}
+						},
+						"reportsTo": {
+							"position": {
+								"number": "40145569"
+							}
+						},
+						"status": {
+							"code": "A",
+							"description": "Approved"
+						},
+						"headCount": {
+							"active": 1,
+							"maximum": 1,
+							"status": {
+								"code": "F",
+								"description": "Filled"
+							}
+						},
+						"active": {
+							"code": "A",
+							"description": "Active"
+						},
+						"fromDate": "2025-08-22"
+					},
+					"organizationRelationship": {
+						"code": "EMP",
+						"description": "Employee"
+					},
+					"flsaEligibilty": {
+						"code": "N",
+						"description": "Nonexempt"
+					},
+					"percentOfFullTime": 0.000000,
+					"fullTimeStatus": {
+						"code": "X",
+						"description": "Fixed"
+					},
+					"permanent": {
+						"code": "R",
+						"description": "Not Applicable"
+					},
+					"primary": {
+						"code": "P",
+						"description": "Primary Job"
+					},
+					"department": {
+						"code": "KPADM",
+						"description": "Library Administration"
+					},
+					"location": {
+						"code": "10467",
+						"description": "Bancroft Lib (Doe Anx)-F03-94704"
+					},
+					"status": {
+						"hrStatus": {
+							"code": "A",
+							"description": "Active"
+						},
+						"employmentStatus": {
+							"code": "A",
+							"description": "Active"
+						},
+						"benefitsStatus": {
+							"code": "A",
+							"description": "Active"
+						}
+					},
+					"fromDate": "2025-10-28"
+				}
+			]
+		}
+	]
+}

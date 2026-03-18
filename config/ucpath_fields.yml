@@ -205,3 +205,8 @@ job:
       jpath: "$.position.percentOfFullTime"
       dbdef: "VARCHAR(16)"
       status: OPTIONAL
+    
+    - name: percent_of_fulltime_job
+      jpath: "$.percentOfFullTime"
+      dbdef: "VARCHAR(16)"
+      status: OPTIONAL
