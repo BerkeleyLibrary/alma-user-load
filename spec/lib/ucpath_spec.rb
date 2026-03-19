@@ -660,30 +660,6 @@ describe UCPath::Jobs do
       allow(Date).to receive(:today).and_return(today)
     end
 
-    # context 'when position percentOfFullTime (in both position and job) is zero' do
-    #   let(:job) { eligible_job_struct.new('A', '', '', 'ANY', 0.0, 0.0) }
-
-    #   it 'returns false' do
-    #     expect(eligible(job)).to be(false)
-    #   end
-    # end
-
-    # context 'when position percentOfFullTime is zero in position but not zero in job' do
-    #   let(:job) { eligible_job_struct.new('A', '', '', 'ANY', 0.0, 0.1) }
-
-    #   it 'returns true' do
-    #     expect(eligible(job)).to be(true)
-    #   end
-    # end
-
-    # context 'when position percentOfFullTime is zero in job but not position' do
-    #   let(:job) { eligible_job_struct.new('A', '', '', 'ANY', 0.5, 0.0) }
-
-    #   it 'returns true' do
-    #     expect(eligible(job)).to be(true)
-    #   end
-    # end
-
     context "when hr_status_code is not 'A'" do
       let(:job) { eligible_job_struct.new('I', '', '', 'ANY', 1.0, 0.0) }
 
