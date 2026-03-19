@@ -1,0 +1,51 @@
+{
+  "source": "UCB-HR-PATH-DB",
+  "correlationId": "23d9a1b2-7f7a-4693-8a88-051a7d3c5caa",
+  "timeStamp": "2026-02-18",
+  "httpStatus": {
+    "code": "200",
+    "description": "OK"
+  },
+  "response": [
+    {
+      "identifiers": [
+        {
+          "type": "hr-employee-id",
+          "id": "10725310"
+        },
+        {
+          "type": "campus-uid",
+          "id": "1926706"
+        },
+        {
+          "type": "calnet-id",
+          "id": "hptruong"
+        },
+        {
+          "type": "campus-solutions-id",
+          "id": "3040792017"
+        }
+      ],
+      "names": [
+        {
+          "type": {
+            "code": "PRF",
+            "description": "Preferred"
+          },
+          "familyName": "Familyname",
+          "givenName": "Givenname",
+          "fromDate": "2024-03-26"
+        },
+        {
+          "type": {
+            "code": "PRI",
+            "description": "Primary"
+          },
+          "familyName": "Familyname",
+          "givenName": "Givenname",
+          "fromDate": "2024-03-26"
+        }
+      ]
+    }
+  ]
+}
