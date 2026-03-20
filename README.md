@@ -121,15 +121,23 @@ docker build -t alma-user-load .
 ### Run the test suite via Docker:
 ```sh
 # Run rspec:
-> docker compose run --rm shell bundle exec rspec
+> docker compose -f docker-compose.local.yml run --rm shell bundle exec rspec
 
 # Run a single spec file:
-> docker compose run --rm shell bundle exec rspec spec/lib/ucpath_spec.rb
+> docker compose -f docker-compose.local.yml run --rm shell bundle exec rspec spec/lib/ucpath_spec.rb
 
 # Run a specific test (by line number)
-> docker compose run --rm shell bundle exec rspec spec/lib/helpers_spec.rb:34
+> docker compose -f docker-compose.local.yml run --rm shell bundle exec rspec spec/lib/helpers_spec.rb:34
 ```
 
+### For convenience, setup an alias:
+```sh
+# Add alias:
+> alias drspec='docker compose -f docker-compose.local.yml run --rm shell bundle exec rspec'
+
+# Run via alias:
+drspec spec/lib/ucpath_spec.rb:327
+```
 
 Note - to run the test suite you need to change the LDAP setting in your `.env` file
 > \# For testing:  
