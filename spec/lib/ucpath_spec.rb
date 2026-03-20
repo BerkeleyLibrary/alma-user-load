@@ -23,9 +23,9 @@ describe UCPath do
   it 'runs ucpath' do
     stub_change_log('2022-04-10', '2022-04-13', 'change_log_1')
     stub_ucpath_user('10000003')
-    stub_ucpath_jobs('10000003')
+    stub_ucpath_jobs('10000003', fixture: 'active_employee_jobs.json')
     stub_ucpath_user('10000004')
-    stub_ucpath_jobs('10000004')
+    stub_ucpath_jobs('10000004', fixture: 'active_employee_jobs.json')
 
     # Mock LDAP
     allow(LDAP::API).to receive(:fetch_ldap_rec).with('112823').and_return(nil)
@@ -50,7 +50,7 @@ describe UCPath do
   it 'runs ucpath for a specific user' do
     id = '10000005'
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'active_employee_jobs.json')
 
     # Mock LDAP
     allow(LDAP::API).to receive(:fetch_ldap_rec).with('112823').and_return(nil)
@@ -104,7 +104,7 @@ describe UCPath::User do
     id = '10527060'
     ldap_id = '1628831'
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'active_employee_jobs.json')
     allow(LDAP::API).to receive(:fetch_ldap_rec).with(ldap_id).and_return(nil)
 
     u = UCPath::User.new(id)
@@ -116,7 +116,7 @@ describe UCPath::User do
     ldap_id = '1628831'
 
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
@@ -131,7 +131,7 @@ describe UCPath::User do
     ldap_id = '1628831'
 
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -148,7 +148,7 @@ describe UCPath::User do
     ldap_id = '1628831'
 
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -174,6 +174,11 @@ describe UCPath::User do
         description: 'LIBSTAFF',
         overrides: { job_code: '000118' },
         expected_group: 'LIBSTAFF'
+      },
+      {
+        description: 'UCB POST',
+        overrides: { job_code: '003252' },
+        expected_group: 'UCB POST'
       },
       {
         description: 'UCBVISSCHOL',
@@ -221,7 +226,7 @@ describe UCPath::User do
       it "sets user group #{row[:description]}" do
         stub_ucpath_jobs(
           ucpath_id,
-          fixture: 'generic_jobs_2.json',
+          fixture: 'user_group_base_jobs.json',
           overrides: row[:overrides]
         )
 
@@ -237,7 +242,7 @@ describe UCPath::User do
     ldap_id = '1628831'
 
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -263,7 +268,7 @@ describe UCPath::User do
 
     known_phone_formats.each do |number|
       stub_ucpath_user(ucpath_id)
-      stub_ucpath_jobs(ucpath_id)
+      stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
       stub_ldap_entries(ldap_id, [
                           { 'sn' => ['test_last_name'] },
@@ -280,7 +285,7 @@ describe UCPath::User do
     ucpath_id = '10000004'
     ldap_id = '112823'
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -296,7 +301,7 @@ describe UCPath::User do
     ldap_id = '112823'
 
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -311,7 +316,7 @@ describe UCPath::User do
     ucpath_id = '10000005'
     ldap_id = '112823'
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_no_end_date_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -331,7 +336,7 @@ describe UCPath::User do
     ucpath_id = '10000005'
     ldap_id = '112823'
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_no_end_date_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -352,7 +357,7 @@ describe UCPath::User do
     ldap_id = '1628831'
 
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'active_employee_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -373,7 +378,7 @@ describe UCPath::User do
   it 'LDAP::API returns nil if fetch encounters an error' do
     ucpath_id = '10527060'
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
     allow(Net::LDAP).to receive(:new).and_raise(StandardError.new('error'))
     u = UCPath::User.new(ucpath_id)
     expect(u.ldap).to be_nil
@@ -384,7 +389,7 @@ describe UCPath::User do
     ldap_id = '7165'
 
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'multiple_ineligible_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -398,7 +403,7 @@ describe UCPath::User do
   it 'skips a user if no jobs are found' do
     id = '999999999'
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'zero_jobs.json')
 
     u = UCPath::User.new(id)
 
@@ -408,7 +413,7 @@ describe UCPath::User do
   it 'skips users that have a termination date before the last Alma purge date' do
     id = '888888888'
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'terminated_before_purge_jobs.json')
 
     u = UCPath::User.new(id)
 
@@ -418,7 +423,7 @@ describe UCPath::User do
   it 'skips users with a contingent worker job code' do
     id = '10000008'
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'contingent_worker_jobs.json')
 
     # Mock LDAP
     ldap_id = '112823'
@@ -433,7 +438,7 @@ describe UCPath::User do
     ldap_id = '1772216'
 
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'priority_job_selected_jobs.json')
 
     stub_ldap_entries(ldap_id, [
                         { 'berkeleyeduaffiliations' => ['STUDENT-TYPE-REGISTERED'] }
@@ -446,7 +451,7 @@ describe UCPath::User do
   it 'skips with VOID in first and last name fields' do
     id = '10725309'
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'active_employee_jobs.json')
 
     u = UCPath::User.new(id)
     expect(u.eligible?).to be(false)
@@ -455,7 +460,7 @@ describe UCPath::User do
   it 'skips with zero Percentage of FullTime' do
     id = '10725310'
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id)
+    stub_ucpath_jobs(id, fixture: 'zero_full_time_jobs.json')
 
     u = UCPath::User.new(id)
     expect(u.eligible?).to be(false)

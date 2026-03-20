@@ -62,7 +62,7 @@ describe Alma::XMLBuilder do
   it 'creates an Alma XMLBuilder Object' do
     ucpath_id = '10000004'
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
     # Mock LDAP fetch and return nil for this record....
     ldap_id = '112823'
@@ -72,7 +72,7 @@ describe Alma::XMLBuilder do
 
     ucpath_id = '10000007'
     stub_ucpath_user(ucpath_id)
-    stub_ucpath_jobs(ucpath_id)
+    stub_ucpath_jobs(ucpath_id, fixture: 'active_employee_jobs.json')
 
     # Mock fake LDAP rec to make sure we don't have an email/phone
     # for this record...
