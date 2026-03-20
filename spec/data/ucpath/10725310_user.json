@@ -45,6 +45,16 @@
           "givenName": "Givenname",
           "fromDate": "2024-03-26"
         }
+      ],
+      "emails": [
+        {
+          "type": {
+            "code": "BUSN",
+            "description": "Business"
+          },
+          "emailAddress": "fakeemail@berkeley.edu",
+          "primary": true
+        }
       ]
     }
   ]
