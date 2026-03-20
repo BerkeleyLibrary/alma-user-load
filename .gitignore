@@ -6,6 +6,7 @@
 /tmp/*
 /coverage/*
 /artifacts/*
+.cache/*
 
 /*.xml
 *.zip

@@ -13,3 +13,12 @@ services:
       - ./:/opt/app
     ports:
       - 3000:3000
+  shell:
+    build:
+      context: .
+      target: development
+    init: true
+    working_dir: /opt/app
+    volumes:
+      - ./:/opt/app
+    entrypoint: []

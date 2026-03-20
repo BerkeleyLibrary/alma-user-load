@@ -118,6 +118,19 @@ docker build -t alma-user-load .
 > rspec
 ```
 
+### Run the test suite via Docker:
+```sh
+# Run rspec:
+> docker compose run --rm shell bundle exec rspec
+
+# Run a single spec file:
+> docker compose run --rm shell bundle exec rspec spec/lib/ucpath_spec.rb
+
+# Run a specific test (by line number)
+> docker compose run --rm shell bundle exec rspec spec/lib/helpers_spec.rb:34
+```
+
+
 Note - to run the test suite you need to change the LDAP setting in your `.env` file
 > \# For testing:  
 > LDAP_HOST=ldap.fake.edu  
@@ -134,7 +147,6 @@ Note - to run the test suite you need to change the LDAP setting in your `.env` 
 
 
 ## Future Improvements:
-- Replace fixtures w/some sort of factory (VCR)
 - DRY things up (UCPath vs. SIS --> phone, email, address, names, etc...)
 - SIS - add run by user id (similar to how I setup ucpath)...if possible
 - Move 'create_user_record' from user.rb to a separate class
