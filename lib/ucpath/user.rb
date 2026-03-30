@@ -149,7 +149,7 @@ module UCPath
       # PERCENT OF FULL TIME CHECK
       # AP-559 If an employee is in a position that is 0 FTE,
       # their record should should be filtered out from the UCPath files.
-      if percent_of_fulltime.zero? && percent_of_fulltime_job.zero?
+      if !Config.skip_fte_check?(job_code) && (percent_of_fulltime.zero? && percent_of_fulltime_job.zero?)
         logger.info "#{id} - Ineligible: Percentage of Full Time Check"
         return nil
       end

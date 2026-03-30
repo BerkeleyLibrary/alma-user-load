@@ -528,6 +528,7 @@ describe UCPath::Jobs do
 
     before do
       allow(Date).to receive(:today).and_return(today)
+      allow(Config).to receive(:skip_fte_check?).and_return(false)
     end
 
     context "when hr_status_code is not 'A'" do
