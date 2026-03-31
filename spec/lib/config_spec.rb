@@ -54,4 +54,20 @@ describe Config do
     end
   end
 end
+
+describe Config do
+  describe '.skip_fte_check? (with real config values)' do
+    it 'returns true for a job code in fte_check_exclusions' do
+      expect(Config.skip_fte_check?('CWR016')).to be(true)
+    end
+
+    it 'returns true for a job code in emeritus_job_code' do
+      expect(Config.skip_fte_check?('009902')).to be(true)
+    end
+
+    it 'returns false for a job code not in either list' do
+      expect(Config.skip_fte_check?('TOTALLY_FAKE_CODE')).to be(false)
+    end
+  end
+end
 # rubocop:enable Metrics/BlockLength
