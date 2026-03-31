@@ -107,6 +107,8 @@ module UCPath
     # 4. The job will be ineligible if the percentage of full time is zero
     #    Note - percentage of full time can appear in 2 different places (ugh)
     def positive_full_time?(j)
+      return true if Config.skip_fte_check?(j.job_code)
+
       values = []
       values << j.percent_of_fulltime if j.respond_to?(:percent_of_fulltime)
       values << j.percent_of_fulltime_job if j.respond_to?(:percent_of_fulltime_job)

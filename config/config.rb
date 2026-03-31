@@ -57,6 +57,15 @@ class Config
       @ucpath_codes[type].include? value
     end
 
+    # If the Job Code is in either the fte_check_exclusions or emeritus_job_code
+    # lists, you must skip the FTE check..., otherwise DO NOT skip the check.
+    def skip_fte_check?(job_code)
+      return true if check_ucpath_code('fte_check_exclusions', job_code)
+      return true if check_ucpath_code('emeritus_job_code', job_code)
+
+      false
+    end
+
     private
 
     def load_settings!(path)

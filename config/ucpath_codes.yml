@@ -94,3 +94,11 @@ uc_extension_faculty:
 # of any student affiliations
 priority_job_codes:
   - "006761"
+
+# The 0FTE (percent of full time employment) excludes these
+# job codes
+fte_check_exclusions:
+  - "CWR022"
+  - "CWR015"
+  - "CWR003"
+  - "CWR016"
