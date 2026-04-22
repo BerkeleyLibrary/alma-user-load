@@ -25,6 +25,8 @@ UCPath: https://developers.api.berkeley.edu/api/8
 SIS: https://developers.api.berkeley.edu/api/6  
 Additional data is pulled from CalNet via LDAP
 
+Note - the sis_ignore_ids.txt file contains a list of student_ids which will be ignored by the SIS run. This is so employees who take classes (usually UC Extension), don't have their Alma UCPath record over-written by their SIS record.
+
 ### Schedule
 
 * SIS : Monday and Wednesday Mornings 1am

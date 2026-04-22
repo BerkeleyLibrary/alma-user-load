@@ -4,37 +4,87 @@ require 'spec_helper'
 require 'stub_helper'
 require 'nokogiri'
 
-# rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant
+# rubocop :disable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength:
 describe SIS do
-  it 'runs sis' do
-    # Make VERSION dynamic:
-    # Note - applicaiton_version is set in config/settings.yml: applicaiton_version
-    expected_version = (ENV['VERSION'] || '1.0.0').to_s
+  describe '#run_sis' do
+    it 'runs sis' do
+      # Make VERSION dynamic:
+      # Note - applicaiton_version is set in config/settings.yml: applicaiton_version
+      expected_version = (ENV['VERSION'] || '1.0.0').to_s
 
-    expected_file = File.read('spec/data/sis/expected_xml_3.xml')
+      expected_file = File.read('spec/data/sis/expected_xml_3.xml')
 
-    allow(Date).to receive(:today).and_return Date.new(2022, 6, 1)
-    expected_file.gsub!(/<!-- VERSION: .+? -->/, "<!-- VERSION: #{expected_version} -->")
+      allow(Date).to receive(:today).and_return Date.new(2022, 6, 1)
+      expected_file.gsub!(/<!-- VERSION: .+? -->/, "<!-- VERSION: #{expected_version} -->")
 
-    term_id = '2222'
-    stub_past_sis_data(term_id, '2022-04-10', 1)
-    stub_past_sis_data(term_id, '2022-04-10', 2)
-    stub_sis_data(term_id, 1)
-    stub_sis_data(term_id, 2)
+      term_id = '2222'
+      stub_past_sis_data(term_id, '2022-04-10', 1)
+      stub_past_sis_data(term_id, '2022-04-10', 2)
+      stub_sis_data(term_id, 1)
+      stub_sis_data(term_id, 2)
 
-    Dir.mktmpdir do |dir|
-      outpath = Pathname.new(dir)
+      Dir.mktmpdir do |dir|
+        outpath = Pathname.new(dir)
 
-      ARGV = ['--type', 'sis', '-s', '2022-04-10', '--term', '2222', '--outdir', outpath]
-      setup = Helpers::Setup.new
-      SIS.run_sis setup
+        ARGV = ['--type', 'sis', '-s', '2022-04-10', '--term', '2222', '--outdir', outpath]
+        setup = Helpers::Setup.new
+        SIS.run_sis setup
 
-      expect(File.exist?(setup.zip_path)).to eq(true)
-      expect(File.read(setup.xml_path)).to eq(expected_file)
+        expect(File.exist?(setup.zip_path)).to eq(true)
+        expect(File.read(setup.xml_path)).to eq(expected_file)
+      end
+    end
+
+    it 'skips users listed in the SIS ignore file' do
+      allow(Date).to receive(:today).and_return Date.new(2022, 6, 1)
+
+      term_id = '2222'
+      stub_past_sis_data(term_id, '2022-04-10', 1)
+      stub_past_sis_data(term_id, '2022-04-10', 2)
+      stub_sis_data(term_id, 1)
+      stub_sis_data(term_id, 2)
+
+      allow(SIS).to receive(:load_ignored_sis_ids).and_return(Set['10162050'])
+
+      Dir.mktmpdir do |dir|
+        outpath = Pathname.new(dir)
+
+        ARGV = ['--type', 'sis', '-s', '2022-04-10', '--term', '2222', '--outdir', outpath]
+        setup = Helpers::Setup.new
+
+        SIS.run_sis(setup)
+
+        xml = Nokogiri::XML(File.read(setup.xml_path))
+        primary_ids = xml.xpath('//user/primary_id').map(&:text)
+
+        expect(primary_ids).not_to include('30012345')
+        expect(primary_ids.length).to eq(1)
+      end
+    end
+  end
+
+  describe '.load_ignored_sis_ids' do
+    it 'loads ignored sis ids from a text file' do
+      Dir.mktmpdir do |dir|
+        path = File.join(dir, 'sis_ignore_ids.txt')
+
+        File.write(path, <<~TEXT)
+          # Ignore these users
+          30000001
+
+          30000002
+        TEXT
+
+        expect(SIS.load_ignored_sis_ids(path)).to eq(Set['30000001', '30000002'])
+      end
+    end
+
+    it 'returns an empty set when the file does not exist' do
+      expect(SIS.load_ignored_sis_ids('does/not/exist.txt')).to eq(Set.new)
     end
   end
 end
-# rubocop :enable Lint/ConstantDefinitionInBlock, Style/MutableConstant
+# rubocop :enable Lint/ConstantDefinitionInBlock, Style/MutableConstant, Metrics/BlockLength:
 
 # rubocop:disable Metrics/BlockLength
 describe SIS::API do
