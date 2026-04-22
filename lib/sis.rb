@@ -18,13 +18,10 @@ module SIS
     as_of_date = SIS::API.as_of_date
     writer = Alma::XMLWriter.new(setup.xml_path)
 
-    log_run(term_id, as_of_date)
+    logger.info "Running SIS\nTerm ID: #{term_id}\nRequest Root: #{sis_root} As-of-Date #{as_of_date}"
+
     process_users(term_id, as_of_date, ignore_list, writer)
     finalize_output(writer, setup)
-  end
-
-  def log_run(term_id, as_of_date)
-    logger.info "Running SIS\nTerm ID: #{term_id}\nRequest Root: #{sis_root} As-of-Date #{as_of_date}"
   end
 
   def process_users(term_id, as_of_date, ignore_list, writer)
