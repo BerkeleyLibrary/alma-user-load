@@ -4,7 +4,7 @@
 # The base stage scaffolds elements which are common to building and running
 # the application, such as installing ca-certificates, creating the app user,
 # and installing runtime system dependencies.
-FROM ruby:3.0.3-slim AS base
+FROM ruby:3.2-slim AS base
 
 # ------------------------------------------------------------
 # Declarative metadata
@@ -68,7 +68,8 @@ USER root
 # Install system packages needed to build gems with C extensions.
 RUN apt-get install -y --no-install-recommends \
   gcc \
-  make
+  make \
+  build-essential
 
 # ------------------------------------------------------------
 # Install Ruby gems
