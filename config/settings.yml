@@ -5,7 +5,7 @@ settings:
   ucpath_upload_path: "/alma/patron_employees/"
   upload_host: "upload.lib.berkeley.edu"
   upload_user: "ssullivan"
-  last_alma_purge: "2023-06-30"
+  last_alma_purge: "2024-06-30"
   application_version: "1.6.11"
 
 # TODO - flesh this out
