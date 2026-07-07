@@ -8,11 +8,18 @@ gem 'digest', '~> 3.1'
 # For API calls
 gem 'faraday', '~> 2.7', '>= 2.7.1'
 
+# For parsing command line options
+gem 'getoptlong'
+
 # Simplfy finding data values from the JSON we get back from APIs
 gem 'jsonpath', '~> 0.5.8'
 
 # UCPath also collects data from LDAP
 gem 'net-ldap', '~> 0.17.0'
+# net-ldap requires base64..
+gem 'base64'
+# ..and ostruct
+gem 'ostruct'
 
 # Alma requires XML for their sync
 gem 'nokogiri', '~> 1.12', '>= 1.12.5'

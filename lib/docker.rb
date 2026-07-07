@@ -3,6 +3,8 @@ module Docker
     class << self
       def setup_environment!(fileglob = '/run/secrets/*')
         Dir[fileglob].each do |filepath|
+          next unless File.file?(filepath)
+
           puts "FP: #{filepath}"
           secret = File.read(filepath)
           secret_name = File.basename(filepath)
