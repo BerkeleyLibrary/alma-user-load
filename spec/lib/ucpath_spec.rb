@@ -597,11 +597,11 @@ describe UCPath::Jobs do
       let(:job) { eligible_job_struct.new('A', '', 'CWR', 'NOT_ALLOWED', 1.0, 0.0) }
 
       before do
-        allow(Config).to receive(:check_ucpath_code?)
+        allow(Config).to receive(:check_ucpath_code)
           .with('visiting_scholar_job_code', 'NOT_ALLOWED')
           .and_return(false)
 
-        allow(Config).to receive(:check_ucpath_code?)
+        allow(Config).to receive(:check_ucpath_code)
           .with('ucb_academic_dept_affiliate_code', 'NOT_ALLOWED')
           .and_return(false)
       end
@@ -615,11 +615,11 @@ describe UCPath::Jobs do
       let(:job) { eligible_job_struct.new('A', '', 'CWR', 'ALLOWED', 1.0, 0.0) }
 
       before do
-        allow(Config).to receive(:check_ucpath_code?)
+        allow(Config).to receive(:check_ucpath_code)
           .with('visiting_scholar_job_code', 'ALLOWED')
           .and_return(true)
 
-        allow(Config).to receive(:check_ucpath_code?)
+        allow(Config).to receive(:check_ucpath_code)
           .with('ucb_academic_dept_affiliate_code', 'ALLOWED')
           .and_return(false)
       end
@@ -633,11 +633,11 @@ describe UCPath::Jobs do
       let(:job) { eligible_job_struct.new('A', '', 'CWR', 'ALLOWED', 1.0, 0.0) }
 
       before do
-        allow(Config).to receive(:check_ucpath_code?)
+        allow(Config).to receive(:check_ucpath_code)
           .with('visiting_scholar_job_code', 'ALLOWED')
           .and_return(false)
 
-        allow(Config).to receive(:check_ucpath_code?)
+        allow(Config).to receive(:check_ucpath_code)
           .with('ucb_academic_dept_affiliate_code', 'ALLOWED')
           .and_return(true)
       end
