@@ -84,8 +84,8 @@ module UCPath
       #----------------------------------------------------------------#
       # If we have a termination date that is before the last Alma
       # purge date, then we can skip this user
-      # 
-      # 2026-07-15: per AP-787 we are no longer using a purge date 
+      #
+      # 2026-07-15: per AP-787 we are no longer using a purge date
       # instead we're ignoring records if there is a termination date
       # that is before the current date minus 'ucpath_limit' (settings.yml)
       # Right now that is set to 14 days. So if we run this on July 15th,
