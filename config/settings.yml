@@ -1,12 +1,12 @@
 settings:
   change_log_days: 7
   sis_look_back: 7
+  ucpath_limit: 14
   sis_upload_path: "/alma/patron_students/"
   ucpath_upload_path: "/alma/patron_employees/"
   upload_host: "upload.lib.berkeley.edu"
   upload_user: "ssullivan"
-  last_alma_purge: "2024-06-30"
-  application_version: "1.6.11"
+  application_version: "1.6.15"
 
 # TODO - flesh this out
 # http://docopt.org/

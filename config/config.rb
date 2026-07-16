@@ -45,7 +45,7 @@ class Config
       @ucpath_fields['job']['fields']
     end
 
-    def student_affiated?(affiliation)
+    def student_affiliated?(affiliation)
       @ldap_fields['student_affiliation'].include? affiliation
     end
 
