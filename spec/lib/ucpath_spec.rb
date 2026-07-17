@@ -389,7 +389,13 @@ describe UCPath::User do
     ldap_id = '7165'
 
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id, fixture: 'multiple_ineligible_jobs.json')
+    stub_ucpath_jobs(
+      id,
+      fixture: 'multiple_ineligible_jobs.json',
+      overrides: {
+        termination_date: (Date.today - 7).iso8601
+      }
+    )
 
     stub_ldap_entries(ldap_id, [
                         { 'sn' => ['test_last_name'] },
@@ -410,10 +416,18 @@ describe UCPath::User do
     expect(u.eligible?).to be(false)
   end
 
-  it 'skips users that have a termination date before the last Alma purge date' do
+  it 'skips users that have a termination date prior to "today - ucpath_limit"' do
     id = '888888888'
+    max_termination_date = Date.today - (Config.setting('ucpath_limit') + 1)
+
     stub_ucpath_user(id)
-    stub_ucpath_jobs(id, fixture: 'terminated_before_purge_jobs.json')
+    stub_ucpath_jobs(
+      id,
+      fixture: 'terminated_before_purge_jobs.json',
+      overrides: {
+        termination_date: max_termination_date
+      }
+    )
 
     u = UCPath::User.new(id)
 

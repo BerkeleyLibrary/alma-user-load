@@ -84,10 +84,17 @@ module UCPath
       #----------------------------------------------------------------#
       # If we have a termination date that is before the last Alma
       # purge date, then we can skip this user
+      #
+      # 2026-07-15: per AP-787 we are no longer using a purge date
+      # instead we're ignoring records if there is a termination date
+      # that is before the current date minus 'ucpath_limit' (settings.yml)
+      # Right now that is set to 14 days. So if we run this on July 15th,
+      # any users with a termnination date prior to July 1st are ignored.
       term_date = @jobs.job.termination_date
+      max_term_date = Date.today - Config.setting('ucpath_limit')
 
-      if term_date && term_date != '' && Date.iso8601(term_date) < Date.parse(Config.setting('last_alma_purge'))
-        logger.info "#{id} - Ineligible: Termination date before #{Config.setting('last_alma_purge')}"
+      if term_date && term_date != '' && Date.iso8601(term_date) < max_term_date
+        logger.info "#{id} - Ineligible: Termination date before #{max_term_date}"
         @eligible = false
         return
       end
@@ -157,7 +164,7 @@ module UCPath
       # STUDENT CHECK - berkeleyeduaffiliations in Student Affiliation (ldap_fields.yml)
       if !priority_job && ldap&.berkeleyeduaffiliations
         ldap.berkeleyeduaffiliations.each do |affiliation|
-          if Config.student_affiated? affiliation
+          if Config.student_affiliated? affiliation
             logger.info "#{id} - Ineligible: ldap student affiliation: #{affiliation}"
             return nil
           end

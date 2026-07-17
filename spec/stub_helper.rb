@@ -74,6 +74,8 @@ def apply_job_overrides!(json_body, overrides)
       job['department']['code'] = value
     when :classification_indc
       job['classification']['code'] = value
+    when :termination_date
+      job['actions']['terminationDate'] = value
     else
       raise ArgumentError, "Unknown job override key: #{key}"
     end
