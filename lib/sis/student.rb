@@ -31,7 +31,7 @@ module SIS
 
     private
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
     def create_user_record
       rec.primary_id = user['student_id']
 
@@ -46,8 +46,10 @@ module SIS
       set_user_group
 
       # EXPIRY_DATE
-      withcncl = user['withcncl'] || ''
-      rec.expiry_date = Helpers::ApplicationHelper.sis_expire_date(withcncl)
+      # 2026-07-30: Per SIS: the easiest way to define if a student is
+      # active or not is using their AFFILIATIONS. If they have an 'active'
+      # affiliation (other than 'ALUMFOREVER') the student is active.
+      rec.expiry_date = Helpers::ApplicationHelper.sis_expire_date(active?)
 
       # PURGE_DATE (expiry date plus one year)
       rec.purge_date = Date.iso8601(rec.expiry_date).next_year.to_s
@@ -61,7 +63,24 @@ module SIS
       # MISC. HARDCODED VALUES
       set_static_values
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:enable Metrics/AbcSize
+
+    def active?
+      # An active student will have a type other than ALUMFORMER AND an ACTIVE status
+      return false unless user['affiliations']
+
+      user['affiliations'].each do |a|
+        type = a['type']['code']
+        status = a['status']['code']
+
+        # ALUMFORMER is NOT an active student - ignore this affiliation
+        next if type == 'ALUMFORMER'
+
+        return true if status == 'ACT'
+      end
+
+      false
+    end
 
     # rubocop:disable Metrics/MethodLength
     def set_user_group

@@ -13,9 +13,9 @@ module Helpers
       expdate
     end
 
-    def sis_expire_date(withcncl = '')
+    def sis_expire_date(active_student)
       return create_expected_end_date if [5, 8, 12].include? Date.today.month
-      return Date.today.to_s if withcncl && withcncl == 'CAN'
+      return Date.today.to_s if active_student == false
 
       create_expected_end_date
     end

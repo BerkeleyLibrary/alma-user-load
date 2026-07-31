@@ -130,6 +130,9 @@ docker build -t alma-user-load .
 
 # Run a specific test (by line number)
 > docker compose -f docker-compose.local.yml run --rm shell bundle exec rspec spec/lib/helpers_spec.rb:34
+
+# Run rubocop via docker:
+> docker compose -f docker-compose.local.yml run --rm shell bundle exec rubocop
 ```
 
 ### For convenience, setup an alias:

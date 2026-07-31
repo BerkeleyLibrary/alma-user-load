@@ -75,22 +75,6 @@
               "fromDate": "1902-02-01"
             }
           ],
-          "affiliations": [
-            {
-              "type": {
-                "code": "GRADUATE",
-                "description": "Graduate Student",
-                "formalDescription": "An individual with a Graduate-based Career/Program/Plan."
-              },
-              "detail": "Active",
-              "status": {
-                "code": "ACT",
-                "description": "Active",
-                "formalDescription": "Active"
-              },
-              "fromDate": "2015-12-15"
-            }
-          ],
           "addresses": [
             {
               "type": {
