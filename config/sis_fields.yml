@@ -110,3 +110,8 @@ SIS:
     - name: campus_uid
       jpath: "$..identifiers[?(@.type=='campus-uid')].id"
       status: OPTIONAL
+
+    - name: affiliations
+      jpath: "$..affiliations"
+      status: REQUIRED
+

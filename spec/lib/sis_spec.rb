@@ -321,13 +321,25 @@ describe SIS::Student do
     end
   end
 
-  it 'sets expiry date to default if student not withcncl and month not May, Aug, Dec' do
+  it 'sets expiry date to default if student is active and month not May, Aug, Dec' do
     allow(Date).to receive(:today).and_return Date.new(2022, 1, 15)
+
+    affiliations = [{
+      'type' => {
+        'code' => 'UNDERGRAD'
+      },
+      'status' => {
+        'code' => 'ACT'
+      },
+      'fromDate' => '2015-12-14'
+    }]
+
     user = {
       'student_id' => '12345',
       'prim_name_givenname' => 'Thor',
       'prim_name_familyname' => 'Odinson',
-      'acadcareer_code' => 'GRAD'
+      'acadcareer_code' => 'GRAD',
+      'affiliations' => affiliations
     }
 
     student = SIS::Student.new user
@@ -335,14 +347,25 @@ describe SIS::Student do
     expect(student.rec.expiry_date).to eq(expected_expiry_date)
   end
 
-  it 'sets expiry date to default if student withcncl is empty string and month not May, Aug, Dec' do
+  it 'sets expiry date to default if student has an active affiliation and month not May, Aug, Dec' do
     allow(Date).to receive(:today).and_return Date.new(2022, 1, 15)
+
+    affiliations = [{
+      'type' => {
+        'code' => 'UNDERGRAD'
+      },
+      'status' => {
+        'code' => 'ACT'
+      },
+      'fromDate' => '2015-12-14'
+    }]
+
     user = {
       'student_id' => '12345',
       'prim_name_givenname' => 'Thor',
       'prim_name_familyname' => 'Odinson',
       'acadcareer_code' => 'GRAD',
-      'withcncl' => ''
+      'affiliations' => affiliations
     }
 
     student = SIS::Student.new user
@@ -414,6 +437,50 @@ describe SIS::Student do
       student = SIS::Student.new user
       expect(student.rec.user_group).to eq(value)
     end
+  end
+
+  it 'sets expiry date to "today" if student has no active affiliations and month not May, Aug, Dec' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 1, 15)
+
+    affiliations = [{
+      'type' => {
+        'code' => 'UNDERGRAD'
+      },
+      'status' => {
+        'code' => 'INA'
+      },
+      'fromDate' => '2015-12-14'
+    }]
+
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD',
+      'affiliations' => affiliations
+    }
+
+    student = SIS::Student.new user
+    expected_expiry_date = '2022-01-15'
+    expect(student.rec.expiry_date).to eq(expected_expiry_date)
+  end
+
+  it 'sets expiry date to "today" if student has no affiliations at all and month not May, Aug, Dec' do
+    allow(Date).to receive(:today).and_return Date.new(2022, 1, 15)
+
+    affiliations = nil
+
+    user = {
+      'student_id' => '12345',
+      'prim_name_givenname' => 'Thor',
+      'prim_name_familyname' => 'Odinson',
+      'acadcareer_code' => 'GRAD',
+      'affiliations' => affiliations
+    }
+
+    student = SIS::Student.new user
+    expected_expiry_date = '2022-01-15'
+    expect(student.rec.expiry_date).to eq(expected_expiry_date)
   end
 end
 # rubocop:enable Metrics/BlockLength
