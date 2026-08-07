@@ -102,3 +102,4 @@ fte_check_exclusions:
   - "CWR015"
   - "CWR003"
   - "CWR016"
+  - "001550"
