@@ -6,7 +6,7 @@ settings:
   ucpath_upload_path: "/alma/patron_employees/"
   upload_host: "upload.lib.berkeley.edu"
   upload_user: "ssullivan"
-  application_version: "1.6.16"
+  application_version: "1.6.18"
 
 # TODO - flesh this out
 # http://docopt.org/
