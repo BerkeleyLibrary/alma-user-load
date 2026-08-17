@@ -80,23 +80,29 @@ module SIS
     # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/BlockLength
     def fetch_by_term(term_id, as_of_date = nil)
       raw_users = []
-
       current_page = 0
+
+      # AP-827 : (2026-08-14)
+      # We've recently encountered duplicate Student_IDs (aka primary_ids) in the XML, local tests have failed
+      # to reproduce the error, so adding a "seen_ids" to log and skip any duplicates we encounter.
+      seen_ids = {}
 
       loop do
         current_page += 1
 
-        logger.info "  Page: #{current_page}"
+        # current_page = 1000 if current_page >= 5
+
+        logger.info "Fetching page: #{current_page}"
 
         req = create_request(term_id, current_page, as_of_date)
 
-        res = ''
-        response = ''
+        res = nil
+        response = nil
 
         # We should give it 4 or 5 tries when hitting the API
         # since they've sort of hosed their API in the past.
         (1..5).each do |i|
-          logger.info "    attempt: #{i}"
+          logger.info "    attempt: #{i}" if i > 1
 
           res = sis_fetch(req, 'json')
 
@@ -117,11 +123,11 @@ module SIS
         break loop if status != '200'
 
         # Extract the students array from the response
-        students = response['apiResponse']['response']['students'] || 0
+        students = response['apiResponse']['response']['students'] || []
 
-        errors = false
+        students.each do |student|
+          errors = false
 
-        students.each_with_index do |student, _idx|
           # Bundle this student's data into a hash
           s = {}
 
@@ -142,7 +148,22 @@ module SIS
             end
           end
 
-          raw_users.push(s) unless errors
+          next if errors
+
+          student_id = s['student_id']
+
+          # If we've seen this student already - log it and skip it!
+          if seen_ids[student_id]
+            logger.warn(
+              "DUPLICATE SIS STUDENT #{student_id}: " \
+              "first seen on page #{seen_ids[student_id]}, " \
+              "seen again on page #{current_page}; skipping duplicate"
+            )
+            next
+          end
+
+          seen_ids[student_id] = current_page
+          raw_users.push(s)
         end
       end
 

@@ -102,8 +102,14 @@ def stub_past_sis_data(term_id, as_of_date, page_num)
   stub_get(sis_past_data_url(term_id, as_of_date, page_num), status: 200, body: fixture_body('sis', "past_#{term_id}_#{page_num}.json"))
 end
 
-def stub_sis_data(term_id, page_num)
-  stub_get(sis_data_url(term_id, page_num), status: 200, body: fixture_body('sis', "term_#{term_id}_#{page_num}.json"))
+def stub_sis_data(term_id, page_num, fixture: nil)
+  fixture ||= "term_#{term_id}_#{page_num}.json"
+
+  stub_get(
+    sis_data_url(term_id, page_num),
+    status: 200,
+    body: fixture_body('sis', fixture)
+  )
 end
 
 def stub_missing_sis_data(term_id, page_num)

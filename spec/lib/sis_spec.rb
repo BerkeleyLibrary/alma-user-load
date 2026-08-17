@@ -107,6 +107,30 @@ describe SIS::API do
     expect(users.count).to eq(2)
   end
 
+  it 'logs and skips duplicate student IDs' do
+    term_id = '2222'
+
+    stub_sis_data(term_id, 1)
+    stub_sis_data(term_id, 2, fixture: 'term_2222_1.json')
+
+    stub_get(
+      sis_data_url(term_id, 3),
+      status: 404
+    )
+
+    allow(SIS::API.logger).to receive(:warn)
+
+    users = SIS::API.fetch_by_term(term_id)
+
+    student_ids = users.map { |user| user['student_id'] }
+
+    expect(student_ids.count('10162050')).to eq(1)
+
+    expect(SIS::API.logger).to have_received(:warn).with(
+      /DUPLICATE SIS STUDENT 10162050: first seen on page 1, seen again on page 2; skipping duplicate/
+    )
+  end
+
   it 'returns the correct term code for summer term' do
     allow(Date).to receive(:today).and_return Date.new(2022, 6, 15)
     expected_term = '2225'
