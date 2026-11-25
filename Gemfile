@@ -22,7 +22,7 @@ gem 'base64'
 gem 'ostruct'
 
 # Alma requires XML for their sync
-gem 'nokogiri', '~> 1.12', '>= 1.12.5'
+gem 'nokogiri', '~> 1.19', '>= 1.19.5'
 
 # AND the file has to be zipped
 gem 'rubyzip', '~> 2.3.2'
